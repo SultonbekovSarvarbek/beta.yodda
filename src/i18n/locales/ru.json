@@ -65,7 +65,8 @@
     "submit": "Отправить",
     "male": "Мужской",
     "female": "Женский",
-    "other": "Другое"
+    "other": "Другое",
+    "noResults": "Результаты не найдены"
   },
   "beTutorForm": {
     "title": "Регистрация репетитора",
@@ -90,6 +91,15 @@
     "selectSubjects": "Выберите предметы",
     "experienceYears": "Опыт работы (лет)",
     "education": "Образование",
+    "educationSection": "Образование",
+    "universityName": "Образование (название ВУЗа)",
+    "universityNamePlaceholder": "Например: МГУ им. М.В. Ломоносова",
+    "masterDegree": "Магистратура",
+    "masterDegreePlaceholder": "Укажите вашу степень магистра",
+    "mba": "Укажите MBA, если имеется (необязательно)",
+    "mbaPlaceholder": "Например: MBA Harvard Business School",
+    "teachingLanguages": "Языки обучения",
+    "selectTeachingLanguages": "Укажите язык, на котором вы будете объяснять материал студенту",
     "certifications": "Сертификаты",
     "pricePerHour": "Цена за час",
     "availability": "Доступность",
@@ -98,6 +108,20 @@
     "offline": "Оффлайн",
     "both": "Оба",
     "location": "Местоположение",
+    "onlineLessonSettings": "Формат занятий - Online",
+    "onlinePrice": "Цена за онлайн урок",
+    "onlinePricePlaceholder": "Укажите цену в сумах",
+    "lessonDuration": "Длительность урока",
+    "selectDuration": "Выберите длительность",
+    "duration1h": "1 час",
+    "duration1_5h": "1.5 часа",
+    "duration2h": "2 часа",
+    "duration2_5h": "2.5 часа",
+    "duration3h": "3 часа",
+    "availableDays": "Доступные дни",
+    "selectAvailableDays": "Выберите дни недели",
+    "timeSlots": "Доступное время",
+    "timeSlotsDescription": "Выберите временные слоты для каждого дня (8:00 - 22:00)",
     "bio": "О себе",
     "languages": "Языки",
     "additionalInfo": "Дополнительная информация",
@@ -134,5 +158,21 @@
     "contact": "Контакты",
     "followUs": "Следите за нами",
     "allRightsReserved": "Все права защищены"
+  },
+  "languages": {
+    "russian": "Русский",
+    "uzbek": "Узбекский",
+    "english": "Английский",
+    "kazakh": "Казахский",
+    "turkish": "Турецкий"
+  },
+  "days": {
+    "monday": "Понедельник",
+    "tuesday": "Вторник",
+    "wednesday": "Среда",
+    "thursday": "Четверг",
+    "friday": "Пятница",
+    "saturday": "Суббота",
+    "sunday": "Воскресенье"
   }
 }
