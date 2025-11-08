@@ -6,7 +6,7 @@ export function SearchBar() {
     <div className="flex justify-center py-6 px-4">
       <div className="flex items-center bg-background rounded-full border shadow-lg max-w-4xl w-full">
         {/* Where */}
-        <button className="flex-1 px-6 py-3 text-left hover:bg-muted rounded-full transition-colors">
+        <button className="flex-1 px-6 py-3 text-left hover:bg-muted rounded-full transition-colors cursor-pointer">
           <div className="text-xs font-semibold">Where</div>
           <div className="text-sm text-muted-foreground">Search location</div>
         </button>
@@ -14,7 +14,7 @@ export function SearchBar() {
         <Separator orientation="vertical" className="h-8" />
 
         {/* Check in */}
-        <button className="flex-1 px-6 py-3 text-left hover:bg-muted transition-colors">
+        <button className="flex-1 px-6 py-3 text-left hover:bg-muted transition-colors cursor-pointer">
           <div className="text-xs font-semibold">Start Date</div>
           <div className="text-sm text-muted-foreground">Add dates</div>
         </button>
@@ -22,7 +22,7 @@ export function SearchBar() {
         <Separator orientation="vertical" className="h-8" />
 
         {/* Check out */}
-        <button className="flex-1 px-6 py-3 text-left hover:bg-muted transition-colors">
+        <button className="flex-1 px-6 py-3 text-left hover:bg-muted transition-colors cursor-pointer">
           <div className="text-xs font-semibold">End Date</div>
           <div className="text-sm text-muted-foreground">Add dates</div>
         </button>
@@ -31,7 +31,7 @@ export function SearchBar() {
 
         {/* Who */}
         <div className="flex items-center gap-3 pr-2 flex-1">
-          <button className="flex-1 px-6 py-3 text-left hover:bg-muted rounded-full transition-colors">
+          <button className="flex-1 px-6 py-3 text-left hover:bg-muted rounded-full transition-colors cursor-pointer">
             <div className="text-xs font-semibold">Who</div>
             <div className="text-sm text-muted-foreground">Add students</div>
           </button>

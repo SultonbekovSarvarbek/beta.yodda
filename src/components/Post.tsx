@@ -75,7 +75,7 @@ export function Post({ post }: PostProps) {
           placeholder={t('post.addComment')}
           className="flex-1 outline-none text-sm"
         />
-        <button className="text-blue-500 font-semibold text-sm">{t('post.post')}</button>
+        <button className="text-blue-500 font-semibold text-sm cursor-pointer">{t('post.post')}</button>
       </div>
     </div>
   );
