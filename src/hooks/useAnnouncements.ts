@@ -9,7 +9,9 @@ interface UseAnnouncementsResult {
   currentPage: number;
   totalPages: number;
   total: number;
-  fetchMore: () => Promise<void>;
+  goToPage: (page: number) => Promise<void>;
+  nextPage: () => Promise<void>;
+  prevPage: () => Promise<void>;
   hasMore: boolean;
   refetch: () => Promise<void>;
 }
@@ -22,19 +24,14 @@ export function useAnnouncements(): UseAnnouncementsResult {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const fetchData = useCallback(async (page: number, append: boolean = false) => {
+  const fetchData = useCallback(async (page: number) => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await getAnnouncements(page);
 
-      if (append) {
-        setData((prev) => [...prev, ...response.data]);
-      } else {
-        setData(response.data);
-      }
-
+      setData(response.data);
       setCurrentPage(response.meta.current_page);
       setTotalPages(response.meta.last_page);
       setTotal(response.meta.total);
@@ -54,17 +51,31 @@ export function useAnnouncements(): UseAnnouncementsResult {
     fetchData(1);
   }, [fetchData]);
 
-  // Fetch more (pagination)
-  const fetchMore = useCallback(async () => {
+  // Go to specific page
+  const goToPage = useCallback(async (page: number) => {
+    if (page >= 1 && page <= totalPages && !loading) {
+      await fetchData(page);
+    }
+  }, [totalPages, loading, fetchData]);
+
+  // Next page
+  const nextPage = useCallback(async () => {
     if (currentPage < totalPages && !loading) {
-      await fetchData(currentPage + 1, true);
+      await fetchData(currentPage + 1);
     }
   }, [currentPage, totalPages, loading, fetchData]);
 
-  // Refetch from the beginning
+  // Previous page
+  const prevPage = useCallback(async () => {
+    if (currentPage > 1 && !loading) {
+      await fetchData(currentPage - 1);
+    }
+  }, [currentPage, loading, fetchData]);
+
+  // Refetch current page
   const refetch = useCallback(async () => {
-    await fetchData(1, false);
-  }, [fetchData]);
+    await fetchData(currentPage);
+  }, [currentPage, fetchData]);
 
   const hasMore = currentPage < totalPages;
 
@@ -75,7 +86,9 @@ export function useAnnouncements(): UseAnnouncementsResult {
     currentPage,
     totalPages,
     total,
-    fetchMore,
+    goToPage,
+    nextPage,
+    prevPage,
     hasMore,
     refetch,
   };

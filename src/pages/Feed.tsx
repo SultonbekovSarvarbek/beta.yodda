@@ -1,7 +1,28 @@
 import { FeedLayout } from '@/components/FeedLayout';
+import { useAnnouncements } from '@/hooks/useAnnouncements';
 import { stories } from '@/data/stories';
-import { posts } from '@/data/posts';
 
 export function Feed() {
-  return <FeedLayout stories={stories} posts={posts} />;
+  const {
+    data: announcements,
+    loading,
+    error,
+    currentPage,
+    totalPages,
+    goToPage,
+    refetch,
+  } = useAnnouncements();
+
+  return (
+    <FeedLayout
+      stories={stories}
+      announcements={announcements}
+      loading={loading}
+      error={error}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={goToPage}
+      onRetry={refetch}
+    />
+  );
 }

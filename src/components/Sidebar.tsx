@@ -1,4 +1,4 @@
-import { Home, Search, Film, MessageCircle, Heart, User, Menu } from 'lucide-react';
+import { Home, Search, Film, MessageCircle, User, Menu } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';

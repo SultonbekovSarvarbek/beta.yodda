@@ -1,77 +1,36 @@
-import { useState } from 'react';
 import { StoriesContainer } from './StoriesContainer';
-import { Post } from './Post';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationEllipsis,
-} from '@/components/ui/pagination';
-import type { Story, Post as PostType } from '@/types/social';
+import { TutorCard } from './TutorCard';
+import { LoadingSpinner } from './LoadingSpinner';
+import { ErrorMessage } from './ErrorMessage';
+import { Pagination } from './Pagination';
+import type { Story } from '@/types/social';
+import type { Tutor } from '@/types/tutor';
 
 interface FeedContentProps {
   stories: Story[];
-  posts: PostType[];
+  announcements: Tutor[];
+  loading: boolean;
+  error: string | null;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  onRetry: () => void;
 }
 
-const POSTS_PER_PAGE = 2;
-
-export function FeedContent({ stories, posts }: FeedContentProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-
-  // Calculate total pages
-  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
-
-  // Get current posts for the page
-  const indexOfLastPost = currentPage * POSTS_PER_PAGE;
-  const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
-  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
-
-  // Handle page change
+export function FeedContent({
+  stories,
+  announcements,
+  loading,
+  error,
+  currentPage,
+  totalPages,
+  onPageChange,
+  onRetry,
+}: FeedContentProps) {
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    onPageChange(page);
     // Scroll to top of feed
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // Generate page numbers to display
-  const getPageNumbers = () => {
-    const pageNumbers: (number | 'ellipsis')[] = [];
-    const maxVisiblePages = 5;
-
-    if (totalPages <= maxVisiblePages) {
-      // Show all pages if total is less than max visible
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-      }
-    } else {
-      // Always show first page
-      pageNumbers.push(1);
-
-      if (currentPage > 3) {
-        pageNumbers.push('ellipsis');
-      }
-
-      // Show pages around current page
-      const startPage = Math.max(2, currentPage - 1);
-      const endPage = Math.min(totalPages - 1, currentPage + 1);
-
-      for (let i = startPage; i <= endPage; i++) {
-        pageNumbers.push(i);
-      }
-
-      if (currentPage < totalPages - 2) {
-        pageNumbers.push('ellipsis');
-      }
-
-      // Always show last page
-      pageNumbers.push(totalPages);
-    }
-
-    return pageNumbers;
   };
 
   return (
@@ -79,60 +38,43 @@ export function FeedContent({ stories, posts }: FeedContentProps) {
       {/* Stories */}
       <StoriesContainer stories={stories} />
 
-      {/* Posts */}
-      <div>
-        {currentPosts.map((post) => (
-          <Post key={post.id} post={post} />
-        ))}
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="mt-8 mb-8">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                  className={
-                    currentPage === 1
-                      ? 'pointer-events-none opacity-50'
-                      : 'cursor-pointer'
-                  }
-                />
-              </PaginationItem>
-
-              {getPageNumbers().map((pageNumber, index) => (
-                <PaginationItem key={index}>
-                  {pageNumber === 'ellipsis' ? (
-                    <PaginationEllipsis />
-                  ) : (
-                    <PaginationLink
-                      onClick={() => handlePageChange(pageNumber)}
-                      isActive={currentPage === pageNumber}
-                      className="cursor-pointer"
-                    >
-                      {pageNumber}
-                    </PaginationLink>
-                  )}
-                </PaginationItem>
-              ))}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() =>
-                    handlePageChange(Math.min(totalPages, currentPage + 1))
-                  }
-                  className={
-                    currentPage === totalPages
-                      ? 'pointer-events-none opacity-50'
-                      : 'cursor-pointer'
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+      {/* Loading State */}
+      {loading && (
+        <div className="py-12">
+          <LoadingSpinner size="lg" />
         </div>
+      )}
+
+      {/* Error State */}
+      {error && !loading && (
+        <div className="py-8">
+          <ErrorMessage message={error} onRetry={onRetry} />
+        </div>
+      )}
+
+      {/* Announcements */}
+      {!loading && !error && (
+        <>
+          <div className="grid grid-cols-1 gap-6">
+            {announcements.map((announcement) => (
+              <TutorCard key={announcement.id} tutor={announcement} />
+            ))}
+          </div>
+
+          {announcements.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              No tutors found.
+            </div>
+          )}
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            loading={loading}
+          />
+        </>
       )}
     </div>
   );

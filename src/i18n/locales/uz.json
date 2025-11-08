@@ -134,5 +134,12 @@
     "contact": "Aloqa",
     "followUs": "Bizni kuzatib boring",
     "allRightsReserved": "Barcha huquqlar himoyalangan"
+  },
+  "tutorCard": {
+    "reviews": "sharhlar",
+    "perHour": "soat",
+    "viewProfile": "Profilni ko'rish",
+    "bookLesson": "Yozilish",
+    "yearsExperience": "yillik tajriba"
   }
 }

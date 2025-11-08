@@ -1,105 +1,138 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import type { Tutor } from '@/types/tutor';
-import { cn } from '@/lib/utils';
+import { Check, Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TutorCardProps {
   tutor: Tutor;
 }
 
 export function TutorCard({ tutor }: TutorCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { t } = useTranslation();
+  const [liked, setLiked] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   return (
-    <Card className="overflow-hidden border-0 shadow-none group cursor-pointer">
-      {/* Image Container */}
-      <div className="relative aspect-square overflow-hidden rounded-xl mb-3">
-        <img
-          src={tutor.image || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}
-          alt={tutor.fullname}
-          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-        />
-
-        {/* Favorite Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn(
-            'absolute top-3 right-3 rounded-full bg-background/80 hover:bg-background backdrop-blur-sm',
-            'h-8 w-8 transition-colors'
-          )}
-          onClick={(e) => {
-            e.preventDefault();
-            setIsFavorite(!isFavorite);
-          }}
-        >
-          <svg
-            className={cn(
-              'h-5 w-5 transition-colors',
-              isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-current fill-none'
-            )}
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+    <Card className="overflow-hidden border rounded-xl bg-white shadow-none">
+      {/* Header - Instagram Post Header Style */}
+      <div className="flex items-center justify-between px-4">
+        <div className="flex items-center gap-3">
+          <Avatar className="w-10 h-10">
+            <AvatarImage
+              src={tutor.image || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}
+              alt={tutor.fullname}
             />
-          </svg>
-        </Button>
+            <AvatarFallback className="text-sm font-semibold bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+              {tutor.fullname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+            </AvatarFallback>
+          </Avatar>
 
-        {/* Verified Badge */}
-        {tutor.verified && (
-          <Badge className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm text-foreground border-0">
-            ✓ Verified
-          </Badge>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="space-y-1">
-        {/* Location and Rating */}
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-sm truncate">{tutor.city.name}</span>
-          <div className="flex items-center gap-1 text-sm">
-            <svg
-              className="h-4 w-4 fill-current"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-            </svg>
-            <span className="font-medium">{tutor.rate.toFixed(2)}</span>
-            {tutor.reviewCount && (
-              <span className="text-muted-foreground">({tutor.reviewCount})</span>
-            )}
+          <div className="flex flex-col">
+            <div className="flex items-center gap-1">
+              <span className="font-semibold text-sm">{tutor.fullname}</span>
+              <div className="flex items-center justify-center w-4 h-4 bg-blue-500 rounded-full">
+                <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              {tutor.subjects.length > 0 && (
+                <span>{tutor.subjects[0].name}</span>
+              )}
+              {tutor.subjects.length > 0 && (
+                <span>•</span>
+              )}
+              <span>{tutor.city.name}</span>
+            </div>
           </div>
         </div>
 
-        {/* Name */}
-        <div className="text-sm text-muted-foreground truncate">{tutor.fullname}</div>
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <MoreHorizontal className="w-5 h-5" />
+        </Button>
+      </div>
 
-        {/* Subjects */}
-        <div className="text-sm text-muted-foreground truncate">
-          {tutor.subjects.slice(0, 2).map(s => s.name).join(', ')}
-          {tutor.subjects.length > 2 && '...'}
+      {/* Main Image - Square */}
+      <div className="relative aspect-square bg-gray-100">
+        <img
+          src={tutor.image || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=800&fit=crop'}
+          alt={tutor.fullname}
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Action Buttons - Instagram Style */}
+      <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setLiked(!liked)}
+            className="transition-transform hover:scale-110 active:scale-95"
+          >
+            <Heart
+              className={`w-6 h-6 ${
+                liked ? 'fill-red-500 text-red-500' : 'text-gray-900'
+              }`}
+            />
+          </button>
+          <button className="transition-transform hover:scale-110 active:scale-95">
+            <MessageCircle className="w-6 h-6 text-gray-900" />
+          </button>
+          <button className="transition-transform hover:scale-110 active:scale-95">
+            <Send className="w-6 h-6 text-gray-900" />
+          </button>
+        </div>
+
+        <button
+          onClick={() => setSaved(!saved)}
+          className="transition-transform hover:scale-110 active:scale-95"
+        >
+          <Bookmark
+            className={`w-6 h-6 ${
+              saved ? 'fill-gray-900 text-gray-900' : 'text-gray-900'
+            }`}
+          />
+        </button>
+      </div>
+
+      {/* Content Section */}
+      <div className="px-4 space-y-2">
+        {/* Rating */}
+        <div className="flex items-center gap-1 text-sm">
+          <span className="font-semibold">⭐ {tutor.rate.toFixed(1)}</span>
+          {tutor.reviewCount && (
+            <span className="text-gray-500">• {tutor.reviewCount} {t('tutorCard.reviews', 'reviews')}</span>
+          )}
+        </div>
+
+        {/* Subjects and Bio */}
+        <div className="text-sm">
+          <span className="font-semibold">{tutor.fullname}</span>{' '}
+          <span className="text-gray-900">
+            {tutor.subjects.map(s => s.name).join(', ')}
+          </span>
         </div>
 
         {/* Price */}
-        <div className="text-sm pt-1">
+        <div className="text-sm font-semibold text-gray-900">
           {tutor.min_price === tutor.max_price ? (
-            <>
-              <span className="font-semibold">{tutor.min_price.toLocaleString()} sum</span>
-              <span className="text-muted-foreground"> / hour</span>
-            </>
+            <span>{tutor.min_price.toLocaleString()} sum/{t('tutorCard.perHour', 'hour')}</span>
           ) : (
-            <>
-              <span className="font-semibold">{tutor.min_price.toLocaleString()}-{tutor.max_price.toLocaleString()} sum</span>
-              <span className="text-muted-foreground"> / hour</span>
-            </>
+            <span>
+              {tutor.min_price.toLocaleString()}-{tutor.max_price.toLocaleString()} sum/{t('tutorCard.perHour', 'hour')}
+            </span>
           )}
+        </div>
+
+        {/* View Profile Link */}
+        <button className="text-sm text-gray-500 hover:text-gray-700">
+          {t('tutorCard.viewProfile', 'View profile')}
+        </button>
+
+        {/* Experience */}
+        <div className="text-xs text-gray-400 uppercase">
+          {tutor.experience} {t('tutorCard.yearsExperience', 'years experience')}
         </div>
       </div>
     </Card>

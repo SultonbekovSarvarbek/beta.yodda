@@ -159,6 +159,13 @@
     "followUs": "Следите за нами",
     "allRightsReserved": "Все права защищены"
   },
+  "tutorCard": {
+    "reviews": "отзывов",
+    "perHour": "час",
+    "viewProfile": "Смотреть профиль",
+    "bookLesson": "Записаться",
+    "yearsExperience": "лет опыта"
+  },
   "languages": {
     "russian": "Русский",
     "uzbek": "Узбекский",
