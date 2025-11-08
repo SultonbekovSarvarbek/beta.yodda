@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import type { Tutor } from '@/types/tutor';
 import { Check, Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 interface TutorCardProps {
@@ -31,10 +32,16 @@ export function TutorCard({ tutor }: TutorCardProps) {
           </Avatar>
 
           <div className="flex flex-col">
-            <div className="flex items-center gap-1">
-              <span className="font-semibold text-sm">{tutor.fullname}</span>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/tutor/$id"
+                params={{ id: tutor.id.toString() }}
+                className="font-semibold text-sm hover:underline cursor-pointer"
+              >
+                {tutor.fullname}
+              </Link>
               <div className="flex items-center justify-center w-4 h-4 bg-blue-500 rounded-full">
-                <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
               </div>
             </div>
             <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -126,9 +133,13 @@ export function TutorCard({ tutor }: TutorCardProps) {
         </div>
 
         {/* View Profile Link */}
-        <button className="text-sm text-gray-500 hover:text-gray-700">
+        <Link
+          to="/tutor/$id"
+          params={{ id: tutor.id.toString() }}
+          className="text-sm text-gray-500 hover:text-gray-700 hover:underline"
+        >
           {t('tutorCard.viewProfile', 'View profile')}
-        </button>
+        </Link>
 
         {/* Experience */}
         <div className="text-xs text-gray-400 uppercase">

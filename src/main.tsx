@@ -15,6 +15,8 @@ import reportWebVitals from './reportWebVitals.ts'
 
 import { Feed } from './pages/Feed.tsx'
 import { BeTutor } from './pages/BeTutor.tsx'
+import { Tutors } from './pages/Tutors.tsx'
+import { TutorProfile } from './pages/TutorProfile.tsx'
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -37,7 +39,19 @@ const beTutorRoute = createRoute({
   component: BeTutor,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, beTutorRoute])
+const tutorsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/tutors',
+  component: Tutors,
+})
+
+const tutorProfileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/tutor/$id',
+  component: TutorProfile,
+})
+
+const routeTree = rootRoute.addChildren([indexRoute, beTutorRoute, tutorsRoute, tutorProfileRoute])
 
 const router = createRouter({
   routeTree,

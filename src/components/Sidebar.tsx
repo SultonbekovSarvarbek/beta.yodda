@@ -1,4 +1,4 @@
-import { Home, Search, Film, MessageCircle, User, Menu } from 'lucide-react';
+import { Home, Search, Film, MessageCircle, User, Menu, Users } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 interface NavItem {
   icon: React.ReactNode;
   labelKey: string;
-  active?: boolean;
   to?: string;
 }
 
@@ -16,8 +15,9 @@ export function Sidebar() {
   const { t } = useTranslation();
 
   const navItems: NavItem[] = [
-    { icon: <Home className="w-6 h-6" />, labelKey: 'sidebar.home', active: true, to: '/' },
+    { icon: <Home className="w-6 h-6" />, labelKey: 'sidebar.home', to: '/' },
     { icon: <Search className="w-6 h-6" />, labelKey: 'sidebar.search' },
+    { icon: <Users className="w-6 h-6" />, labelKey: 'sidebar.allTutors', to: '/tutors' },
     { icon: <Film className="w-6 h-6" />, labelKey: 'sidebar.reels' },
     { icon: <MessageCircle className="w-6 h-6" />, labelKey: 'sidebar.messages' },
     // { icon: <Heart className="w-6 h-6" />, labelKey: 'sidebar.notifications' },
@@ -45,25 +45,28 @@ export function Sidebar() {
           );
 
           return item.to ? (
-            <Link key={item.labelKey} to={item.to} className="block cursor-pointer">
-              <Button
-                variant="ghost"
-                className={cn(
-                  'w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100 cursor-pointer',
-                  item.active && 'font-bold'
-                )}
-              >
-                {content}
-              </Button>
+            <Link
+              key={item.labelKey}
+              to={item.to}
+              className="block cursor-pointer"
+            >
+              {({ isActive }) => (
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100 cursor-pointer",
+                    isActive && "font-bold"
+                  )}
+                >
+                  {content}
+                </Button>
+              )}
             </Link>
           ) : (
             <Button
               key={item.labelKey}
               variant="ghost"
-              className={cn(
-                'w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100 cursor-pointer',
-                item.active && 'font-bold'
-              )}
+              className="w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100 cursor-pointer"
             >
               {content}
             </Button>
