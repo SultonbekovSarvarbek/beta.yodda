@@ -20,7 +20,7 @@ export function Sidebar() {
     { icon: <Search className="w-6 h-6" />, labelKey: 'sidebar.search' },
     { icon: <Film className="w-6 h-6" />, labelKey: 'sidebar.reels' },
     { icon: <MessageCircle className="w-6 h-6" />, labelKey: 'sidebar.messages' },
-    { icon: <Heart className="w-6 h-6" />, labelKey: 'sidebar.notifications' },
+    // { icon: <Heart className="w-6 h-6" />, labelKey: 'sidebar.notifications' },
     { icon: <User className="w-6 h-6" />, labelKey: 'sidebar.forParents' },
     { icon: <User className="w-6 h-6" />, labelKey: 'sidebar.forTutors', to: '/be-tutor' },
   ];

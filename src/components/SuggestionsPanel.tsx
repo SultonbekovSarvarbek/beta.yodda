@@ -66,7 +66,7 @@ export function SuggestionsPanel() {
             <span className="text-sm text-gray-500">{t('suggestions.yourProfile')}</span>
           </div>
         </div>
-        <Button variant="ghost" className="text-blue-500 font-semibold text-xs h-auto p-0 hover:bg-transparent">
+        <Button variant="ghost" className="text-red-500 font-semibold text-xs h-auto p-0 hover:bg-transparent hover:text-red-600">
           {t('suggestions.logout')}
         </Button>
       </div>
