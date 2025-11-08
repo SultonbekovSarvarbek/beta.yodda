@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/select';
 import { AvatarUpload } from './AvatarUpload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MultiSelect } from '@/components/ui/multi-select';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface FormData {
   avatar: File | null;
@@ -27,14 +29,37 @@ interface FormData {
   subjects: string[];
   experienceYears: string;
   education: string;
+  universityName: string;
+  masterDegree: string;
+  mba: string;
+  teachingLanguages: string[];
   certifications: string;
   pricePerHour: string;
+  onlinePrice: string;
+  lessonDuration: string;
+  availableDays: string[];
+  timeSlots: { day: string; time: string }[];
   teachingFormat: string;
   location: string;
   bio: string;
   languages: string;
   additionalInfo: string;
 }
+
+// Helper function to generate time slots based on duration
+const generateTimeSlots = (duration: number): string[] => {
+  const slots: string[] = [];
+  const startHour = 8;
+  const endHour = 22;
+
+  for (let hour = startHour; hour + duration <= endHour; hour += duration) {
+    const startTime = `${hour.toString().padStart(2, '0')}:00`;
+    const endTime = `${(hour + duration).toString().padStart(2, '0')}:00`;
+    slots.push(`${startTime} - ${endTime}`);
+  }
+
+  return slots;
+};
 
 export function BeTutorForm() {
   const { t } = useTranslation();
@@ -53,8 +78,16 @@ export function BeTutorForm() {
     subjects: [],
     experienceYears: '',
     education: '',
+    universityName: '',
+    masterDegree: '',
+    mba: '',
+    teachingLanguages: [],
     certifications: '',
     pricePerHour: '',
+    onlinePrice: '',
+    lessonDuration: '',
+    availableDays: [],
+    timeSlots: [],
     teachingFormat: '',
     location: '',
     bio: '',
@@ -275,6 +308,57 @@ export function BeTutorForm() {
                   </div>
                 </div>
 
+                <div className="space-y-4 border-t pt-4">
+                  <h3 className="text-lg font-semibold">{t('beTutorForm.educationSection')}</h3>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="universityName">{t('beTutorForm.universityName')}</Label>
+                    <Input
+                      id="universityName"
+                      value={formData.universityName}
+                      onChange={(e) => handleInputChange('universityName', e.target.value)}
+                      placeholder={t('beTutorForm.universityNamePlaceholder')}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="masterDegree">{t('beTutorForm.masterDegree')}</Label>
+                    <Input
+                      id="masterDegree"
+                      value={formData.masterDegree}
+                      onChange={(e) => handleInputChange('masterDegree', e.target.value)}
+                      placeholder={t('beTutorForm.masterDegreePlaceholder')}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="mba">{t('beTutorForm.mba')}</Label>
+                    <Input
+                      id="mba"
+                      value={formData.mba}
+                      onChange={(e) => handleInputChange('mba', e.target.value)}
+                      placeholder={t('beTutorForm.mbaPlaceholder')}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="teachingLanguages">{t('beTutorForm.teachingLanguages')}</Label>
+                    <MultiSelect
+                      options={[
+                        { label: t('languages.russian'), value: 'russian' },
+                        { label: t('languages.uzbek'), value: 'uzbek' },
+                        { label: t('languages.english'), value: 'english' },
+                        { label: t('languages.kazakh'), value: 'kazakh' },
+                        { label: t('languages.turkish'), value: 'turkish' },
+                      ]}
+                      selected={formData.teachingLanguages}
+                      onChange={(selected) => handleInputChange('teachingLanguages', selected)}
+                      placeholder={t('beTutorForm.selectTeachingLanguages')}
+                      emptyText={t('common.noResults')}
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="certifications">{t('beTutorForm.certifications')}</Label>
                   <Input
@@ -325,6 +409,122 @@ export function BeTutorForm() {
                     value={formData.location}
                     onChange={(e) => handleInputChange('location', e.target.value)}
                   />
+                </div>
+
+                {/* Online Lesson Settings */}
+                <div className="space-y-4 border-t pt-4">
+                  <h3 className="text-lg font-semibold">{t('beTutorForm.onlineLessonSettings')}</h3>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="onlinePrice">{t('beTutorForm.onlinePrice')}</Label>
+                    <Input
+                      id="onlinePrice"
+                      type="number"
+                      value={formData.onlinePrice}
+                      onChange={(e) => handleInputChange('onlinePrice', e.target.value)}
+                      placeholder={t('beTutorForm.onlinePricePlaceholder')}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="lessonDuration">{t('beTutorForm.lessonDuration')}</Label>
+                    <Select
+                      value={formData.lessonDuration}
+                      onValueChange={(value) => {
+                        handleInputChange('lessonDuration', value);
+                        // Reset time slots when duration changes
+                        handleInputChange('timeSlots', []);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('beTutorForm.selectDuration')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">{t('beTutorForm.duration1h')}</SelectItem>
+                        <SelectItem value="1.5">{t('beTutorForm.duration1_5h')}</SelectItem>
+                        <SelectItem value="2">{t('beTutorForm.duration2h')}</SelectItem>
+                        <SelectItem value="2.5">{t('beTutorForm.duration2_5h')}</SelectItem>
+                        <SelectItem value="3">{t('beTutorForm.duration3h')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="availableDays">{t('beTutorForm.availableDays')}</Label>
+                    <MultiSelect
+                      options={[
+                        { label: t('days.monday'), value: 'monday' },
+                        { label: t('days.tuesday'), value: 'tuesday' },
+                        { label: t('days.wednesday'), value: 'wednesday' },
+                        { label: t('days.thursday'), value: 'thursday' },
+                        { label: t('days.friday'), value: 'friday' },
+                        { label: t('days.saturday'), value: 'saturday' },
+                        { label: t('days.sunday'), value: 'sunday' },
+                      ]}
+                      selected={formData.availableDays}
+                      onChange={(selected) => {
+                        handleInputChange('availableDays', selected);
+                        // Reset time slots when days change
+                        handleInputChange('timeSlots', []);
+                      }}
+                      placeholder={t('beTutorForm.selectAvailableDays')}
+                      emptyText={t('common.noResults')}
+                    />
+                  </div>
+
+                  {/* Time Slots Selection */}
+                  {formData.lessonDuration && formData.availableDays.length > 0 && (
+                    <div className="space-y-4">
+                      <Label>{t('beTutorForm.timeSlots')}</Label>
+                      <div className="text-sm text-muted-foreground mb-2">
+                        {t('beTutorForm.timeSlotsDescription')}
+                      </div>
+                      {formData.availableDays.map((day) => (
+                        <div key={day} className="space-y-2 p-4 border rounded-lg">
+                          <h4 className="font-medium capitalize">{t(`days.${day}`)}</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                            {generateTimeSlots(parseFloat(formData.lessonDuration)).map((slot) => {
+                              const isSelected = formData.timeSlots.some(
+                                (ts) => ts.day === day && ts.time === slot
+                              );
+                              return (
+                                <div
+                                  key={`${day}-${slot}`}
+                                  className="flex items-center space-x-2"
+                                >
+                                  <Checkbox
+                                    id={`${day}-${slot}`}
+                                    checked={isSelected}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        handleInputChange('timeSlots', [
+                                          ...formData.timeSlots,
+                                          { day, time: slot },
+                                        ]);
+                                      } else {
+                                        handleInputChange(
+                                          'timeSlots',
+                                          formData.timeSlots.filter(
+                                            (ts) => !(ts.day === day && ts.time === slot)
+                                          )
+                                        );
+                                      }
+                                    }}
+                                  />
+                                  <label
+                                    htmlFor={`${day}-${slot}`}
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                  >
+                                    {slot}
+                                  </label>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
