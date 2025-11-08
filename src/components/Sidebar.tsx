@@ -45,7 +45,7 @@ export function Sidebar() {
           );
 
           return item.to ? (
-            <Link key={item.labelKey} to={item.to} className="block">
+            <Link key={item.labelKey} to={item.to} className="block cursor-pointer">
               <Button
                 variant="ghost"
                 className={cn(

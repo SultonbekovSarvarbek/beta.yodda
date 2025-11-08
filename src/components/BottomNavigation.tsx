@@ -21,7 +21,7 @@ export function BottomNavigation() {
             <Link
               key={item.path}
               to={item.path}
-              className="flex flex-col items-center justify-center p-2 relative"
+              className="flex flex-col items-center justify-center p-2 relative cursor-pointer"
             >
               <div className="relative">
                 <Icon
@@ -40,7 +40,7 @@ export function BottomNavigation() {
         })}
 
         {/* Profile Avatar */}
-        <Link to="/" className="flex flex-col items-center justify-center p-2">
+        <Link to="/" className="flex flex-col items-center justify-center p-2 cursor-pointer">
           <Avatar className="w-6 h-6 ring-2 ring-black">
             <AvatarImage src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop" />
             <AvatarFallback>ME</AvatarFallback>

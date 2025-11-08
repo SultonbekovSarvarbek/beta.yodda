@@ -28,7 +28,7 @@ export function CategoryNav({ onCategoryChange }: CategoryNavProps) {
                 key={category.name}
                 onClick={() => handleCategoryClick(category.name)}
                 className={cn(
-                  'flex flex-col items-center gap-2 pb-3 border-b-2 transition-colors whitespace-nowrap',
+                  'flex flex-col items-center gap-2 pb-3 border-b-2 transition-colors whitespace-nowrap cursor-pointer',
                   activeCategory === category.name
                     ? 'border-foreground text-foreground'
                     : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted'

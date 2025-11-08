@@ -12,7 +12,7 @@ export function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-8">
-            <a href="/" className="flex items-center gap-2">
+            <a href="/" className="flex items-center gap-2 cursor-pointer">
               <svg
                 className="h-8 w-8 text-primary"
                 viewBox="0 0 24 24"
@@ -28,7 +28,7 @@ export function Header() {
             <nav className="hidden md:flex items-center gap-6">
               <a
                 href="#"
-                className="text-sm font-medium hover:text-primary transition-colors relative"
+                className="text-sm font-medium hover:text-primary transition-colors relative cursor-pointer"
               >
                 {t('header.experiences')}
                 <Badge
@@ -40,7 +40,7 @@ export function Header() {
               </a>
               <a
                 href="#"
-                className="text-sm font-medium hover:text-primary transition-colors relative"
+                className="text-sm font-medium hover:text-primary transition-colors relative cursor-pointer"
               >
                 {t('header.services')}
                 <Badge

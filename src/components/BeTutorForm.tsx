@@ -147,7 +147,7 @@ export function BeTutorForm() {
               <button
                 key={index}
                 onClick={() => setCurrentTab(index)}
-                className={`px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors cursor-pointer ${
                   currentTab === index
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
