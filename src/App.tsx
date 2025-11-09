@@ -6,7 +6,7 @@ import { CategorySection } from '@/components/CategorySection';
 import { TutorCard } from '@/components/TutorCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorMessage } from '@/components/ErrorMessage';
-import { useAnnouncements } from '@/hooks/useAnnouncements';
+import { useAnnouncements } from '@/hooks/api';
 import type { Tutor } from '@/types/tutor';
 
 function App() {

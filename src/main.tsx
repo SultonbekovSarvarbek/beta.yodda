@@ -8,6 +8,8 @@ import {
   createRouter,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import './i18n/config'
 import './styles.css'
@@ -107,6 +109,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+// Create QueryClient instance with default options
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes (matching previous cache TTL)
+      gcTime: 10 * 60 * 1000, // 10 minutes (garbage collection time)
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
+
 // Initialize auth state on app load
 useAuthStore.getState().initializeAuth()
 
@@ -115,7 +129,10 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </StrictMode>,
   )
 }

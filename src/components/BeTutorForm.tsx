@@ -14,8 +14,7 @@ import { AvatarUpload } from './AvatarUpload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { getSubjects, getEducationLevels } from '@/services/api';
-import type { ApiSubjectFull, ApiEducationLevelResponse } from '@/types/api';
+import { useSubjects, useEducationLevels } from '@/hooks/api';
 
 interface SubjectWithLevels {
   subjectId: number;
@@ -72,10 +71,6 @@ const generateTimeSlots = (duration: number): string[] => {
 export function BeTutorForm() {
   const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState(0);
-  const [subjects, setSubjects] = useState<ApiSubjectFull[]>([]);
-  const [educationLevels, setEducationLevels] = useState<ApiEducationLevelResponse[]>([]);
-  const [loadingSubjects, setLoadingSubjects] = useState(false);
-  const [loadingLevels, setLoadingLevels] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     avatar: null,
     firstName: '',
@@ -115,60 +110,25 @@ export function BeTutorForm() {
     t('beTutorForm.tab4'),
   ];
 
-  // Fetch subjects on mount
+  // Fetch subjects using React Query
+  const { data: subjects = [], isLoading: loadingSubjects } = useSubjects();
+
+  // Fetch education levels using React Query
+  const {
+    data: educationLevels = [],
+    isLoading: loadingLevels
+  } = useEducationLevels(formData.selectedSubjects, formData.selectedSubjects.length > 0);
+
+  // Initialize subjectsWithLevels when education levels data changes
   useEffect(() => {
-    async function fetchSubjects() {
-      setLoadingSubjects(true);
-      try {
-        const data = await getSubjects();
-        setSubjects(data);
-      } catch (error) {
-        console.error('Failed to fetch subjects:', error);
-      } finally {
-        setLoadingSubjects(false);
-      }
+    if (educationLevels.length > 0) {
+      const newSubjectsWithLevels = formData.selectedSubjects.map(subjectId => {
+        const existing = formData.subjectsWithLevels.find(s => s.subjectId === subjectId);
+        return existing || { subjectId, selectedLevels: [] };
+      });
+      setFormData(prev => ({ ...prev, subjectsWithLevels: newSubjectsWithLevels }));
     }
-    fetchSubjects();
-  }, []);
-
-  // Fetch education levels when subjects change
-  useEffect(() => {
-    const abortController = new AbortController();
-
-    async function fetchEducationLevels() {
-      if (formData.selectedSubjects.length === 0) {
-        setEducationLevels([]);
-        return;
-      }
-
-      setLoadingLevels(true);
-      try {
-        const data = await getEducationLevels(formData.selectedSubjects, abortController.signal);
-        setEducationLevels(data);
-
-        // Initialize subjectsWithLevels for newly selected subjects
-        const newSubjectsWithLevels = formData.selectedSubjects.map(subjectId => {
-          const existing = formData.subjectsWithLevels.find(s => s.subjectId === subjectId);
-          return existing || { subjectId, selectedLevels: [] };
-        });
-        setFormData(prev => ({ ...prev, subjectsWithLevels: newSubjectsWithLevels }));
-      } catch (error) {
-        // Ignore abort errors
-        if (error instanceof Error && error.name === 'AbortError') {
-          return;
-        }
-        console.error('Failed to fetch education levels:', error);
-      } finally {
-        setLoadingLevels(false);
-      }
-    }
-    fetchEducationLevels();
-
-    // Cleanup function to abort the request if dependencies change
-    return () => {
-      abortController.abort();
-    };
-  }, [formData.selectedSubjects]);
+  }, [educationLevels]);
 
   const handleInputChange = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

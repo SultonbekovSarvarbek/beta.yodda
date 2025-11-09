@@ -11,16 +11,16 @@ import { ScheduleGrid } from '@/components/ScheduleGrid';
 import { PricingCard } from '@/components/PricingCard';
 import { Check, Share2, MapPin, Grid3x3, User, Calendar, DollarSign, Star } from 'lucide-react';
 import { useParams } from '@tanstack/react-router';
-import { useTutorById } from '@/hooks/useTutorById';
+import { useAnnouncementById } from '@/hooks/api';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export function TutorProfile() {
   const { t } = useTranslation();
   const { id } = useParams({ from: '/tutor/$id' });
-  const { data: tutor, loading, error } = useTutorById(id);
+  const { data: tutor, isLoading, isError } = useAnnouncementById(parseInt(id));
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <MobileHeader />
@@ -37,7 +37,7 @@ export function TutorProfile() {
     );
   }
 
-  if (error || !tutor) {
+  if (isError || !tutor) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <MobileHeader />

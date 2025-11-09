@@ -10,9 +10,7 @@ import type {
   ProfileResponse,
   User,
 } from '@/types/auth';
-import i18n from '@/i18n/config';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://dev.yodda.online/api';
+import apiClient from '@/lib/axios';
 
 /**
  * Token storage keys
@@ -31,57 +29,6 @@ export class AuthError extends Error {
   ) {
     super(message);
     this.name = 'AuthError';
-  }
-}
-
-/**
- * Helper to make authenticated API calls
- */
-async function authFetch<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
-  const token = getToken();
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'Accept-Language': i18n.language || 'ru',
-  };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  if (options.headers) {
-    Object.assign(headers, options.headers);
-  }
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new AuthError(
-        data.message || 'Authentication failed',
-        response.status,
-        data.errors
-      );
-    }
-
-    return data;
-  } catch (error) {
-    if (error instanceof AuthError) {
-      throw error;
-    }
-    throw new AuthError(
-      error instanceof Error ? error.message : 'Network error occurred'
-    );
   }
 }
 
@@ -132,50 +79,42 @@ export function setStoredUser(user: User): void {
  * Login user
  */
 export async function login(credentials: LoginRequest): Promise<AuthResponse> {
-  const response = await authFetch<AuthResponse>('/login', {
-    method: 'POST',
-    body: JSON.stringify(credentials),
-  });
+  const { data } = await apiClient.post<AuthResponse>('/login', credentials);
 
   // Store access token
-  if (response.access_token) {
-    setToken(response.access_token);
+  if (data.access_token) {
+    setToken(data.access_token);
   }
 
-  return response;
+  return data;
 }
 
 /**
  * Register new user
  */
-export async function register(data: RegisterRequest): Promise<AuthResponse> {
-  const response = await authFetch<AuthResponse>('/register', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+export async function register(userData: RegisterRequest): Promise<AuthResponse> {
+  const { data } = await apiClient.post<AuthResponse>('/register', userData);
 
   // Store access token
-  if (response.access_token) {
-    setToken(response.access_token);
+  if (data.access_token) {
+    setToken(data.access_token);
   }
 
-  return response;
+  return data;
 }
 
 /**
  * Get current user profile
  */
 export async function getProfile(): Promise<User> {
-  const response = await authFetch<User>('/getprofileuser', {
-    method: 'GET',
-  });
+  const { data } = await apiClient.get<User>('/getprofileuser');
 
   // Update stored user data
-  if (response) {
-    setStoredUser(response);
+  if (data) {
+    setStoredUser(data);
   }
 
-  return response;
+  return data;
 }
 
 /**
