@@ -164,7 +164,7 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
  * Get current user profile
  */
 export async function getProfile(): Promise<User> {
-  const response = await authFetch<ProfileResponse>('/getprofileuser', {
+  const response = await authFetch<User>('/getprofileuser', {
     method: 'GET',
   });
 
