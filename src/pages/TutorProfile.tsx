@@ -288,7 +288,7 @@ export function TutorProfile() {
             {/* Pricing Tab */}
             <TabsContent value="pricing" className="mt-0">
               <div className="bg-white border rounded-lg p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
                   {tutor.formatsData.map((format) => (
                     <PricingCard key={format.id} format={format} onBook={handleBookLesson} />
                   ))}
