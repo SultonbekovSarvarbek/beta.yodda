@@ -88,6 +88,30 @@ export async function getFormats(): Promise<ApiFormat[]> {
   return data;
 }
 
+// Register new tutor
+export async function registerTutor(payload: {
+  name: string;
+  password: string;
+  gender: number;
+  phone: string;
+  email: string;
+  age: string;
+  termsAccepted: boolean;
+  role_id: number;
+}): Promise<{ message: string; user?: any }> {
+  const { data } = await apiClient.post('/register', payload);
+  return data;
+}
+
+// Login user
+export async function loginUser(payload: {
+  phone: string;
+  password: string;
+}): Promise<{ token: string; user?: any }> {
+  const { data } = await apiClient.post('/login', payload);
+  return data;
+}
+
 // Create new announcement
 export async function createAnnouncement(formData: FormData): Promise<ApiAnnouncement> {
   const { data } = await apiClient.post<ApiAnnouncement>('/announcements', formData, {
