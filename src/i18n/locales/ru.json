@@ -11,7 +11,8 @@
     "profile": "Профиль",
     "forParents": "Для родителей",
     "forTutors": "Для репетиторов",
-    "more": "Ещё"
+    "more": "Ещё",
+    "cabinet": "Кабинет"
   },
   "header": {
     "becomeTutor": "Стать репетитором",
@@ -67,7 +68,8 @@
     "male": "Мужской",
     "female": "Женский",
     "other": "Другое",
-    "noResults": "Результаты не найдены"
+    "noResults": "Результаты не найдены",
+    "edit": "Редактировать"
   },
   "beTutorForm": {
     "title": "Регистрация репетитора",
@@ -236,5 +238,84 @@
     "bookLesson": "Записаться",
     "minutes": "минут",
     "minutesShort": "мин"
+  },
+  "profile": {
+    "overview": "Обзор",
+    "schedule": "Расписание",
+    "students": "Ученики",
+    "settings": "Настройки",
+    "bookings": "Мои записи",
+    "favorites": "Избранное",
+    "totalStudents": "Всего учеников",
+    "activeStudents": "Активных учеников",
+    "totalLessons": "Всего уроков",
+    "completedLessons": "Завершённых уроков",
+    "rating": "Рейтинг",
+    "noReviews": "Нет отзывов",
+    "aboutMe": "Обо мне",
+    "noDescription": "Описание не добавлено. Нажмите \"Редактировать профиль\", чтобы добавить информацию о себе.",
+    "mySchedule": "Моё расписание",
+    "scheduleEmpty": "Ваше расписание пусто. Установите доступность, чтобы начать принимать записи.",
+    "myStudents": "Мои ученики",
+    "noStudents": "У вас пока нет учеников.",
+    "profileSettings": "Настройки профиля",
+    "settingsPlaceholder": "Управляйте настройками аккаунта и предпочтениями.",
+    "upcomingLessons": "Предстоящие уроки",
+    "scheduledLessons": "Запланированных уроков",
+    "totalCompleted": "Всего завершено",
+    "learningGoals": "Мои учебные цели",
+    "noGoals": "Установите учебные цели, чтобы найти идеального репетитора.",
+    "myBookings": "Мои записи",
+    "noBookings": "У вас пока нет записей. Просмотрите репетиторов, чтобы запланировать урок!",
+    "favoriteTutors": "Избранные репетиторы",
+    "noFavorites": "Вы ещё не добавили избранных репетиторов."
+  },
+  "auth": {
+    "login": {
+      "title": "Вход",
+      "phoneNumber": "Номер телефона",
+      "phonePlaceholder": "+998",
+      "password": "Пароль",
+      "passwordPlaceholder": "Введите пароль",
+      "rememberMe": "Запомнить меня",
+      "forgotPassword": "Забыли пароль?",
+      "loginButton": "Войти",
+      "noAccount": "Нет аккаунта?",
+      "signUp": "Зарегистрироваться",
+      "error": "Неверный телефон или пароль"
+    },
+    "register": {
+      "title": "Регистрация",
+      "fullName": "Имя и фамилия",
+      "fullNamePlaceholder": "Имя и фамилия",
+      "phoneNumber": "Номер телефона",
+      "phonePlaceholder": "+998",
+      "email": "Электронная почта",
+      "emailPlaceholder": "example@gmail.com",
+      "role": "Выбор роли",
+      "rolePlaceholder": "Выбор роли",
+      "roleSeeker": "Ученик",
+      "roleTutor": "Репетитор",
+      "password": "Пароль",
+      "passwordPlaceholder": "Введите пароль",
+      "confirmPassword": "Подтвердите пароль",
+      "confirmPasswordPlaceholder": "Подтвердите пароль",
+      "agreeTerms": "Регистрируясь, вы соглашаетесь с {{termsLink}} и {{privacyLink}}.",
+      "termsOfUse": "Условиями использования",
+      "privacyPolicy": "Политикой конфиденциальности",
+      "registerButton": "Зарегистрироваться",
+      "haveAccount": "Уже есть аккаунт?",
+      "signIn": "Вход",
+      "errors": {
+        "required": "Это поле обязательно",
+        "invalidEmail": "Неверный email адрес",
+        "invalidPhone": "Неверный номер телефона",
+        "passwordMismatch": "Пароли не совпадают",
+        "minPassword": "Пароль должен содержать минимум 6 символов",
+        "registrationFailed": "Ошибка регистрации. Попробуйте еще раз."
+      }
+    },
+    "logout": "Выйти",
+    "profile": "Профиль"
   }
 }

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { SuggestionItem } from './SuggestionItem';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Suggestion {
   id: string;
@@ -46,6 +47,16 @@ const suggestions: Suggestion[] = [
 
 export function SuggestionsPanel() {
   const { t } = useTranslation();
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <div className="fixed right-0 top-0 w-80 h-full p-4 overflow-y-auto hidden xl:block">
@@ -54,22 +65,30 @@ export function SuggestionsPanel() {
         <LanguageSwitcher />
       </div>
 
-      {/* Current User */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Avatar className="w-11 h-11">
-            <AvatarImage src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop" />
-            <AvatarFallback>ME</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold">yourprofile</span>
-            <span className="text-sm text-gray-500">{t('suggestions.yourProfile')}</span>
+      {/* Current User - Only show when authenticated */}
+      {isAuthenticated && user && (
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Avatar className="w-11 h-11">
+              <AvatarImage src={user.avatar} />
+              <AvatarFallback className="bg-blue-600 text-white">
+                {getUserInitials(user.name)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold">{user.name}</span>
+              <span className="text-sm text-gray-500">{user.email || user.phone}</span>
+            </div>
           </div>
+          <Button
+            variant="ghost"
+            className="text-red-500 font-semibold text-xs h-auto p-0 hover:bg-transparent hover:text-red-600"
+            onClick={logout}
+          >
+            {t('suggestions.logout')}
+          </Button>
         </div>
-        <Button variant="ghost" className="text-red-500 font-semibold text-xs h-auto p-0 hover:bg-transparent hover:text-red-600">
-          {t('suggestions.logout')}
-        </Button>
-      </div>
+      )}
 
       {/* Suggestions */}
       <div className="mb-6">

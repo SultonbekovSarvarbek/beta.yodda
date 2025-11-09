@@ -1,4 +1,5 @@
 import type { ApiAnnouncementsResponse, ApiAnnouncement } from '@/types/api';
+import { getToken } from '@/services/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://dev.yodda.online/api';
 
@@ -54,13 +55,21 @@ export class ApiError extends Error {
 // Base fetch wrapper with error handling
 async function apiFetch<T>(endpoint: string): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
+  const token = getToken();
+
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  // Add Authorization header if token exists
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
 
   try {
     const response = await fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      headers,
     });
 
     if (!response.ok) {

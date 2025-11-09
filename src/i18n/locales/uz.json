@@ -11,7 +11,8 @@
     "profile": "Profil",
     "forParents": "Ota-onalar uchun",
     "forTutors": "Repetitorlar uchun",
-    "more": "Yana"
+    "more": "Yana",
+    "cabinet": "Kabinet"
   },
   "header": {
     "becomeTutor": "Repetitor bo'lish",
@@ -66,7 +67,8 @@
     "submit": "Yuborish",
     "male": "Erkak",
     "female": "Ayol",
-    "other": "Boshqa"
+    "other": "Boshqa",
+    "edit": "Tahrirlash"
   },
   "beTutorForm": {
     "title": "Repetitor ro'yxatdan o'tish",
@@ -205,5 +207,84 @@
     "bookLesson": "Yozilish",
     "minutes": "daqiqa",
     "minutesShort": "daq"
+  },
+  "profile": {
+    "overview": "Umumiy ko'rinish",
+    "schedule": "Jadval",
+    "students": "O'quvchilar",
+    "settings": "Sozlamalar",
+    "bookings": "Mening yozuvlarim",
+    "favorites": "Sevimlilar",
+    "totalStudents": "Jami o'quvchilar",
+    "activeStudents": "Faol o'quvchilar",
+    "totalLessons": "Jami darslar",
+    "completedLessons": "Tugallangan darslar",
+    "rating": "Reyting",
+    "noReviews": "Hali sharhlar yo'q",
+    "aboutMe": "Men haqimda",
+    "noDescription": "Tavsif qo'shilmagan. O'zingiz haqida ma'lumot qo'shish uchun \"Profilni tahrirlash\" tugmasini bosing.",
+    "mySchedule": "Mening jadvalim",
+    "scheduleEmpty": "Jadvalingiz bo'sh. Yozuvlarni qabul qilishni boshlash uchun mavjudligingizni o'rnating.",
+    "myStudents": "Mening o'quvchilarim",
+    "noStudents": "Hali o'quvchilaringiz yo'q.",
+    "profileSettings": "Profil sozlamalari",
+    "settingsPlaceholder": "Akkaunt sozlamalaringiz va afzalliklaringizni boshqaring.",
+    "upcomingLessons": "Yaqinlashayotgan darslar",
+    "scheduledLessons": "Rejalashtirilgan darslar",
+    "totalCompleted": "Jami tugatilgan",
+    "learningGoals": "Mening o'rganish maqsadlarim",
+    "noGoals": "O'zingiz uchun ideal repetitorni topish uchun o'rganish maqsadlarini belgilang.",
+    "myBookings": "Mening yozuvlarim",
+    "noBookings": "Hali yozuvlaringiz yo'q. Dars rejalashtirish uchun repetitorlarni ko'ring!",
+    "favoriteTutors": "Sevimli repetitorlar",
+    "noFavorites": "Hali sevimli repetitorlarni qo'shmadingiz."
+  },
+  "auth": {
+    "login": {
+      "title": "Kirish",
+      "phoneNumber": "Telefon raqami",
+      "phonePlaceholder": "+998",
+      "password": "Parol",
+      "passwordPlaceholder": "Parolni kiriting",
+      "rememberMe": "Eslab qolish",
+      "forgotPassword": "Parolni unutdingizmi?",
+      "loginButton": "Kirish",
+      "noAccount": "Akkaunt yo'qmi?",
+      "signUp": "Ro'yxatdan o'tish",
+      "error": "Telefon yoki parol noto'g'ri"
+    },
+    "register": {
+      "title": "Ro'yxatdan o'tish",
+      "fullName": "Ism va familiya",
+      "fullNamePlaceholder": "Ism va familiya",
+      "phoneNumber": "Telefon raqami",
+      "phonePlaceholder": "+998",
+      "email": "Elektron pochta",
+      "emailPlaceholder": "example@gmail.com",
+      "role": "Rolni tanlash",
+      "rolePlaceholder": "Rolni tanlash",
+      "roleSeeker": "O'quvchi",
+      "roleTutor": "Repetitor",
+      "password": "Parol",
+      "passwordPlaceholder": "Parolni kiriting",
+      "confirmPassword": "Parolni tasdiqlang",
+      "confirmPasswordPlaceholder": "Parolni tasdiqlang",
+      "agreeTerms": "Ro'yxatdan o'tayotib, siz {{termsLink}} va {{privacyLink}} bilan rozisiz.",
+      "termsOfUse": "Foydalanish shartlari",
+      "privacyPolicy": "Maxfiylik siyosati",
+      "registerButton": "Ro'yxatdan o'tish",
+      "haveAccount": "Akkauntingiz bormi?",
+      "signIn": "Kirish",
+      "errors": {
+        "required": "Bu maydon to'ldirilishi shart",
+        "invalidEmail": "Noto'g'ri email manzil",
+        "invalidPhone": "Noto'g'ri telefon raqami",
+        "passwordMismatch": "Parollar mos kelmaydi",
+        "minPassword": "Parol kamida 6 ta belgidan iborat bo'lishi kerak",
+        "registrationFailed": "Ro'yxatdan o'tishda xatolik. Qayta urinib ko'ring."
+      }
+    },
+    "logout": "Chiqish",
+    "profile": "Profil"
   }
 }

@@ -13,10 +13,15 @@ import './i18n/config'
 import './styles.css'
 import reportWebVitals from './reportWebVitals.ts'
 
+import { useAuthStore } from './stores/authStore'
+import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 import { Feed } from './pages/Feed.tsx'
 import { BeTutor } from './pages/BeTutor.tsx'
 import { Tutors } from './pages/Tutors.tsx'
 import { TutorProfile } from './pages/TutorProfile.tsx'
+import { Profile } from './pages/Profile.tsx'
+import { Login } from './pages/Login.tsx'
+import { Register } from './pages/Register.tsx'
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -48,10 +53,44 @@ const tutorsRoute = createRoute({
 const tutorProfileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/tutor/$id',
-  component: TutorProfile,
+  component: () => (
+    <ProtectedRoute>
+      <TutorProfile />
+    </ProtectedRoute>
+  ),
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, beTutorRoute, tutorsRoute, tutorProfileRoute])
+const profileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/profile',
+  component: () => (
+    <ProtectedRoute>
+      <Profile />
+    </ProtectedRoute>
+  ),
+})
+
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/login',
+  component: Login,
+})
+
+const registerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/register',
+  component: Register,
+})
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  beTutorRoute,
+  tutorsRoute,
+  tutorProfileRoute,
+  profileRoute,
+  loginRoute,
+  registerRoute,
+])
 
 const router = createRouter({
   routeTree,
@@ -67,6 +106,9 @@ declare module '@tanstack/react-router' {
     router: typeof router
   }
 }
+
+// Initialize auth state on app load
+useAuthStore.getState().initializeAuth()
 
 const rootElement = document.getElementById('app')
 if (rootElement && !rootElement.innerHTML) {

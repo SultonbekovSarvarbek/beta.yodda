@@ -188,7 +188,7 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
                         onClick={() => available && handleSlotClick(date, time)}
                         className={`text-center py-2.5 px-2 rounded-md transition-all duration-200 text-sm ${
                           available
-                            ? 'text-gray-900 bg-blue-100 cursor-pointer hover:shadow-sm border border-transparent hover:border-blue-200'
+                            ? 'text-gray-900 bg-blue-100 cursor-pointer hover:shadow-sm border-transparent hover:border-blue-200'
                             : 'text-gray-400 line-through bg-gray-50/50'
                         }`}
                       >

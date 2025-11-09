@@ -1,9 +1,10 @@
-import { Home, Search, Film, MessageCircle, User, Menu, Users } from 'lucide-react';
+import { Home, User, Users, LogIn } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/hooks/useAuth';
 
 interface NavItem {
   icon: React.ReactNode;
@@ -13,13 +14,23 @@ interface NavItem {
 
 export function Sidebar() {
   const { t } = useTranslation();
+  const { user, isAuthenticated } = useAuth();
+
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   const navItems: NavItem[] = [
     { icon: <Home className="w-6 h-6" />, labelKey: 'sidebar.home', to: '/' },
-    { icon: <Search className="w-6 h-6" />, labelKey: 'sidebar.search' },
+    // { icon: <Search className="w-6 h-6" />, labelKey: 'sidebar.search' },
     { icon: <Users className="w-6 h-6" />, labelKey: 'sidebar.allTutors', to: '/tutors' },
-    { icon: <Film className="w-6 h-6" />, labelKey: 'sidebar.reels' },
-    { icon: <MessageCircle className="w-6 h-6" />, labelKey: 'sidebar.messages' },
+    // { icon: <Film className="w-6 h-6" />, labelKey: 'sidebar.reels' },
+    // { icon: <MessageCircle className="w-6 h-6" />, labelKey: 'sidebar.messages' },
     // { icon: <Heart className="w-6 h-6" />, labelKey: 'sidebar.notifications' },
     { icon: <User className="w-6 h-6" />, labelKey: 'sidebar.forParents' },
     { icon: <User className="w-6 h-6" />, labelKey: 'sidebar.forTutors', to: '/be-tutor' },
@@ -73,27 +84,78 @@ export function Sidebar() {
           );
         })}
 
-        {/* Profile */}
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100"
-        >
-          <Avatar className="w-6 h-6">
-            <AvatarImage src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop" />
-            <AvatarFallback>ME</AvatarFallback>
-          </Avatar>
-          <span>{t('sidebar.profile')}</span>
-        </Button>
+        {/* Authentication Section */}
+        {isAuthenticated && user ? (
+          <Link to="/profile">
+            {({ isActive }) => (
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100",
+                  isActive && "font-bold"
+                )}
+              >
+                <Avatar className="w-6 h-6">
+                  <AvatarImage src={user.avatar} />
+                  <AvatarFallback className="bg-blue-600 text-white text-xs">
+                    {getUserInitials(user.name)}
+                  </AvatarFallback>
+                </Avatar>
+                <span>{t('sidebar.profile')}</span>
+              </Button>
+            )}
+          </Link>
+        ) : (
+          <div className="space-y-2">
+            <Link to="/login">
+              {({ isActive }) => (
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100",
+                    isActive && "font-bold"
+                  )}
+                >
+                  <LogIn className="w-6 h-6" />
+                  <span>{t('auth.login.title')}</span>
+                </Button>
+              )}
+            </Link>
+            {/* <Link to="/register">
+              {({ isActive }) => (
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100",
+                    isActive && "font-bold"
+                  )}
+                >
+                  <UserPlus className="w-6 h-6" />
+                  <span>{t('auth.register.title')}</span>
+                </Button>
+              )}
+            </Link> */}
+          </div>
+        )}
       </nav>
 
-      {/* More Menu */}
-      <Button
-        variant="ghost"
-        className="w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100"
-      >
-        <Menu className="w-6 h-6" />
-        <span>{t('sidebar.more')}</span>
-      </Button>
+      {/* Cabinet/Profile Menu - Only show when authenticated */}
+      {isAuthenticated && user && (
+        <Link to="/profile">
+          {({ isActive }) => (
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100",
+                isActive && "font-bold"
+              )}
+            >
+              <User className="w-6 h-6" />
+              <span>{t('sidebar.cabinet')}</span>
+            </Button>
+          )}
+        </Link>
+      )}
     </div>
   );
 }
