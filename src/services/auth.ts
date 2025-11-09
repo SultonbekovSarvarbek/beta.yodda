@@ -10,6 +10,7 @@ import type {
   ProfileResponse,
   User,
 } from '@/types/auth';
+import i18n from '@/i18n/config';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://dev.yodda.online/api';
 
@@ -46,6 +47,7 @@ async function authFetch<T>(
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'Accept-Language': i18n.language || 'ru',
   };
 
   if (token) {
