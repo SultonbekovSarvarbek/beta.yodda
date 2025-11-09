@@ -382,7 +382,7 @@ export function BeTutorForm() {
                       s => s.subjectId === eduLevel.subject_id
                     );
                     return (
-                      <div key={eduLevel.subject_id} className="space-y-2 p-4 border rounded-lg">
+                      <div key={eduLevel.subject_id} className="space-y-2">
                         <Label>{eduLevel.subject_name}</Label>
                         <MultiSelect
                           options={eduLevel.levels.map(level => ({
