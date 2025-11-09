@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { MapPin, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,10 +12,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { AvatarUpload } from './AvatarUpload';
+import { CertificateUpload } from './CertificateUpload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useSubjects, useEducationLevels } from '@/hooks/api';
+import { useSubjects, useEducationLevels, useRegions, useLanguages, useFormats } from '@/hooks/api';
+import { createAnnouncement } from '@/services/api';
 
 interface SubjectWithLevels {
   subjectId: number;
@@ -32,24 +35,21 @@ interface FormData {
   password: string;
   repeatPassword: string;
   age: string;
+  regionId: string;
+  cityId: string;
   selectedSubjects: number[];
   subjectsWithLevels: SubjectWithLevels[];
   experienceYears: string;
-  education: string;
   universityName: string;
-  masterDegree: string;
   mba: string;
-  teachingLanguages: string[];
-  certifications: string;
+  teachingLanguages: number[];
   pricePerHour: string;
-  onlinePrice: string;
   lessonDuration: string;
   availableDays: string[];
   timeSlots: { day: string; time: string }[];
   teachingFormat: string;
-  location: string;
   bio: string;
-  languages: string;
+  certificates: File[];
   additionalInfo: string;
 }
 
@@ -71,6 +71,9 @@ const generateTimeSlots = (duration: number): string[] => {
 export function BeTutorForm() {
   const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     avatar: null,
     firstName: '',
@@ -82,24 +85,21 @@ export function BeTutorForm() {
     password: '',
     repeatPassword: '',
     age: '',
+    regionId: '',
+    cityId: '',
     selectedSubjects: [],
     subjectsWithLevels: [],
     experienceYears: '',
-    education: '',
     universityName: '',
-    masterDegree: '',
     mba: '',
     teachingLanguages: [],
-    certifications: '',
     pricePerHour: '',
-    onlinePrice: '',
     lessonDuration: '',
     availableDays: [],
     timeSlots: [],
     teachingFormat: '',
-    location: '',
     bio: '',
-    languages: '',
+    certificates: [],
     additionalInfo: '',
   });
 
@@ -118,6 +118,22 @@ export function BeTutorForm() {
     data: educationLevels = [],
     isLoading: loadingLevels
   } = useEducationLevels(formData.selectedSubjects, formData.selectedSubjects.length > 0);
+
+  // Fetch regions using React Query
+  const { data: regions = [], isLoading: loadingRegions } = useRegions();
+
+  // Get cities for selected region
+  const selectedRegion = regions.find(r => r.id.toString() === formData.regionId);
+  const cities = selectedRegion?.cities || [];
+
+  // Fetch languages using React Query
+  const { data: languages = [], isLoading: loadingLanguages } = useLanguages();
+
+  // Fetch formats using React Query
+  const { data: formats = [], isLoading: loadingFormats } = useFormats();
+
+  // Filter to show only online format
+  const onlineFormats = formats.filter(format => format.value === 'online' || format.id === 8);
 
   // Initialize subjectsWithLevels when education levels data changes
   useEffect(() => {
@@ -155,10 +171,127 @@ export function BeTutorForm() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+
+    try {
+      // Create FormData object
+      const apiFormData = new FormData();
+
+      // Add basic fields
+      apiFormData.append('fullname', `${formData.firstName} ${formData.lastName}`.trim());
+      apiFormData.append('telegramUsername', formData.telegramUsername);
+      apiFormData.append('phone', formData.phoneNumber);
+      apiFormData.append('email', formData.email);
+      apiFormData.append('age', formData.age);
+      apiFormData.append('region_id', formData.regionId);
+      apiFormData.append('city_id', formData.cityId);
+      apiFormData.append('is_active', 'true');
+
+      // Education fields
+      apiFormData.append('education', formData.universityName);
+      apiFormData.append('mba', formData.mba);
+
+      // Experience
+      apiFormData.append('experience', formData.experienceYears);
+
+      // Subjects and levels
+      formData.selectedSubjects.forEach((subjectId) => {
+        apiFormData.append('subjects[]', subjectId.toString());
+      });
+
+      // Subject levels as JSON string
+      const subjectLevels = formData.subjectsWithLevels.map(({ subjectId, selectedLevels }) => ({
+        subject_id: subjectId,
+        levels: selectedLevels,
+      }));
+      apiFormData.append('subjectLevels', JSON.stringify(subjectLevels));
+
+      // Teaching languages
+      formData.teachingLanguages.forEach((langId) => {
+        apiFormData.append('languages[]', langId.toString());
+      });
+
+      // Price and format
+      apiFormData.append('amount', formData.pricePerHour);
+
+      // Format data
+      const formatsData = [{
+        format_id: parseInt(formData.teachingFormat),
+        amount: formData.pricePerHour,
+        duration: parseInt(formData.lessonDuration) * 60, // Convert hours to minutes
+      }];
+      apiFormData.append('formatsData', JSON.stringify(formatsData));
+      apiFormData.append('formats[]', formData.teachingFormat);
+
+      // Days mapping (convert to numbers: 1=Monday, 2=Tuesday, etc.)
+      const dayMap: { [key: string]: number } = {
+        monday: 1,
+        tuesday: 2,
+        wednesday: 3,
+        thursday: 4,
+        friday: 5,
+        saturday: 6,
+        sunday: 7,
+      };
+      formData.availableDays.forEach((day) => {
+        const dayNum = dayMap[day];
+        if (dayNum) {
+          apiFormData.append('days[]', dayNum.toString());
+        }
+      });
+
+      // Schedule - group time slots by day
+      const schedule: { [key: string]: string[] } = {};
+      formData.timeSlots.forEach(({ day, time }) => {
+        const dayShort = day.substring(0, 3).toLowerCase(); // mon, tue, etc.
+        if (!schedule[dayShort]) {
+          schedule[dayShort] = [];
+        }
+        schedule[dayShort].push(time.replace(' - ', '-'));
+      });
+      apiFormData.append('schedule', JSON.stringify(schedule));
+
+      // Walking study (default values)
+      apiFormData.append('walkingStudy', JSON.stringify({ enabled: false, days: [], duration: 60 }));
+
+      // Text fields
+      apiFormData.append('description', formData.additionalInfo);
+      apiFormData.append('aboutme', formData.bio);
+
+      // Qty students (default or could be added to form)
+      apiFormData.append('qty_students', '10');
+
+      // Avatar file
+      if (formData.avatar) {
+        apiFormData.append('image', formData.avatar);
+      }
+
+      // Certificate files
+      formData.certificates.forEach((file) => {
+        apiFormData.append('files[]', file);
+      });
+
+      // Submit to API
+      await createAnnouncement(apiFormData);
+
+      setSubmitSuccess(true);
+      setSubmitError(null);
+
+      // Reset form after successful submission
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } catch (error: any) {
+      console.error('Form submission error:', error);
+      setSubmitError(error?.response?.data?.message || error?.message || t('beTutorForm.submitError'));
+      setSubmitSuccess(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -199,12 +332,10 @@ export function BeTutorForm() {
             {/* Tab 1: Basic Information */}
             {currentTab === 0 && (
               <div className="space-y-6">
-                <div className="flex justify-center">
-                  <AvatarUpload
-                    value={formData.avatar ? URL.createObjectURL(formData.avatar) : undefined}
-                    onChange={(file) => handleInputChange('avatar', file)}
-                  />
-                </div>
+                <AvatarUpload
+                  value={formData.avatar ? URL.createObjectURL(formData.avatar) : undefined}
+                  onChange={(file) => handleInputChange('avatar', file)}
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -265,7 +396,7 @@ export function BeTutorForm() {
                       value={formData.gender}
                       onValueChange={(value) => handleInputChange('gender', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder={t('beTutorForm.selectGender')} />
                       </SelectTrigger>
                       <SelectContent>
@@ -286,7 +417,7 @@ export function BeTutorForm() {
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 col-span-2">
                     <Label htmlFor="password">{t('beTutorForm.password')}</Label>
                     <Input
                       id="password"
@@ -297,7 +428,7 @@ export function BeTutorForm() {
                     />
                   </div>
 
-                  <div className="space-y-2 md:col-span-2">
+                  <div className="space-y-2 col-span-2">
                     <Label htmlFor="repeatPassword">{t('beTutorForm.repeatPassword')}</Label>
                     <Input
                       id="repeatPassword"
@@ -306,6 +437,56 @@ export function BeTutorForm() {
                       onChange={(e) => handleInputChange('repeatPassword', e.target.value)}
                       required
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="regionId" className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      {t('beTutorForm.region')}
+                    </Label>
+                    <Select
+                      value={formData.regionId}
+                      onValueChange={(value) => {
+                        handleInputChange('regionId', value);
+                        // Reset city when region changes
+                        handleInputChange('cityId', '');
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={loadingRegions ? t('common.loading') : t('beTutorForm.selectRegion')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {regions.map((region) => (
+                          <SelectItem key={region.id} value={region.id.toString()}>
+                            {region.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="cityId" className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      {t('beTutorForm.city')}
+                    </Label>
+                    <Select
+                  
+                      value={formData.cityId}
+                      onValueChange={(value) => handleInputChange('cityId', value)}
+                      disabled={!formData.regionId || cities.length === 0}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={!formData.regionId ? t('beTutorForm.selectRegionFirst') : t('beTutorForm.selectCity')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cities.map((city) => (
+                          <SelectItem key={city.id} value={city.id.toString()}>
+                            {city.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -327,6 +508,7 @@ export function BeTutorForm() {
                       handleInputChange('selectedSubjects', selectedIds);
                     }}
                     placeholder={loadingSubjects ? t('common.loading') : t('beTutorForm.selectSubjects')}
+                    searchPlaceholder={t('common.search')}
                     emptyText={t('common.noResults')}
                   />
                 </div>
@@ -355,6 +537,7 @@ export function BeTutorForm() {
                             handleSubjectLevelsChange(eduLevel.subject_id, selectedLevels);
                           }}
                           placeholder={t('beTutorForm.selectEducationLevels')}
+                          searchPlaceholder={t('common.search')}
                           emptyText={t('common.noResults')}
                         />
                       </div>
@@ -362,25 +545,14 @@ export function BeTutorForm() {
                   })
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="experienceYears">{t('beTutorForm.experienceYears')}</Label>
-                    <Input
-                      id="experienceYears"
-                      type="number"
-                      value={formData.experienceYears}
-                      onChange={(e) => handleInputChange('experienceYears', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="education">{t('beTutorForm.education')}</Label>
-                    <Input
-                      id="education"
-                      value={formData.education}
-                      onChange={(e) => handleInputChange('education', e.target.value)}
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="experienceYears">{t('beTutorForm.experienceYears')}</Label>
+                  <Input
+                    id="experienceYears"
+                    type="number"
+                    value={formData.experienceYears}
+                    onChange={(e) => handleInputChange('experienceYears', e.target.value)}
+                  />
                 </div>
 
                 <div className="space-y-4 border-t pt-4">
@@ -397,16 +569,6 @@ export function BeTutorForm() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="masterDegree">{t('beTutorForm.masterDegree')}</Label>
-                    <Input
-                      id="masterDegree"
-                      value={formData.masterDegree}
-                      onChange={(e) => handleInputChange('masterDegree', e.target.value)}
-                      placeholder={t('beTutorForm.masterDegreePlaceholder')}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
                     <Label htmlFor="mba">{t('beTutorForm.mba')}</Label>
                     <Input
                       id="mba"
@@ -419,28 +581,20 @@ export function BeTutorForm() {
                   <div className="space-y-2">
                     <Label htmlFor="teachingLanguages">{t('beTutorForm.teachingLanguages')}</Label>
                     <MultiSelect
-                      options={[
-                        { label: t('languages.russian'), value: 'russian' },
-                        { label: t('languages.uzbek'), value: 'uzbek' },
-                        { label: t('languages.english'), value: 'english' },
-                        { label: t('languages.kazakh'), value: 'kazakh' },
-                        { label: t('languages.turkish'), value: 'turkish' },
-                      ]}
-                      selected={formData.teachingLanguages}
-                      onChange={(selected) => handleInputChange('teachingLanguages', selected)}
-                      placeholder={t('beTutorForm.selectTeachingLanguages')}
+                      options={languages.map(language => ({
+                        label: language.name,
+                        value: language.id.toString(),
+                      }))}
+                      selected={formData.teachingLanguages.map(id => id.toString())}
+                      onChange={(selected) => {
+                        const selectedIds = selected.map(id => parseInt(id));
+                        handleInputChange('teachingLanguages', selectedIds);
+                      }}
+                      placeholder={loadingLanguages ? t('common.loading') : t('beTutorForm.selectTeachingLanguages')}
+                      searchPlaceholder={t('common.search')}
                       emptyText={t('common.noResults')}
                     />
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="certifications">{t('beTutorForm.certifications')}</Label>
-                  <Input
-                    id="certifications"
-                    value={formData.certifications}
-                    onChange={(e) => handleInputChange('certifications', e.target.value)}
-                  />
                 </div>
               </div>
             )}
@@ -465,41 +619,19 @@ export function BeTutorForm() {
                       value={formData.teachingFormat}
                       onValueChange={(value) => handleInputChange('teachingFormat', value)}
                     >
-                      <SelectTrigger>
-                        <SelectValue />
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={loadingFormats ? t('common.loading') : t('beTutorForm.selectFormat')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="online">{t('beTutorForm.online')}</SelectItem>
-                        <SelectItem value="offline">{t('beTutorForm.offline')}</SelectItem>
-                        <SelectItem value="both">{t('beTutorForm.both')}</SelectItem>
+                        {onlineFormats.map((format) => (
+                          <SelectItem key={format.id} value={format.id.toString()}>
+                            {format.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="location">{t('beTutorForm.location')}</Label>
-                  <Input
-                    id="location"
-                    value={formData.location}
-                    onChange={(e) => handleInputChange('location', e.target.value)}
-                  />
-                </div>
-
-                {/* Online Lesson Settings */}
-                <div className="space-y-4 border-t pt-4">
-                  <h3 className="text-lg font-semibold">{t('beTutorForm.onlineLessonSettings')}</h3>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="onlinePrice">{t('beTutorForm.onlinePrice')}</Label>
-                    <Input
-                      id="onlinePrice"
-                      type="number"
-                      value={formData.onlinePrice}
-                      onChange={(e) => handleInputChange('onlinePrice', e.target.value)}
-                      placeholder={t('beTutorForm.onlinePricePlaceholder')}
-                    />
-                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="lessonDuration">{t('beTutorForm.lessonDuration')}</Label>
@@ -511,7 +643,7 @@ export function BeTutorForm() {
                         handleInputChange('timeSlots', []);
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-sm">
                         <SelectValue placeholder={t('beTutorForm.selectDuration')} />
                       </SelectTrigger>
                       <SelectContent>
@@ -543,6 +675,7 @@ export function BeTutorForm() {
                         handleInputChange('timeSlots', []);
                       }}
                       placeholder={t('beTutorForm.selectAvailableDays')}
+                      searchPlaceholder={t('common.search')}
                       emptyText={t('common.noResults')}
                     />
                   </div>
@@ -600,13 +733,17 @@ export function BeTutorForm() {
                       ))}
                     </div>
                   )}
-                </div>
               </div>
             )}
 
             {/* Tab 4: Additional Details */}
             {currentTab === 3 && (
               <div className="space-y-6">
+                <CertificateUpload
+                  files={formData.certificates}
+                  onChange={(files) => handleInputChange('certificates', files)}
+                />
+
                 <div className="space-y-2">
                   <Label htmlFor="bio">{t('beTutorForm.bio')}</Label>
                   <textarea
@@ -614,15 +751,6 @@ export function BeTutorForm() {
                     value={formData.bio}
                     onChange={(e) => handleInputChange('bio', e.target.value)}
                     className="w-full min-h-[120px] px-3 py-2 border rounded-md"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="languages">{t('beTutorForm.languages')}</Label>
-                  <Input
-                    id="languages"
-                    value={formData.languages}
-                    onChange={(e) => handleInputChange('languages', e.target.value)}
                   />
                 </div>
 
@@ -638,23 +766,49 @@ export function BeTutorForm() {
               </div>
             )}
 
+            {/* Success/Error Messages */}
+            {submitSuccess && (
+              <div className="rounded-md bg-green-50 p-4 mt-6">
+                <p className="text-sm font-medium text-green-800">
+                  {t('beTutorForm.submitSuccess')}
+                </p>
+              </div>
+            )}
+
+            {submitError && (
+              <div className="rounded-md bg-red-50 p-4 mt-6">
+                <p className="text-sm font-medium text-red-800">
+                  {submitError}
+                </p>
+              </div>
+            )}
+
             {/* Navigation Buttons */}
             <div className="flex justify-between mt-8">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handlePrevious}
-                disabled={currentTab === 0}
+                disabled={currentTab === 0 || isSubmitting}
               >
                 {t('common.previous')}
               </Button>
 
               {currentTab < tabs.length - 1 ? (
-                <Button type="button" onClick={handleNext}>
+                <Button type="button" onClick={handleNext} disabled={isSubmitting}>
                   {t('common.next')}
                 </Button>
               ) : (
-                <Button type="submit">{t('common.submit')}</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t('beTutorForm.submitting')}
+                    </>
+                  ) : (
+                    t('common.submit')
+                  )}
+                </Button>
               )}
             </div>
           </form>

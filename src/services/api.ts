@@ -2,7 +2,10 @@ import type {
   ApiAnnouncementsResponse,
   ApiAnnouncement,
   ApiSubjectFull,
-  ApiEducationLevelResponse
+  ApiEducationLevelResponse,
+  ApiRegionWithCities,
+  ApiLanguage,
+  ApiFormat
 } from '@/types/api';
 import apiClient from '@/lib/axios';
 import type { AxiosRequestConfig } from 'axios';
@@ -60,6 +63,38 @@ export async function getEducationLevels(
     { subject_id: subjectIds },
     config
   );
+
+  return data;
+}
+
+// Get all regions with their cities
+export async function getRegions(): Promise<ApiRegionWithCities[]> {
+  const { data } = await apiClient.get<ApiRegionWithCities[]>('/regions');
+
+  return data;
+}
+
+// Get all languages
+export async function getLanguages(): Promise<ApiLanguage[]> {
+  const { data } = await apiClient.get<ApiLanguage[]>('/languages');
+
+  return data;
+}
+
+// Get all teaching formats
+export async function getFormats(): Promise<ApiFormat[]> {
+  const { data } = await apiClient.get<ApiFormat[]>('/formats');
+
+  return data;
+}
+
+// Create new announcement
+export async function createAnnouncement(formData: FormData): Promise<ApiAnnouncement> {
+  const { data } = await apiClient.post<ApiAnnouncement>('/announcements', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 
   return data;
 }

@@ -15,6 +15,13 @@ export interface ApiCity {
   region_id: number;
 }
 
+export interface ApiRegionWithCities {
+  id: number;
+  name: string;
+  normalized_name: string;
+  cities: ApiCity[];
+}
+
 export interface ApiSubject {
   id: number;
   name: string;
@@ -103,4 +110,22 @@ export interface ApiEducationLevelResponse {
   subject_id: number;
   subject_name: string;
   levels: ApiEducationLevel[];
+}
+
+// Language from /api/languages
+export interface ApiLanguage {
+  id: number;
+  name: string;
+  code: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Format from /api/formats
+export interface ApiFormat {
+  id: number;
+  name: string;
+  value: string;
+  created_at: string;
+  updated_at: string;
 }

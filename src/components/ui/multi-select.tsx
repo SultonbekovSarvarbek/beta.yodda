@@ -27,6 +27,7 @@ interface MultiSelectProps {
   selected: string[];
   onChange: (selected: string[]) => void;
   placeholder?: string;
+  searchPlaceholder?: string;
   emptyText?: string;
   className?: string;
 }
@@ -36,6 +37,7 @@ export function MultiSelect({
   selected,
   onChange,
   placeholder = "Select items...",
+  searchPlaceholder = "Search...",
   emptyText = "No results found.",
   className,
 }: MultiSelectProps) {
@@ -111,7 +113,7 @@ export function MultiSelect({
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search..." />
+          <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
             <CommandEmpty>{emptyText}</CommandEmpty>
             <CommandGroup>
