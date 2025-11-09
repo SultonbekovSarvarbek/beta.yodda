@@ -5,6 +5,8 @@
 
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
+import { Sidebar } from '@/components/Sidebar';
+import { MobileHeader } from '@/components/MobileHeader';
 import { SuggestionsPanel } from '@/components/SuggestionsPanel';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { Footer } from '@/components/Footer';
@@ -27,19 +29,9 @@ import {
 export function Profile() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  console.log('user', user)
 
-  // ProtectedRoute already ensures user is authenticated
-  // Show loading state if user data is still being fetched
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('common.loading') || 'Loading profile...'}</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const getUserInitials = (name: string) => {
@@ -53,8 +45,8 @@ export function Profile() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* <MobileHeader />
-      <Sidebar /> */}
+      <MobileHeader />
+      <Sidebar />
       <main className="flex-1 lg:ml-64 xl:mr-80 pb-16 lg:pb-0">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Profile Header */}

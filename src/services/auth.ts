@@ -169,11 +169,11 @@ export async function getProfile(): Promise<User> {
   });
 
   // Update stored user data
-  if (response.user) {
-    setStoredUser(response.user);
+  if (response) {
+    setStoredUser(response);
   }
 
-  return response.user;
+  return response;
 }
 
 /**

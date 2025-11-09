@@ -100,7 +100,7 @@ export const useAuthStore = create<AuthStore>()(
       login: async (credentials) => {
         try {
           set({ loading: true, error: null });
-
+          
           await authService.login(credentials);
 
           // Fetch profile data
