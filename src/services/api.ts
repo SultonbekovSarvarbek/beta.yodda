@@ -170,12 +170,14 @@ export async function getSubjects(): Promise<ApiSubjectFull[]> {
 
 // Get education levels for subjects
 export async function getEducationLevels(
-  subjectIds: number[]
+  subjectIds: number[],
+  signal?: AbortSignal
 ): Promise<ApiEducationLevelResponse[]> {
   const endpoint = '/educationLevels';
   const data = await apiFetch<ApiEducationLevelResponse[]>(endpoint, {
     method: 'POST',
     body: JSON.stringify({ subject_id: subjectIds }),
+    signal,
   });
 
   return data;
