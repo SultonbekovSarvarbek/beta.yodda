@@ -17,7 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { MultiSelect } from '@/components/ui/multi-select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useSubjects, useEducationLevels, useRegions, useLanguages, useFormats } from '@/hooks/api';
-import { createAnnouncement } from '@/services/api';
+import { registerTutor, loginUser, createAnnouncement } from '@/services/api';
 
 interface SubjectWithLevels {
   subjectId: number;
@@ -178,6 +178,41 @@ export function BeTutorForm() {
     setSubmitSuccess(false);
 
     try {
+      // Validate passwords match
+      if (formData.password !== formData.repeatPassword) {
+        setSubmitError(t('beTutorForm.errors.passwordMismatch'));
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Step 1: Register tutor
+      const registerPayload = {
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        password: formData.password,
+        gender: formData.gender === 'male' ? 1 : 2,
+        phone: formData.phoneNumber,
+        email: formData.email,
+        age: formData.age,
+        termsAccepted: true,
+        role_id: 1,
+      };
+
+      await registerTutor(registerPayload);
+
+      // Step 2: Login to get token
+      const loginPayload = {
+        phone: formData.phoneNumber,
+        password: formData.password,
+      };
+
+      const loginResponse = await loginUser(loginPayload);
+
+      // Step 3: Store token in localStorage
+      if (loginResponse.token) {
+        localStorage.setItem('auth_token', loginResponse.token);
+      }
+
+      // Step 4: Create announcement
       // Create FormData object
       const apiFormData = new FormData();
 
