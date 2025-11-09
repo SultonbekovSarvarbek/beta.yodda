@@ -69,7 +69,8 @@
     "female": "Женский",
     "other": "Другое",
     "noResults": "Результаты не найдены",
-    "edit": "Редактировать"
+    "edit": "Редактировать",
+    "loading": "Загрузка"
   },
   "beTutorForm": {
     "title": "Регистрация репетитора",
@@ -92,6 +93,7 @@
     "age": "Возраст",
     "subjects": "Предметы",
     "selectSubjects": "Выберите предметы",
+    "selectEducationLevels": "Выберите уровни образования",
     "experienceYears": "Опыт работы (лет)",
     "education": "Образование",
     "educationSection": "Образование",

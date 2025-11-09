@@ -1,4 +1,9 @@
-import type { ApiAnnouncementsResponse, ApiAnnouncement } from '@/types/api';
+import type {
+  ApiAnnouncementsResponse,
+  ApiAnnouncement,
+  ApiSubjectFull,
+  ApiEducationLevelResponse
+} from '@/types/api';
 import { getToken } from '@/services/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://dev.yodda.online/api';
@@ -53,7 +58,7 @@ export class ApiError extends Error {
 }
 
 // Base fetch wrapper with error handling
-async function apiFetch<T>(endpoint: string): Promise<T> {
+async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   const token = getToken();
 
@@ -69,7 +74,11 @@ async function apiFetch<T>(endpoint: string): Promise<T> {
 
   try {
     const response = await fetch(url, {
-      headers,
+      ...options,
+      headers: {
+        ...headers,
+        ...options?.headers,
+      },
     });
 
     if (!response.ok) {
@@ -137,4 +146,37 @@ export async function getAnnouncementById(id: number): Promise<ApiAnnouncement> 
 // Clear cache manually if needed
 export function clearApiCache(): void {
   cache.clear();
+}
+
+// Get all subjects
+export async function getSubjects(): Promise<ApiSubjectFull[]> {
+  const cacheKey = 'subjects';
+
+  // Check cache first
+  const cachedData = cache.get<ApiSubjectFull[]>(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
+  // Fetch from API
+  const endpoint = '/subjects';
+  const data = await apiFetch<ApiSubjectFull[]>(endpoint);
+
+  // Cache the result
+  cache.set(cacheKey, data);
+
+  return data;
+}
+
+// Get education levels for subjects
+export async function getEducationLevels(
+  subjectIds: number[]
+): Promise<ApiEducationLevelResponse[]> {
+  const endpoint = '/educationLevels';
+  const data = await apiFetch<ApiEducationLevelResponse[]>(endpoint, {
+    method: 'POST',
+    body: JSON.stringify({ subject_id: subjectIds }),
+  });
+
+  return data;
 }

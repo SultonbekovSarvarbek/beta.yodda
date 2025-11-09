@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,13 @@ import { AvatarUpload } from './AvatarUpload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { getSubjects, getEducationLevels } from '@/services/api';
+import type { ApiSubjectFull, ApiEducationLevelResponse } from '@/types/api';
+
+interface SubjectWithLevels {
+  subjectId: number;
+  selectedLevels: number[];
+}
 
 interface FormData {
   avatar: File | null;
@@ -26,7 +33,8 @@ interface FormData {
   password: string;
   repeatPassword: string;
   age: string;
-  subjects: string[];
+  selectedSubjects: number[];
+  subjectsWithLevels: SubjectWithLevels[];
   experienceYears: string;
   education: string;
   universityName: string;
@@ -64,6 +72,10 @@ const generateTimeSlots = (duration: number): string[] => {
 export function BeTutorForm() {
   const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState(0);
+  const [subjects, setSubjects] = useState<ApiSubjectFull[]>([]);
+  const [educationLevels, setEducationLevels] = useState<ApiEducationLevelResponse[]>([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(false);
+  const [loadingLevels, setLoadingLevels] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     avatar: null,
     firstName: '',
@@ -75,7 +87,8 @@ export function BeTutorForm() {
     password: '',
     repeatPassword: '',
     age: '',
-    subjects: [],
+    selectedSubjects: [],
+    subjectsWithLevels: [],
     experienceYears: '',
     education: '',
     universityName: '',
@@ -102,8 +115,61 @@ export function BeTutorForm() {
     t('beTutorForm.tab4'),
   ];
 
+  // Fetch subjects on mount
+  useEffect(() => {
+    async function fetchSubjects() {
+      setLoadingSubjects(true);
+      try {
+        const data = await getSubjects();
+        setSubjects(data);
+      } catch (error) {
+        console.error('Failed to fetch subjects:', error);
+      } finally {
+        setLoadingSubjects(false);
+      }
+    }
+    fetchSubjects();
+  }, []);
+
+  // Fetch education levels when subjects change
+  useEffect(() => {
+    async function fetchEducationLevels() {
+      if (formData.selectedSubjects.length === 0) {
+        setEducationLevels([]);
+        return;
+      }
+
+      setLoadingLevels(true);
+      try {
+        const data = await getEducationLevels(formData.selectedSubjects);
+        setEducationLevels(data);
+
+        // Initialize subjectsWithLevels for newly selected subjects
+        const newSubjectsWithLevels = formData.selectedSubjects.map(subjectId => {
+          const existing = formData.subjectsWithLevels.find(s => s.subjectId === subjectId);
+          return existing || { subjectId, selectedLevels: [] };
+        });
+        setFormData(prev => ({ ...prev, subjectsWithLevels: newSubjectsWithLevels }));
+      } catch (error) {
+        console.error('Failed to fetch education levels:', error);
+      } finally {
+        setLoadingLevels(false);
+      }
+    }
+    fetchEducationLevels();
+  }, [formData.selectedSubjects]);
+
   const handleInputChange = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubjectLevelsChange = (subjectId: number, selectedLevels: number[]) => {
+    setFormData(prev => ({
+      ...prev,
+      subjectsWithLevels: prev.subjectsWithLevels.map(s =>
+        s.subjectId === subjectId ? { ...s, selectedLevels } : s
+      ),
+    }));
   };
 
   const handleNext = () => {
@@ -279,13 +345,51 @@ export function BeTutorForm() {
               <div className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="subjects">{t('beTutorForm.subjects')}</Label>
-                  <Input
-                    id="subjects"
-                    value={formData.subjects.join(', ')}
-                    onChange={(e) => handleInputChange('subjects', e.target.value.split(', '))}
-                    placeholder={t('beTutorForm.selectSubjects')}
+                  <MultiSelect
+                    options={subjects.map(subject => ({
+                      label: subject.name,
+                      value: subject.id.toString(),
+                    }))}
+                    selected={formData.selectedSubjects.map(id => id.toString())}
+                    onChange={(selected) => {
+                      const selectedIds = selected.map(id => parseInt(id));
+                      handleInputChange('selectedSubjects', selectedIds);
+                    }}
+                    placeholder={loadingSubjects ? t('common.loading') : t('beTutorForm.selectSubjects')}
+                    emptyText={t('common.noResults')}
                   />
                 </div>
+
+                {/* Education Levels for each selected subject */}
+                {loadingLevels ? (
+                  <div className="text-center py-4 text-muted-foreground">
+                    {t('common.loading')}...
+                  </div>
+                ) : (
+                  educationLevels.map((eduLevel) => {
+                    const subjectData = formData.subjectsWithLevels.find(
+                      s => s.subjectId === eduLevel.subject_id
+                    );
+                    return (
+                      <div key={eduLevel.subject_id} className="space-y-2 p-4 border rounded-lg">
+                        <Label>{eduLevel.subject_name}</Label>
+                        <MultiSelect
+                          options={eduLevel.levels.map(level => ({
+                            label: level.label,
+                            value: level.value.toString(),
+                          }))}
+                          selected={subjectData?.selectedLevels.map(id => id.toString()) || []}
+                          onChange={(selected) => {
+                            const selectedLevels = selected.map(id => parseInt(id));
+                            handleSubjectLevelsChange(eduLevel.subject_id, selectedLevels);
+                          }}
+                          placeholder={t('beTutorForm.selectEducationLevels')}
+                          emptyText={t('common.noResults')}
+                        />
+                      </div>
+                    );
+                  })
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
