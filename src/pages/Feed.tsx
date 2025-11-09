@@ -1,5 +1,5 @@
 import { FeedLayout } from '@/components/FeedLayout';
-import { useAnnouncements } from '@/hooks/useAnnouncements';
+import { useAnnouncements } from '@/hooks/api';
 import { stories } from '@/data/stories';
 
 export function Feed() {

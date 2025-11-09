@@ -7,7 +7,7 @@ import { Footer } from '@/components/Footer';
 import { TutorCard } from '@/components/TutorCard';
 import { StoriesContainer } from '@/components/StoriesContainer';
 import { TutorsFilters, type FilterValues } from '@/components/TutorsFilters';
-import { useAnnouncements } from '@/hooks/useAnnouncements';
+import { useAnnouncements } from '@/hooks/api';
 import { stories } from '@/data/stories';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
