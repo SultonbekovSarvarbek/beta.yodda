@@ -114,9 +114,13 @@ export async function loginUser(payload: {
 
 // Create new announcement
 export async function createAnnouncement(formData: FormData): Promise<ApiAnnouncement> {
-  // Let axios automatically set Content-Type with boundary for FormData
+  // Set Content-Type to multipart/form-data
   // The Authorization header will be added by the request interceptor
-  const { data } = await apiClient.post<ApiAnnouncement>('/announcements', formData);
+  const { data } = await apiClient.post<ApiAnnouncement>('/announcements', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 
   return data;
 }
