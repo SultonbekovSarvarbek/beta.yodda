@@ -101,7 +101,7 @@ export function TutorProfile() {
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-64 xl:mr-80 pb-16 lg:pb-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-4">
           {/* Profile Header - Instagram Style */}
           <div className="p-6 md:p-8 mb-0">
             <div className="flex flex-col md:flex-row gap-8">
