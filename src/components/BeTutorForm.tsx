@@ -584,7 +584,7 @@ export function BeTutorForm() {
                         {t('beTutorForm.timeSlotsDescription')}
                       </div>
                       {formData.availableDays.map((day) => (
-                        <div key={day} className="space-y-2 p-4 border rounded-lg">
+                        <div key={day} className="space-y-2">
                           <h4 className="font-medium capitalize">{t(`days.${day}`)}</h4>
                           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                             {generateTimeSlots(parseFloat(formData.lessonDuration)).map((slot) => {
