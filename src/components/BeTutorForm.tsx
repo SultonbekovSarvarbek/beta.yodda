@@ -133,6 +133,8 @@ export function BeTutorForm() {
 
   // Fetch education levels when subjects change
   useEffect(() => {
+    const abortController = new AbortController();
+
     async function fetchEducationLevels() {
       if (formData.selectedSubjects.length === 0) {
         setEducationLevels([]);
@@ -141,7 +143,7 @@ export function BeTutorForm() {
 
       setLoadingLevels(true);
       try {
-        const data = await getEducationLevels(formData.selectedSubjects);
+        const data = await getEducationLevels(formData.selectedSubjects, abortController.signal);
         setEducationLevels(data);
 
         // Initialize subjectsWithLevels for newly selected subjects
@@ -151,12 +153,21 @@ export function BeTutorForm() {
         });
         setFormData(prev => ({ ...prev, subjectsWithLevels: newSubjectsWithLevels }));
       } catch (error) {
+        // Ignore abort errors
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
         console.error('Failed to fetch education levels:', error);
       } finally {
         setLoadingLevels(false);
       }
     }
     fetchEducationLevels();
+
+    // Cleanup function to abort the request if dependencies change
+    return () => {
+      abortController.abort();
+    };
   }, [formData.selectedSubjects]);
 
   const handleInputChange = (field: keyof FormData, value: any) => {
