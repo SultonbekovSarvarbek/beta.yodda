@@ -1,4 +1,4 @@
-import type { ApiAnnouncementsResponse } from '@/types/api';
+import type { ApiAnnouncementsResponse, ApiAnnouncement } from '@/types/api';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://dev.yodda.online/api';
 
@@ -98,6 +98,26 @@ export async function getAnnouncements(
   // Fetch from API
   const endpoint = `/announcements?page=${page}`;
   const data = await apiFetch<ApiAnnouncementsResponse>(endpoint);
+
+  // Cache the result
+  cache.set(cacheKey, data);
+
+  return data;
+}
+
+// Get single announcement by ID with caching
+export async function getAnnouncementById(id: number): Promise<ApiAnnouncement> {
+  const cacheKey = `announcement_${id}`;
+
+  // Check cache first
+  const cachedData = cache.get<ApiAnnouncement>(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
+  // Fetch from API
+  const endpoint = `/announcements/${id}`;
+  const data = await apiFetch<ApiAnnouncement>(endpoint);
 
   // Cache the result
   cache.set(cacheKey, data);

@@ -175,12 +175,66 @@
     "turkish": "Турецкий"
   },
   "days": {
-    "monday": "Понедельник",
-    "tuesday": "Вторник",
-    "wednesday": "Среда",
-    "thursday": "Четверг",
-    "friday": "Пятница",
-    "saturday": "Суббота",
-    "sunday": "Воскресенье"
+    "mon": "Понедельник",
+    "tue": "Вторник",
+    "wed": "Среда",
+    "thu": "Четверг",
+    "fri": "Пятница",
+    "sat": "Суббота",
+    "sun": "Воскресенье"
+  },
+  "schedule": {
+    "title": "Расписание занятий",
+    "previousWeek": "Предыдущая неделя",
+    "nextWeek": "Следующая неделя"
+  },
+  "tutorProfile": {
+    "bookLesson": "Записаться на урок",
+    "posts": "постов",
+    "followers": "подписчиков",
+    "following": "подписок",
+    "yearsOld": "лет",
+    "tabs": {
+      "posts": "Посты",
+      "about": "О себе",
+      "schedule": "Расписание",
+      "pricing": "Цены",
+      "reviews": "Отзывы"
+    },
+    "about": {
+      "aboutMe": "Обо мне",
+      "experience": "Опыт",
+      "yearsTeaching": "лет опыта преподавания",
+      "subjectsTeach": "Предметы, которые я преподаю",
+      "priceRange": "Диапазон цен",
+      "sumPerHour": "сум в час"
+    },
+    "pricing": {
+      "lessonFormats": "Форматы занятий"
+    },
+    "reviews": {
+      "title": "Отзывы студентов",
+      "noReviews": "Пока нет отзывов",
+      "firstReview": "Станьте первым, кто оставит отзыв об этом репетиторе!"
+    },
+    "errors": {
+      "notFound": "Репетитор не найден",
+      "notFoundDesc": "Репетитор, которого вы ищете, не существует или был удален."
+    },
+    "share": {
+      "profileTitle": "Профиль репетитора",
+      "checkProfile": "Посмотрите профиль {{name}} в Yodagram",
+      "linkCopied": "Ссылка на профиль скопирована!"
+    },
+    "booking": {
+      "comingSoon": "Функция бронирования скоро появится!",
+      "bookingFor": "Бронирование урока на {{date}} в {{time}}. Скоро появится!"
+    }
+  },
+  "pricingCard": {
+    "sumPerLesson": "сум/урок",
+    "bookLesson": "Записаться",
+    "minutes": "минут",
+    "minutesShort": "мин"
   }
 }

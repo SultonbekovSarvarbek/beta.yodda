@@ -11,16 +11,14 @@ import { ScheduleGrid } from '@/components/ScheduleGrid';
 import { PricingCard } from '@/components/PricingCard';
 import { Check, Share2, MapPin, Grid3x3, User, Calendar, DollarSign, Star } from 'lucide-react';
 import { useParams } from '@tanstack/react-router';
-import { useAnnouncements } from '@/hooks/useAnnouncements';
+import { useTutorById } from '@/hooks/useTutorById';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function TutorProfile() {
+  const { t } = useTranslation();
   const { id } = useParams({ from: '/tutor/$id' });
-  const { data: tutors, loading, error } = useAnnouncements();
-
-  // Find the tutor by ID from the list
-  // In a real app, you'd fetch a single tutor from API
-  const tutor = tutors.find((t) => t.id.toString() === id);
+  const { data: tutor, loading, error } = useTutorById(id);
 
   if (loading) {
     return (
@@ -47,9 +45,9 @@ export function TutorProfile() {
         <main className="flex-1 lg:ml-64 xl:mr-80 pb-16 lg:pb-0">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center py-20">
-              <p className="text-gray-600 text-lg mb-2">Tutor not found</p>
+              <p className="text-gray-600 text-lg mb-2">{t('tutorProfile.errors.notFound')}</p>
               <p className="text-gray-500 text-sm">
-                The tutor you're looking for doesn't exist or has been removed.
+                {t('tutorProfile.errors.notFoundDesc')}
               </p>
             </div>
           </div>
@@ -64,18 +62,22 @@ export function TutorProfile() {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: `${tutor.fullname} - Tutor Profile`,
-        text: `Check out ${tutor.fullname}'s profile on Yodagram`,
+        title: `${tutor.fullname} - ${t('tutorProfile.share.profileTitle')}`,
+        text: t('tutorProfile.share.checkProfile', { name: tutor.fullname }),
         url: window.location.href,
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('Profile link copied to clipboard!');
+      alert(t('tutorProfile.share.linkCopied'));
     }
   };
 
   const handleBookLesson = () => {
-    alert('Booking functionality coming soon!');
+    alert(t('tutorProfile.booking.comingSoon'));
+  };
+
+  const handleBookSlot = (date: string, time: string) => {
+    alert(t('tutorProfile.booking.bookingFor', { date, time }));
   };
 
   // Mock posts count based on tutor data
@@ -101,7 +103,7 @@ export function TutorProfile() {
       <main className="flex-1 lg:ml-64 xl:mr-80 pb-16 lg:pb-0">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Profile Header - Instagram Style */}
-          <div className="bg-white rounded-lg border p-6 md:p-8 mb-0">
+          <div className="p-6 md:p-8 mb-0">
             <div className="flex flex-col md:flex-row gap-8">
               {/* Avatar */}
               <div className="flex justify-center md:justify-start">
@@ -128,7 +130,7 @@ export function TutorProfile() {
 
                   <div className="flex gap-2">
                     <Button onClick={handleBookLesson} size="sm">
-                      Book Lesson
+                      {t('tutorProfile.bookLesson')}
                     </Button>
                     <Button onClick={handleShare} variant="outline" size="sm">
                       <Share2 className="h-4 w-4" />
@@ -140,15 +142,15 @@ export function TutorProfile() {
                 <div className="flex gap-8 mb-4">
                   <div>
                     <span className="font-semibold">{postsCount}</span>{' '}
-                    <span className="text-gray-600">posts</span>
+                    <span className="text-gray-600">{t('tutorProfile.posts')}</span>
                   </div>
                   <div>
                     <span className="font-semibold">{followersCount}</span>{' '}
-                    <span className="text-gray-600">followers</span>
+                    <span className="text-gray-600">{t('tutorProfile.followers')}</span>
                   </div>
                   <div>
                     <span className="font-semibold">{followingCount}</span>{' '}
-                    <span className="text-gray-600">following</span>
+                    <span className="text-gray-600">{t('tutorProfile.following')}</span>
                   </div>
                 </div>
 
@@ -160,7 +162,7 @@ export function TutorProfile() {
                       {tutor.city.name}, {tutor.region.name}
                     </span>
                     <span>•</span>
-                    <span>{tutor.age} years old</span>
+                    <span>{tutor.age} {t('tutorProfile.yearsOld')}</span>
                   </div>
 
                   <p className="text-sm text-gray-800">{tutor.description}</p>
@@ -183,38 +185,38 @@ export function TutorProfile() {
             <TabsList className="w-full h-auto bg-white border rounded-lg p-2 justify-center gap-2">
               <TabsTrigger
                 value="posts"
-                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-gray-100 data-[state=active]:font-semibold rounded-lg"
+                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
               >
                 <Grid3x3 className="h-4 w-4" />
-                <span className="hidden sm:inline text-sm">Posts</span>
+                <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.posts')}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="about"
-                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-gray-100 data-[state=active]:font-semibold rounded-lg"
+                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
               >
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline text-sm">About</span>
+                <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.about')}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="schedule"
-                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-gray-100 data-[state=active]:font-semibold rounded-lg"
+                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
               >
                 <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline text-sm">Schedule</span>
+                <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.schedule')}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="pricing"
-                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-gray-100 data-[state=active]:font-semibold rounded-lg"
+                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
               >
                 <DollarSign className="h-4 w-4" />
-                <span className="hidden sm:inline text-sm">Pricing</span>
+                <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.pricing')}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="reviews"
-                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-gray-100 data-[state=active]:font-semibold rounded-lg"
+                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
               >
                 <Star className="h-4 w-4" />
-                <span className="hidden sm:inline text-sm">Reviews</span>
+                <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.reviews')}</span>
               </TabsTrigger>
             </TabsList>
 
@@ -242,17 +244,17 @@ export function TutorProfile() {
             <TabsContent value="about" className="mt-0">
               <div className="bg-white border rounded-lg p-6 space-y-6">
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">About Me</h3>
+                  <h3 className="font-semibold text-lg mb-2">{t('tutorProfile.about.aboutMe')}</h3>
                   <p className="text-gray-700">{tutor.description}</p>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Experience</h3>
-                  <p className="text-gray-700">{tutor.experience} years of teaching experience</p>
+                  <h3 className="font-semibold text-lg mb-2">{t('tutorProfile.about.experience')}</h3>
+                  <p className="text-gray-700">{tutor.experience} {t('tutorProfile.about.yearsTeaching')}</p>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Subjects I Teach</h3>
+                  <h3 className="font-semibold text-lg mb-2">{t('tutorProfile.about.subjectsTeach')}</h3>
                   <div className="flex flex-wrap gap-2">
                     {tutor.subjects.map((subject) => (
                       <Badge key={subject.id} variant="outline" className="text-sm">
@@ -263,10 +265,9 @@ export function TutorProfile() {
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Price Range</h3>
+                  <h3 className="font-semibold text-lg mb-2">{t('tutorProfile.about.priceRange')}</h3>
                   <p className="text-gray-700">
-                    {tutor.min_price.toLocaleString()} - {tutor.max_price.toLocaleString()} sum per
-                    hour
+                    {tutor.min_price.toLocaleString()} - {tutor.max_price.toLocaleString()} {t('tutorProfile.about.sumPerHour')}
                   </p>
                 </div>
               </div>
@@ -275,15 +276,18 @@ export function TutorProfile() {
             {/* Schedule Tab */}
             <TabsContent value="schedule" className="mt-0">
               <div className="bg-white border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-4">Weekly Availability</h3>
-                <ScheduleGrid schedule={tutor.schedule} />
+                <h3 className="font-semibold text-lg mb-4">{t('schedule.title')}</h3>
+                <ScheduleGrid
+                  schedule={tutor.schedule}
+                  formatsData={tutor.formatsData}
+                  onBookSlot={handleBookSlot}
+                />
               </div>
             </TabsContent>
 
             {/* Pricing Tab */}
             <TabsContent value="pricing" className="mt-0">
               <div className="bg-white border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-4">Lesson Formats</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {tutor.formatsData.map((format) => (
                     <PricingCard key={format.id} format={format} onBook={handleBookLesson} />
@@ -295,10 +299,10 @@ export function TutorProfile() {
             {/* Reviews Tab */}
             <TabsContent value="reviews" className="mt-0">
               <div className="bg-white border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-4">Student Reviews</h3>
+                <h3 className="font-semibold text-lg mb-4">{t('tutorProfile.reviews.title')}</h3>
                 <div className="text-center py-12 text-gray-500">
-                  <p>No reviews yet</p>
-                  <p className="text-sm mt-2">Be the first to leave a review for this tutor!</p>
+                  <p>{t('tutorProfile.reviews.noReviews')}</p>
+                  <p className="text-sm mt-2">{t('tutorProfile.reviews.firstReview')}</p>
                 </div>
               </div>
             </TabsContent>

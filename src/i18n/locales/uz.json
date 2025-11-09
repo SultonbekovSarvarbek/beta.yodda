@@ -142,5 +142,68 @@
     "viewProfile": "Profilni ko'rish",
     "bookLesson": "Yozilish",
     "yearsExperience": "yillik tajriba"
+  },
+  "days": {
+    "mon": "Dushanba",
+    "tue": "Seshanba",
+    "wed": "Chorshanba",
+    "thu": "Payshanba",
+    "fri": "Juma",
+    "sat": "Shanba",
+    "sun": "Yakshanba"
+  },
+  "schedule": {
+    "title": "Dars jadvali",
+    "previousWeek": "Oldingi hafta",
+    "nextWeek": "Keyingi hafta"
+  },
+  "tutorProfile": {
+    "bookLesson": "Darsga yozilish",
+    "posts": "postlar",
+    "followers": "obunachilar",
+    "following": "obunalar",
+    "yearsOld": "yosh",
+    "tabs": {
+      "posts": "Postlar",
+      "about": "Haqida",
+      "schedule": "Jadval",
+      "pricing": "Narxlar",
+      "reviews": "Sharhlar"
+    },
+    "about": {
+      "aboutMe": "Men haqimda",
+      "experience": "Tajriba",
+      "yearsTeaching": "yillik o'qitish tajribasi",
+      "subjectsTeach": "O'qitadigan fanlarim",
+      "priceRange": "Narx oralig'i",
+      "sumPerHour": "so'm soatiga"
+    },
+    "pricing": {
+      "lessonFormats": "Dars formatlari"
+    },
+    "reviews": {
+      "title": "Talabalar sharhlari",
+      "noReviews": "Hali sharhlar yo'q",
+      "firstReview": "Ushbu repetitor haqida birinchi bo'lib sharh qoldiring!"
+    },
+    "errors": {
+      "notFound": "Repetitor topilmadi",
+      "notFoundDesc": "Siz qidirayotgan repetitor mavjud emas yoki o'chirilgan."
+    },
+    "share": {
+      "profileTitle": "Repetitor profili",
+      "checkProfile": "{{name}}ning Yodagramdagi profilini ko'ring",
+      "linkCopied": "Profil havolasi nusxalandi!"
+    },
+    "booking": {
+      "comingSoon": "Bronlash funksiyasi tez orada paydo bo'ladi!",
+      "bookingFor": "{{date}}da {{time}}ga dars bronlash. Tez orada paydo bo'ladi!"
+    }
+  },
+  "pricingCard": {
+    "sumPerLesson": "so'm/dars",
+    "bookLesson": "Yozilish",
+    "minutes": "daqiqa",
+    "minutesShort": "daq"
   }
 }

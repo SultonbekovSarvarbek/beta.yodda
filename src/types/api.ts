@@ -25,7 +25,7 @@ export interface ApiFormatData {
   name: string;
   format_id: number;
   amount: number;
-  duration: string;
+  duration: string | number;
 }
 
 export interface ApiSchedule {
