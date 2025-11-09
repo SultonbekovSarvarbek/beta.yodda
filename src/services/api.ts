@@ -5,6 +5,7 @@ import type {
   ApiEducationLevelResponse
 } from '@/types/api';
 import { getToken } from '@/services/auth';
+import i18n from '@/i18n/config';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://dev.yodda.online/api';
 
@@ -65,6 +66,7 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'Accept-Language': i18n.language || 'ru',
   };
 
   // Add Authorization header if token exists
