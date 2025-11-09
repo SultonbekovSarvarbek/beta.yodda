@@ -92,9 +92,16 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> 
     const data = await response.json();
     return data;
   } catch (error) {
+    // Don't wrap ApiError or AbortError - let them propagate as-is
     if (error instanceof ApiError) {
       throw error;
     }
+
+    // Preserve AbortError for proper cleanup handling
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw error;
+    }
+
     throw new ApiError(
       error instanceof Error ? error.message : 'An unknown error occurred'
     );
