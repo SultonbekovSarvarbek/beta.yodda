@@ -82,3 +82,25 @@ export interface ApiPaginatedResponse<T> {
 }
 
 export type ApiAnnouncementsResponse = ApiPaginatedResponse<ApiAnnouncement>;
+
+// Subject from /api/subjects
+export interface ApiSubjectFull {
+  id: number;
+  name: string;
+  value: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Education Level response from /api/educationLevels
+export interface ApiEducationLevel {
+  label: string;
+  name: string;
+  value: number;
+}
+
+export interface ApiEducationLevelResponse {
+  subject_id: number;
+  subject_name: string;
+  levels: ApiEducationLevel[];
+}
