@@ -85,6 +85,8 @@ export function BeTutorForm() {
   const [currentTab, setCurrentTab] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [touchedDays, setTouchedDays] = useState<Set<string>>(new Set());
+  const isSubmittingRef = useState(false);
 
   // Create Zod schema with translations
   const formSchema = useMemo(() => z.object({
@@ -140,7 +142,10 @@ export function BeTutorForm() {
       // Check each selected day individually and add specific error messages
       data.availableDays.forEach(day => {
         const hasTimeslot = data.timeSlots.some(ts => ts.day === day);
-        if (!hasTimeslot) {
+        // Only show error if:
+        // 1. User is submitting (validate all days), OR
+        // 2. User has interacted with this day's timeslots
+        if (!hasTimeslot && (isSubmittingRef[0] || touchedDays.has(day))) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: t('beTutorForm.errors.timeSlotsRequiredForDay', { day: t(`days.${day}`) }),
@@ -149,7 +154,7 @@ export function BeTutorForm() {
         }
       });
     }
-  }), [t]);
+  }), [t, touchedDays, isSubmittingRef]);
 
   const {
     register,
@@ -157,7 +162,6 @@ export function BeTutorForm() {
     control,
     watch,
     setValue,
-    trigger,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -275,6 +279,12 @@ export function BeTutorForm() {
     }
   }, [educationLevels, formData.selectedSubjects, setValue]);
 
+  // Clear touched days when available days change
+  useEffect(() => {
+    setTouchedDays(new Set());
+    isSubmittingRef[1](false);
+  }, [formData.availableDays]);
+
   const handleSubjectLevelsChange = (subjectId: number, selectedLevels: number[]) => {
     const updatedSubjects = formData.subjectsWithLevels.map(s =>
       s.subjectId === subjectId ? { ...s, selectedLevels } : s
@@ -317,6 +327,9 @@ export function BeTutorForm() {
 
   // Handle validation errors - navigate to first tab with error
   const onError = (errors: any) => {
+    // Reset submitting ref after validation fails
+    isSubmittingRef[1](false);
+
     const errorFields = Object.keys(errors);
     if (errorFields.length > 0) {
       const firstErrorField = errorFields[0];
@@ -328,6 +341,8 @@ export function BeTutorForm() {
   const onSubmit = async (data: FormData) => {
     setSubmitError(null);
     setSubmitSuccess(false);
+    // Mark all days as touched to validate all on submit
+    isSubmittingRef[1](true);
 
     try {
 
@@ -444,6 +459,7 @@ export function BeTutorForm() {
 
       setSubmitSuccess(true);
       setSubmitError(null);
+      isSubmittingRef[1](false);
 
       // Reset form after successful submission
       setTimeout(() => {
@@ -453,6 +469,7 @@ export function BeTutorForm() {
       console.error('Form submission error:', error);
       setSubmitError(error?.response?.data?.message || error?.message || t('beTutorForm.submitError'));
       setSubmitSuccess(false);
+      isSubmittingRef[1](false);
     }
   };
 
@@ -934,6 +951,9 @@ export function BeTutorForm() {
                                       id={`${day}-${slot}`}
                                       checked={isSelected}
                                       onCheckedChange={(checked) => {
+                                        // Mark this day as touched when user interacts with it
+                                        setTouchedDays(prev => new Set(prev).add(day));
+
                                         if (checked) {
                                           setValue('timeSlots', [
                                             ...formData.timeSlots,
@@ -963,7 +983,7 @@ export function BeTutorForm() {
                             {/* Show error message for this specific day */}
                             {dayError && (
                               <p className="text-sm text-red-500">
-                                {dayError.message as string}
+                                {typeof dayError === 'string' ? dayError : (dayError as any)?.message}
                               </p>
                             )}
                           </div>
