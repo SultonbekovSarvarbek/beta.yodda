@@ -123,7 +123,7 @@ export function TutorProfile() {
                   <div className="flex items-center gap-2">
                     <h1 className="text-2xl font-semibold">{tutor.fullname}</h1>
                     
-                    <div className="flex items-center justify-center w-4 h-4 bg-blue-500 rounded-full">
+                    <div className="flex items-center justify-center w-4 h-4 bg-blue-500 rounded-full shrink-0">
                       <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
                     </div>
                   </div>
@@ -182,7 +182,7 @@ export function TutorProfile() {
 
           {/* Instagram-Style Tabs */}
           <Tabs defaultValue="posts" className="w-full">
-            <TabsList className="w-full h-auto bg-white border rounded-lg p-2 justify-center gap-2">
+            <TabsList className="w-full h-auto justify-center gap-2 bg-gray-50">
               <TabsTrigger
                 value="posts"
                 className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
@@ -222,12 +222,12 @@ export function TutorProfile() {
 
             {/* Posts Tab */}
             <TabsContent value="posts" className="mt-0">
-              <div className="bg-white border rounded-lg p-4">
-                <div className="grid grid-cols-3 gap-1 sm:gap-2">
+              <div>
+                <div className="grid grid-cols-3 gap-0.5 sm:gap-0.5 my-0 -mx-4 lg:mx-0">
                   {mockPosts.map((post) => (
                     <div
                       key={post.id}
-                      className="aspect-square bg-gray-200 rounded overflow-hidden cursor-pointer hover:opacity-75 transition-opacity"
+                      className="aspect-[3/4] bg-gray-200 overflow-hidden cursor-pointer hover:opacity-75 transition-opacity min-w-[105px] sm:min-w-[140px]"
                     >
                       <img
                         src={post.image}

@@ -540,6 +540,7 @@ export function BeTutorForm() {
                     <Label htmlFor="firstName">{t('beTutorForm.firstName')}</Label>
                     <Input
                       id="firstName"
+                      placeholder="Мадина"
                       {...register('firstName')}
                     />
                     {errors.firstName && <p className="text-sm text-red-500">{errors.firstName.message}</p>}
@@ -549,6 +550,7 @@ export function BeTutorForm() {
                     <Label htmlFor="lastName">{t('beTutorForm.lastName')}</Label>
                     <Input
                       id="lastName"
+                      placeholder="Усманова"
                       {...register('lastName')}
                     />
                     {errors.lastName && <p className="text-sm text-red-500">{errors.lastName.message}</p>}
@@ -559,6 +561,7 @@ export function BeTutorForm() {
                     <Input
                       id="phoneNumber"
                       type="tel"
+                      placeholder="+998901234567"
                       {...register('phoneNumber')}
                     />
                     {errors.phoneNumber && <p className="text-sm text-red-500">{errors.phoneNumber.message}</p>}
@@ -568,8 +571,8 @@ export function BeTutorForm() {
                     <Label htmlFor="telegramUsername">{t('beTutorForm.telegramUsername')}</Label>
                     <Input
                       id="telegramUsername"
+                      placeholder="@madina_usmanova"
                       {...register('telegramUsername')}
-                      placeholder="@username"
                     />
                     {errors.telegramUsername && <p className="text-sm text-red-500">{errors.telegramUsername.message}</p>}
                   </div>
@@ -579,6 +582,7 @@ export function BeTutorForm() {
                     <Input
                       id="email"
                       type="email"
+                      placeholder="madina.usmanova@example.com"
                       {...register('email')}
                     />
                     {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
@@ -632,8 +636,13 @@ export function BeTutorForm() {
                       {...register('repeatPassword')}
                     />
                     {errors.repeatPassword && <p className="text-sm text-red-500">{errors.repeatPassword.message}</p>}
+
+                    <p className="text-sm text-yellow-600">
+                      Ваш номер телефона и пароль будут использоваться для входа в личный кабинет.
+                    </p>
                   </div>
 
+                
                   <div className="space-y-2">
                     <Label htmlFor="regionId" className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
@@ -838,7 +847,7 @@ export function BeTutorForm() {
               <div className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="pricePerHour">{t('beTutorForm.pricePerHour')}</Label>
-                  <p className="text-sm text-muted-foreground">{t('beTutorForm.priceDescription')}</p>
+                  <p className="text-sm text-yellow-700">{t('beTutorForm.priceDescription')}</p>
                   <Input
                     id="pricePerHour"
                     type="number"
@@ -870,7 +879,6 @@ export function BeTutorForm() {
                     />
                     {errors.teachingFormat && <p className="text-sm text-red-500">{errors.teachingFormat.message}</p>}
                   </div>
-                </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="lessonDuration">{t('beTutorForm.lessonDuration')}</Label>
@@ -885,7 +893,7 @@ export function BeTutorForm() {
                             setValue('timeSlots', [], { shouldValidate: false });
                           }}
                         >
-                          <SelectTrigger className="w-sm">
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder={t('beTutorForm.selectDuration')} />
                           </SelectTrigger>
                           <SelectContent>
@@ -901,6 +909,7 @@ export function BeTutorForm() {
                     />
                     {errors.lessonDuration && <p className="text-sm text-red-500">{errors.lessonDuration.message}</p>}
                   </div>
+                </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="availableDays">{t('beTutorForm.availableDays')}</Label>
@@ -1013,6 +1022,7 @@ export function BeTutorForm() {
                   <Label htmlFor="bio">{t('beTutorForm.bio')}</Label>
                   <textarea
                     id="bio"
+                    placeholder="Пример: Я опытный преподаватель математики с индивидуальным подходом к каждому ученику. Помогаю достигать высоких результатов в короткие сроки."
                     {...register('bio')}
                     className="w-full min-h-[120px] px-3 py-2 border rounded-md"
                   />
@@ -1023,6 +1033,7 @@ export function BeTutorForm() {
                   <Label htmlFor="additionalInfo">{t('beTutorForm.additionalInfo')}</Label>
                   <textarea
                     id="additionalInfo"
+                    placeholder="Пример: Помогаю улучшить грамматику и разговорную речь. Индивидуальный подход к каждому ученику."
                     {...register('additionalInfo')}
                     className="w-full min-h-[100px] px-3 py-2 border rounded-md"
                   />
@@ -1052,6 +1063,7 @@ export function BeTutorForm() {
             <div className="flex justify-between mt-8">
               <Button
                 type="button"
+                className="cursor-pointer"
                 variant="outline"
                 onClick={handlePrevious}
                 disabled={currentTab === 0 || isSubmitting}
@@ -1060,7 +1072,7 @@ export function BeTutorForm() {
               </Button>
 
               {currentTab < tabs.length - 1 && (
-                <Button type="button" onClick={handleNext} disabled={isSubmitting}>
+                <Button type="button" className="cursor-pointer" onClick={handleNext} disabled={isSubmitting}>
                   {t('common.next')}
                 </Button>
               )}

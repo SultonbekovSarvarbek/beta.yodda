@@ -216,7 +216,12 @@
     "perHour": "час",
     "viewProfile": "Смотреть профиль",
     "bookLesson": "Записаться",
-    "yearsExperience": "лет опыта"
+    "yearsExperience": "лет опыта",
+    "yearsExperience_one": "год",
+    "yearsExperience_few": "года",
+    "yearsExperience_many": "лет",
+    "subject": "Предмет:",
+    "workExperience": "Опыт работы:"
   },
   "languages": {
     "russian": "Русский",
@@ -406,6 +411,7 @@
   },
   "pagination": {
     "previous": "Назад",
-    "next": "Далее"
+    "next": "Далее",
+    "pageOf": "Страница {{current}} из {{total}}"
   }
 }

@@ -11,6 +11,31 @@ interface TutorCardProps {
   tutor: Tutor;
 }
 
+// Helper function to get correct Russian plural form for years
+function getYearsWord(num: number | string): 'one' | 'few' | 'many' {
+  const n = typeof num === 'string' ? parseInt(num, 10) : num;
+  const lastDigit = n % 10;
+  const lastTwoDigits = n % 100;
+
+  // Special case for 11-14 (always "лет")
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+    return 'many';
+  }
+
+  // 1, 21, 31, 41... → "год"
+  if (lastDigit === 1) {
+    return 'one';
+  }
+
+  // 2-4, 22-24, 32-34... → "года"
+  if (lastDigit >= 2 && lastDigit <= 4) {
+    return 'few';
+  }
+
+  // 5-20, 25-30... → "лет"
+  return 'many';
+}
+
 export function TutorCard({ tutor }: TutorCardProps) {
   const { t } = useTranslation();
   const [liked, setLiked] = useState(false);
@@ -40,7 +65,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
               >
                 {tutor.fullname}
               </Link>
-              <div className="flex items-center justify-center w-4 h-4 bg-blue-500 rounded-full">
+              <div className="flex items-center justify-center w-4 h-4 bg-blue-500 rounded-full shrink-0">
                 <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
               </div>
             </div>
@@ -71,7 +96,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
       </div>
 
       {/* Action Buttons - Instagram Style */}
-      <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center justify-between px-4 py-3 pt-0">
         <div className="flex items-center gap-4">
           <button
             onClick={() => setLiked(!liked)}
@@ -104,7 +129,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
       </div>
 
       {/* Content Section */}
-      <div className="px-4 space-y-2">
+      <div className="px-4 pb-3 space-y-2">
         {/* Rating */}
         <div className="flex items-center gap-1 text-sm">
           <span className="font-semibold">⭐ {tutor.rate.toFixed(1)}</span>
@@ -113,38 +138,54 @@ export function TutorCard({ tutor }: TutorCardProps) {
           )}
         </div>
 
-        {/* Subjects and Bio */}
+        {/* Tutor Name */}
         <div className="text-sm">
-          <span className="font-semibold">{tutor.fullname}</span>{' '}
-          <span className="text-gray-900">
-            {tutor.subjects.map(s => s.name).join(', ')}
-          </span>
+          <span className="font-semibold">{tutor.fullname}</span>
         </div>
 
-        {/* Price */}
-        <div className="text-sm font-semibold text-gray-900">
-          {tutor.min_price === tutor.max_price ? (
-            <span>{tutor.min_price.toLocaleString()} sum/{t('tutorCard.perHour', 'hour')}</span>
-          ) : (
-            <span>
-              {tutor.min_price.toLocaleString()}-{tutor.max_price.toLocaleString()} sum/{t('tutorCard.perHour', 'hour')}
-            </span>
+        {/* Subject and Price Row */}
+        <div className="flex items-center justify-between text-sm">
+          {/* Subject with Label */}
+          {tutor.subjects.length > 0 && (
+            <div className="text-gray-700">
+              <span className="font-semibold text-black">{t('tutorCard.subject', 'Предмет:')}</span>{' '}
+              <span>{tutor.subjects[0].name}</span>
+            </div>
           )}
+
+          {/* Price */}
+          <div className="font-semibold text-gray-900">
+            {tutor.min_price === tutor.max_price ? (
+              <span className="bg-gray-300 p-1 px-2 d-block rounded-full">от {tutor.min_price.toLocaleString()} сум</span>
+            ) : (
+              <span>
+                {tutor.min_price.toLocaleString()}-{tutor.max_price.toLocaleString()} сум
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Description - Truncated to 2 lines */}
+        {tutor.description && (
+          <div className="text-sm text-gray-600 line-clamp-2">
+            {tutor.description}
+          </div>
+        )}
+
+        {/* Experience */}
+        <div className="text-sm text-gray-700">
+          <span className="font-medium text-black font-semibold">{t('tutorCard.workExperience', 'Опыт работы:')}</span>{' '}
+          <span>{tutor.experience} {t(`tutorCard.yearsExperience_${getYearsWord(tutor.experience)}`, 'лет')}</span>
         </div>
 
         {/* View Profile Link */}
         <Link
           to="/tutor/$id"
           params={{ id: tutor.id.toString() }}
-          className="text-sm text-gray-500 hover:text-gray-700 hover:underline"
+          className="text-sm text-blue-600 hover:text-blue-700 hover:underline inline-block"
         >
-          {t('tutorCard.viewProfile', 'View profile')}
+          {t('tutorCard.viewProfile', 'Смотреть профиль')}
         </Link>
-
-        {/* Experience */}
-        <div className="text-xs text-gray-400 uppercase">
-          {tutor.experience} {t('tutorCard.yearsExperience', 'years experience')}
-        </div>
       </div>
     </Card>
   );
