@@ -84,6 +84,7 @@ export function SuggestionsPanel() {
             suggestions.map((suggestion) => (
               <SuggestionItem
                 key={suggestion.id}
+                id={suggestion.id}
                 name={suggestion.name}
                 photo={suggestion.photo}
                 description={suggestion.description}

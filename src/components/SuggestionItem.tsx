@@ -1,15 +1,22 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from '@tanstack/react-router';
 
 interface SuggestionItemProps {
+  id: string;
   name: string;
   photo: string;
   description: string;
 }
 
-export function SuggestionItem({ name, photo, description }: SuggestionItemProps) {
+export function SuggestionItem({ id, name, photo, description }: SuggestionItemProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleFollowClick = () => {
+    navigate({ to: `/tutor/${id}` });
+  };
 
   return (
     <div className="flex items-center justify-between py-2">
@@ -23,7 +30,11 @@ export function SuggestionItem({ name, photo, description }: SuggestionItemProps
           <span className="text-xs text-gray-500">{description}</span>
         </div>
       </div>
-      <Button variant="ghost" className="text-blue-500 font-semibold text-xs h-auto p-0 hover:bg-transparent cursor-pointer">
+      <Button
+        variant="ghost"
+        className="text-blue-500 font-semibold text-xs h-auto p-0 hover:bg-transparent cursor-pointer"
+        onClick={handleFollowClick}
+      >
         {t('suggestions.follow')}
       </Button>
     </div>
