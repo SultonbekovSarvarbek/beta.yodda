@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getAnnouncements } from '@/services/api';
+import { getAnnouncements, type AnnouncementFilters } from '@/services/api';
 import type { ApiAnnouncementsResponse, ApiAnnouncement } from '@/types/api';
 
 export const announcementKeys = {
   all: ['announcements'] as const,
   lists: () => [...announcementKeys.all, 'list'] as const,
-  list: (page: number | undefined) => [...announcementKeys.lists(), page || 1] as const,
+  list: (filters: AnnouncementFilters | undefined) => [...announcementKeys.lists(), filters] as const,
   details: () => [...announcementKeys.all, 'detail'] as const,
   detail: (id: number) => [...announcementKeys.details(), id] as const,
 };
@@ -25,8 +25,18 @@ interface UseAnnouncementsResult {
   refetch: () => void;
 }
 
-export function useAnnouncements(): UseAnnouncementsResult {
+interface UseAnnouncementsOptions {
+  filters?: Omit<AnnouncementFilters, 'page'>;
+}
+
+export function useAnnouncements(options?: UseAnnouncementsOptions): UseAnnouncementsResult {
   const [currentPage, setCurrentPage] = useState<number | undefined>(undefined);
+  const filters = options?.filters;
+
+  // Combine page with other filters
+  const allFilters: AnnouncementFilters | undefined = filters || currentPage
+    ? { ...filters, page: currentPage }
+    : undefined;
 
   const {
     data,
@@ -34,8 +44,8 @@ export function useAnnouncements(): UseAnnouncementsResult {
     error,
     refetch: queryRefetch,
   } = useQuery<ApiAnnouncementsResponse>({
-    queryKey: announcementKeys.list(currentPage),
-    queryFn: () => getAnnouncements(currentPage),
+    queryKey: announcementKeys.list(allFilters),
+    queryFn: () => getAnnouncements(allFilters),
   });
 
   // Extract data from response

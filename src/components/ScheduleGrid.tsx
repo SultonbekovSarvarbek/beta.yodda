@@ -62,11 +62,12 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
   // Day keys for schedule lookup
   const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
 
-  // Generate time slots (8:00 to 22:00)
+  // Generate time slots (8:00 to 22:00) every 30 minutes
   const generateTimeSlots = (): string[] => {
     const slots: string[] = [];
     for (let hour = 8; hour < 22; hour++) {
       slots.push(`${hour.toString().padStart(2, '0')}:00`);
+      slots.push(`${hour.toString().padStart(2, '0')}:30`);
     }
     return slots;
   };
@@ -90,6 +91,23 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
     return `${startTime}-${endHour.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
   };
 
+  // Normalize time format to HH:MM (with leading zeros)
+  const normalizeTime = (time: string): string => {
+    const trimmed = time.trim();
+    const [hours, minutes = '00'] = trimmed.split(':');
+    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+  };
+
+  // Check if a date is today
+  const isToday = (date: Date): boolean => {
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
+
   // Check if slot is available
   const isSlotAvailable = (date: Date, dayKey: string, time: string): boolean => {
     const now = new Date();
@@ -104,10 +122,13 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
     const daySchedule = schedule[dayKey as keyof Schedule];
     if (!daySchedule || daySchedule.length === 0) return false;
 
+    // Normalize the time for comparison
+    const normalizedTime = normalizeTime(time);
+
     // Check if the time matches the start of any time range
     return daySchedule.some(range => {
-      const startTime = range.split('-')[0];
-      return startTime === time;
+      const startTime = normalizeTime(range.split('-')[0]);
+      return startTime === normalizedTime;
     });
   };
 
@@ -153,19 +174,19 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
           {/* Day Headers */}
           {weekDays.map((date, index) => {
             const dayKey = dayKeys[index];
-            const isSunday = index === 6;
+            const isTodayColumn = isToday(date);
 
             return (
               <div
                 key={index}
                 className={`border-r last:border-r-0 border-gray-200 ${
-                  isSunday ? 'bg-blue-50/50' : 'bg-white'
+                  isTodayColumn ? 'bg-blue-50/50' : 'bg-white'
                 }`}
               >
                 {/* Day Name */}
                 <div
                   className={`text-center py-4 border-b border-gray-200 font-semibold text-base ${
-                    isSunday ? 'text-blue-600 bg-blue-50' : 'text-gray-900 bg-gray-50'
+                    isTodayColumn ? 'text-blue-600 bg-blue-50' : 'text-gray-900 bg-gray-50'
                   }`}
                 >
                   {t(`days.${dayKey}`)}
@@ -174,7 +195,7 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
                 {/* Date */}
                 <div
                   className={`text-center py-3 border-b border-gray-200 text-sm font-medium ${
-                    isSunday ? 'text-blue-600' : 'text-gray-700'
+                    isTodayColumn ? 'text-blue-600' : 'text-gray-700'
                   }`}
                 >
                   {formatDate(date)}

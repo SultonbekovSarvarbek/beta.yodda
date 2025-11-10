@@ -23,11 +23,38 @@ export class ApiError extends Error {
   }
 }
 
-// Get announcements with pagination
+// Filter parameters for announcements
+export interface AnnouncementFilters {
+  page?: number;
+  region_id?: number;
+  city_id?: number;
+  gender?: number;
+  languages?: number | number[];
+  subjects?: number | number[];
+  min_amount?: number;
+  max_amount?: number;
+  search?: string;
+}
+
+// Get announcements with pagination and filters
 export async function getAnnouncements(
-  page?: number
+  filters?: AnnouncementFilters
 ): Promise<ApiAnnouncementsResponse> {
-  const config = page && page > 1 ? { params: { page } } : {};
+  const params: Record<string, any> = {};
+
+  if (filters) {
+    if (filters.page && filters.page > 1) params.page = filters.page;
+    if (filters.region_id) params.region_id = filters.region_id;
+    if (filters.city_id) params.city_id = filters.city_id;
+    if (filters.gender) params.gender = filters.gender;
+    if (filters.languages) params.languages = filters.languages;
+    if (filters.subjects) params.subjects = filters.subjects;
+    if (filters.min_amount !== undefined) params.min_amount = filters.min_amount;
+    if (filters.max_amount !== undefined) params.max_amount = filters.max_amount;
+    if (filters.search) params.search = filters.search;
+  }
+
+  const config = Object.keys(params).length > 0 ? { params } : {};
   const { data } = await apiClient.get<ApiAnnouncementsResponse>('/announcements', config);
 
   return data;

@@ -70,7 +70,9 @@
     "other": "Boshqa",
     "noResults": "Natijalar topilmadi",
     "edit": "Tahrirlash",
-    "loading": "Yuklanmoqda"
+    "loading": "Yuklanmoqda",
+    "sumPerHour": "so'm/soat",
+    "tryAgain": "Qayta urinib ko'ring"
   },
   "beTutorForm": {
     "title": "Repetitor ro'yxatdan o'tish",
@@ -356,5 +358,37 @@
     "profile": "Profil",
     "logoutSuccess": "Siz tizimdan muvaffaqiyatli chiqdingiz",
     "loggingOut": "Tizimdan chiqilmoqda..."
+  },
+  "tutors": {
+    "title": "Barcha repetitorlar",
+    "showing": "{{count}} ta repetitordan {{total}} tasi ko'rsatilmoqda",
+    "loading": "Repetitorlar yuklanmoqda...",
+    "noTutorsFound": "Repetitorlar topilmadi",
+    "adjustFilters": "Ko'proq natijalar ko'rish uchun filtrlarni o'zgartirib ko'ring"
+  },
+  "filters": {
+    "title": "Filtrlar",
+    "clearAll": "Hammasini tozalash",
+    "hide": "Yashirish",
+    "show": "Ko'rsatish",
+    "searchTutors": "Repetitorlarni qidirish",
+    "searchPlaceholder": "Ism bo'yicha qidirish...",
+    "subjects": "Fanlar",
+    "selectSubjects": "Fanlarni tanlang...",
+    "noSubjectsFound": "Fanlar topilmadi",
+    "teachingLanguages": "O'qitish tillari",
+    "selectLanguages": "Tillarni tanlang...",
+    "noLanguagesFound": "Tillar topilmadi",
+    "region": "Viloyat / Shahar",
+    "allRegions": "Barcha viloyatlar",
+    "city": "Shahar / Tuman",
+    "allCities": "Barcha shaharlar",
+    "gender": "Jins",
+    "allGenders": "Muhim emas",
+    "priceRange": "Narx oralig'i"
+  },
+  "pagination": {
+    "previous": "Orqaga",
+    "next": "Keyingisi"
   }
 }

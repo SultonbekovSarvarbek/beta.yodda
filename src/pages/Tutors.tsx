@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { Sidebar } from '@/components/Sidebar';
 import { MobileHeader } from '@/components/MobileHeader';
 import { SuggestionsPanel } from '@/components/SuggestionsPanel';
@@ -7,7 +8,7 @@ import { Footer } from '@/components/Footer';
 import { TutorCard } from '@/components/TutorCard';
 import { StoriesContainer } from '@/components/StoriesContainer';
 import { TutorsFilters, type FilterValues } from '@/components/TutorsFilters';
-import { useAnnouncements } from '@/hooks/api';
+import { useAnnouncements, useSubjects, useRegions, useLanguages } from '@/hooks/api';
 import { stories } from '@/data/stories';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,8 +22,79 @@ import {
   PaginationEllipsis,
 } from '@/components/ui/pagination';
 import type { OptionType } from '@/components/ui/multi-select';
+import { useTranslation } from 'react-i18next';
 
 export function Tutors() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const searchParams = useSearch({ from: '/tutors' }) as { page?: number };
+
+  // Filter state
+  const [filters, setFilters] = useState<FilterValues>({
+    searchQuery: '',
+    selectedSubjects: [],
+    selectedLanguages: [],
+    selectedGender: undefined,
+    selectedRegion: undefined,
+    selectedCity: undefined,
+    priceRange: [50000, 1200000],
+  });
+
+  // Fetch filter data from APIs
+  const { data: subjectsData, isLoading: isLoadingSubjects } = useSubjects();
+  const { data: regionsData, isLoading: isLoadingRegions } = useRegions();
+  const { data: languagesData, isLoading: isLoadingLanguages } = useLanguages();
+
+  // Convert API data to OptionType format
+  const subjects: OptionType[] = useMemo(() => {
+    if (!subjectsData) return [];
+    return subjectsData.map((subject) => ({
+      value: subject.id.toString(),
+      label: subject.name,
+    }));
+  }, [subjectsData]);
+
+  const languages: OptionType[] = useMemo(() => {
+    if (!languagesData) return [];
+    return languagesData.map((language) => ({
+      value: language.id.toString(),
+      label: language.name,
+    }));
+  }, [languagesData]);
+
+  const regions: OptionType[] = useMemo(() => {
+    if (!regionsData) return [];
+    return regionsData.map((region) => ({
+      value: region.id.toString(),
+      label: region.name,
+    }));
+  }, [regionsData]);
+
+  const cities: OptionType[] = useMemo(() => {
+    if (!regionsData || !filters.selectedRegion) return [];
+    const selectedRegion = regionsData.find((r) => r.id === filters.selectedRegion);
+    if (!selectedRegion) return [];
+    return selectedRegion.cities.map((city) => ({
+      value: city.id.toString(),
+      label: city.name,
+    }));
+  }, [regionsData, filters.selectedRegion]);
+
+  // Build API filters from state
+  const apiFilters = useMemo(() => {
+    return {
+      search: filters.searchQuery || undefined,
+      subjects: filters.selectedSubjects.length > 0 ? filters.selectedSubjects : undefined,
+      languages: filters.selectedLanguages.length > 0 ? filters.selectedLanguages : undefined,
+      gender: filters.selectedGender,
+      region_id: filters.selectedRegion,
+      city_id: filters.selectedCity,
+      min_amount: filters.priceRange[0],
+      max_amount: filters.priceRange[1],
+    };
+  }, [filters]);
+
+  // Fetch tutors with server-side filtering
   const {
     data: tutors,
     loading,
@@ -30,99 +102,40 @@ export function Tutors() {
     currentPage,
     totalPages,
     total,
-    goToPage,
-    nextPage,
-    prevPage,
+    goToPage: goToPageInternal,
+    nextPage: nextPageInternal,
+    prevPage: prevPageInternal,
     refetch,
-  } = useAnnouncements();
+  } = useAnnouncements({ filters: apiFilters });
 
-  // Filter state
-  const [filters, setFilters] = useState<FilterValues>({
-    searchQuery: '',
-    selectedSubjects: [],
-    priceRange: [0, 500000],
-    selectedCity: '',
-  });
-
-  // Extract unique subjects from tutors
-  const availableSubjects: OptionType[] = useMemo(() => {
-    const subjectsMap = new Map<string, string>();
-    tutors.forEach((tutor) => {
-      tutor.subjects.forEach((subject) => {
-        subjectsMap.set(subject.id.toString(), subject.name);
-      });
-    });
-    return Array.from(subjectsMap.entries()).map(([id, name]) => ({
-      value: id,
-      label: name,
-    }));
-  }, [tutors]);
-
-  // Extract unique cities from tutors
-  const availableCities: OptionType[] = useMemo(() => {
-    const citiesMap = new Map<string, string>();
-    tutors.forEach((tutor) => {
-      citiesMap.set(tutor.city.id.toString(), tutor.city.name);
-    });
-    return Array.from(citiesMap.entries()).map(([id, name]) => ({
-      value: id,
-      label: name,
-    }));
-  }, [tutors]);
-
-  // Calculate max price from tutors
-  const maxPrice = useMemo(() => {
-    if (tutors.length === 0) return 500000;
-    const max = Math.max(...tutors.map((t) => t.max_price));
-    return Math.ceil(max / 10000) * 10000; // Round up to nearest 10k
-  }, [tutors]);
-
-  // Update price range when maxPrice changes (first load)
-  useMemo(() => {
-    if (filters.priceRange[1] === 500000 && maxPrice !== 500000) {
-      setFilters((prev) => ({
-        ...prev,
-        priceRange: [0, maxPrice],
-      }));
+  // Sync URL page param with hook's internal page on mount
+  useEffect(() => {
+    const urlPage = searchParams.page;
+    if (urlPage && urlPage !== currentPage) {
+      goToPageInternal(urlPage);
     }
-  }, [maxPrice, filters.priceRange]);
+  }, []); // Only run on mount
 
-  // Filter tutors based on filters
-  const filteredTutors = useMemo(() => {
-    return tutors.filter((tutor) => {
-      // Search filter
-      if (
-        filters.searchQuery &&
-        !tutor.fullname.toLowerCase().includes(filters.searchQuery.toLowerCase())
-      ) {
-        return false;
-      }
+  // Wrapper functions that update URL
+  const goToPage = useCallback((page: number) => {
+    goToPageInternal(page);
+    navigate({ search: { page } });
+  }, [goToPageInternal, navigate]);
 
-      // Subject filter
-      if (filters.selectedSubjects.length > 0) {
-        const tutorSubjectIds = tutor.subjects.map((s) => s.id.toString());
-        const hasMatchingSubject = filters.selectedSubjects.some((selectedId) =>
-          tutorSubjectIds.includes(selectedId)
-        );
-        if (!hasMatchingSubject) return false;
-      }
+  const nextPage = useCallback(() => {
+    const nextPageNum = currentPage + 1;
+    nextPageInternal();
+    navigate({ search: { page: nextPageNum } });
+  }, [currentPage, nextPageInternal, navigate]);
 
-      // Price filter
-      if (
-        tutor.min_price > filters.priceRange[1] ||
-        tutor.max_price < filters.priceRange[0]
-      ) {
-        return false;
-      }
+  const prevPage = useCallback(() => {
+    const prevPageNum = currentPage - 1;
+    prevPageInternal();
+    navigate({ search: { page: prevPageNum } });
+  }, [currentPage, prevPageInternal, navigate]);
 
-      // City filter
-      if (filters.selectedCity && tutor.city.id.toString() !== filters.selectedCity) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [tutors, filters]);
+  const isLoadingFilters = isLoadingSubjects || isLoadingRegions || isLoadingLanguages;
+  const maxPrice = 1200000; // Fixed max price
 
   // Generate page numbers for pagination
   const getPageNumbers = () => {
@@ -181,11 +194,11 @@ export function Tutors() {
 
           {/* Page Header */}
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">All Tutors</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('tutors.title')}</h1>
             <p className="text-gray-600">
               {loading
-                ? 'Loading tutors...'
-                : `Showing ${filteredTutors.length} of ${total} tutors`}
+                ? t('tutors.loading')
+                : t('tutors.showing', { count: tutors.length, total })}
             </p>
           </div>
 
@@ -193,16 +206,19 @@ export function Tutors() {
           <TutorsFilters
             filters={filters}
             onFiltersChange={setFilters}
-            availableSubjects={availableSubjects}
-            availableCities={availableCities}
+            subjects={subjects}
+            languages={languages}
+            regions={regions}
+            cities={cities}
             maxPrice={maxPrice}
+            isLoadingFilters={isLoadingFilters}
           />
 
           {/* Loading State */}
           {loading && (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="h-12 w-12 animate-spin text-gray-400 mb-4" />
-              <p className="text-gray-600">Loading tutors...</p>
+              <p className="text-gray-600">{t('tutors.loading')}</p>
             </div>
           )}
 
@@ -211,7 +227,7 @@ export function Tutors() {
             <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
               <p className="text-red-600 mb-4">{error}</p>
               <Button onClick={refetch} variant="outline">
-                Try Again
+                {t('common.tryAgain')}
               </Button>
             </div>
           )}
@@ -219,16 +235,16 @@ export function Tutors() {
           {/* Tutors Grid */}
           {!loading && !error && (
             <>
-              {filteredTutors.length === 0 ? (
+              {tutors.length === 0 ? (
                 <div className="text-center py-20">
-                  <p className="text-gray-600 text-lg mb-2">No tutors found</p>
+                  <p className="text-gray-600 text-lg mb-2">{t('tutors.noTutorsFound')}</p>
                   <p className="text-gray-500 text-sm">
-                    Try adjusting your filters to see more results
+                    {t('tutors.adjustFilters')}
                   </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
-                  {filteredTutors.map((tutor) => (
+                  {tutors.map((tutor) => (
                     <div key={tutor.id}>
                       <TutorCard tutor={tutor} />
                     </div>
@@ -242,6 +258,7 @@ export function Tutors() {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
+                        label={t('pagination.previous')}
                         onClick={(e) => {
                           e.preventDefault();
                           if (currentPage > 1) prevPage();
@@ -275,6 +292,7 @@ export function Tutors() {
 
                     <PaginationItem>
                       <PaginationNext
+                        label={t('pagination.next')}
                         onClick={(e) => {
                           e.preventDefault();
                           if (currentPage < totalPages) nextPage();
