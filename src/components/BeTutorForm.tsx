@@ -134,18 +134,21 @@ export function BeTutorForm() {
     message: t('beTutorForm.errors.passwordMismatch'),
     path: ['repeatPassword'],
   })
-  .refine((data) => {
+  .superRefine((data, ctx) => {
     // Only validate time slots if both duration and days are selected
     if (data.lessonDuration && data.availableDays.length > 0) {
-      // Check that each selected day has at least one timeslot
-      return data.availableDays.every(day =>
-        data.timeSlots.some(ts => ts.day === day)
-      );
+      // Check each selected day individually and add specific error messages
+      data.availableDays.forEach(day => {
+        const hasTimeslot = data.timeSlots.some(ts => ts.day === day);
+        if (!hasTimeslot) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t('beTutorForm.errors.timeSlotsRequiredForDay', { day: t(`days.${day}`) }),
+            path: ['timeSlots', day],
+          });
+        }
+      });
     }
-    return true; // Skip validation if prerequisites not met
-  }, {
-    message: t('beTutorForm.errors.timeSlotsRequired'),
-    path: ['timeSlots'],
   }), [t]);
 
   const {
@@ -226,15 +229,29 @@ export function BeTutorForm() {
   // Fetch days using React Query
   const { data: days = [] } = useDays();
 
-  // Create day options for MultiSelect (convert API data to options format)
+  // Map day IDs to English keys (for translation and storage)
+  const dayIdToKey: Record<number, string> = {
+    1: 'monday',
+    2: 'tuesday',
+    3: 'wednesday',
+    4: 'thursday',
+    5: 'friday',
+    6: 'saturday',
+    7: 'sunday'
+  };
+
+  // Create day options for MultiSelect (use English keys as values)
   const dayOptions = days.map(day => ({
     label: day.name,
-    value: day.name.toLowerCase(),
+    value: dayIdToKey[day.id] || day.name.toLowerCase(),
   }));
 
-  // Create day mapping from name to ID (for API submission)
+  // Create day mapping from English key to ID (for API submission)
   const dayMap: { [key: string]: number } = days.reduce((acc, day) => {
-    acc[day.name.toLowerCase()] = day.id;
+    const englishKey = dayIdToKey[day.id];
+    if (englishKey) {
+      acc[englishKey] = day.id;
+    }
     return acc;
   }, {} as { [key: string]: number });
 
@@ -897,52 +914,61 @@ export function BeTutorForm() {
                       <div className="text-sm text-muted-foreground mb-2">
                         {t('beTutorForm.timeSlotsDescription')}
                       </div>
-                      {formData.availableDays.map((day) => (
-                        <div key={day} className="space-y-2">
-                          <h4 className="font-medium capitalize">{t(`days.${day}`)}</h4>
-                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                            {generateTimeSlots(parseInt(formData.lessonDuration)).map((slot) => {
-                              const isSelected = formData.timeSlots.some(
-                                (ts) => ts.day === day && ts.time === slot
-                              );
-                              return (
-                                <div
-                                  key={`${day}-${slot}`}
-                                  className="flex items-center space-x-2"
-                                >
-                                  <Checkbox
-                                    id={`${day}-${slot}`}
-                                    checked={isSelected}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) {
-                                        setValue('timeSlots', [
-                                          ...formData.timeSlots,
-                                          { day, time: slot },
-                                        ], { shouldValidate: true });
-                                      } else {
-                                        setValue(
-                                          'timeSlots',
-                                          formData.timeSlots.filter(
-                                            (ts) => !(ts.day === day && ts.time === slot)
-                                          ),
-                                          { shouldValidate: true }
-                                        );
-                                      }
-                                    }}
-                                  />
-                                  <label
-                                    htmlFor={`${day}-${slot}`}
-                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      {formData.availableDays.map((day) => {
+                        // Get the error for this specific day
+                        const dayError = errors.timeSlots?.[day as keyof typeof errors.timeSlots];
+                        return (
+                          <div key={day} className="space-y-2">
+                            <h4 className="font-medium capitalize">{t(`days.${day}`)}</h4>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                              {generateTimeSlots(parseInt(formData.lessonDuration)).map((slot) => {
+                                const isSelected = formData.timeSlots.some(
+                                  (ts) => ts.day === day && ts.time === slot
+                                );
+                                return (
+                                  <div
+                                    key={`${day}-${slot}`}
+                                    className="flex items-center space-x-2"
                                   >
-                                    {slot}
-                                  </label>
-                                </div>
-                              );
-                            })}
+                                    <Checkbox
+                                      id={`${day}-${slot}`}
+                                      checked={isSelected}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          setValue('timeSlots', [
+                                            ...formData.timeSlots,
+                                            { day, time: slot },
+                                          ], { shouldValidate: true });
+                                        } else {
+                                          setValue(
+                                            'timeSlots',
+                                            formData.timeSlots.filter(
+                                              (ts) => !(ts.day === day && ts.time === slot)
+                                            ),
+                                            { shouldValidate: true }
+                                          );
+                                        }
+                                      }}
+                                    />
+                                    <label
+                                      htmlFor={`${day}-${slot}`}
+                                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                    >
+                                      {slot}
+                                    </label>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            {/* Show error message for this specific day */}
+                            {dayError && (
+                              <p className="text-sm text-red-500">
+                                {dayError.message as string}
+                              </p>
+                            )}
                           </div>
-                        </div>
-                      ))}
-                      {errors.timeSlots && <p className="text-sm text-red-500">{errors.timeSlots.message}</p>}
+                        );
+                      })}
                     </div>
                   )}
               </div>

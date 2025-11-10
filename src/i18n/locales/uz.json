@@ -160,6 +160,7 @@
       "durationRequired": "Dars davomiyligini tanlang",
       "daysRequired": "Kamida bitta kunni tanlang",
       "timeSlotsRequired": "Kamida bitta vaqt oralig'ini tanlang",
+      "timeSlotsRequiredForDay": "{{day}} uchun vaqt oralig'ini tanlang",
       "bioRequired": "O'zingiz haqingizda yozing",
       "certificatesRequired": "Kamida bitta sertifikat yuklang",
       "additionalInfoRequired": "Qo'shimcha ma'lumotni to'ldiring"
@@ -212,7 +213,14 @@
     "thu": "Payshanba",
     "fri": "Juma",
     "sat": "Shanba",
-    "sun": "Yakshanba"
+    "sun": "Yakshanba",
+    "monday": "Dushanba",
+    "tuesday": "Seshanba",
+    "wednesday": "Chorshanba",
+    "thursday": "Payshanba",
+    "friday": "Juma",
+    "saturday": "Shanba",
+    "sunday": "Yakshanba"
   },
   "schedule": {
     "title": "Dars jadvali",
