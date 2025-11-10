@@ -23,7 +23,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
         <div className="flex items-center gap-3">
           <Avatar className="w-10 h-10">
             <AvatarImage
-              src={tutor.image || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}
+              src={tutor.image?.thumbnail || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}
               alt={tutor.fullname}
             />
             <AvatarFallback className="text-sm font-semibold bg-gradient-to-br from-purple-500 to-pink-500 text-white">
@@ -64,7 +64,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
       {/* Main Image - Square */}
       <div className="relative aspect-square bg-gray-100">
         <img
-          src={tutor.image || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=800&fit=crop'}
+          src={tutor.image?.medium || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=800&fit=crop'}
           alt={tutor.fullname}
           className="w-full h-full object-cover"
         />

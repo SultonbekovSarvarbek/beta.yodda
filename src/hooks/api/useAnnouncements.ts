@@ -6,7 +6,7 @@ import type { ApiAnnouncementsResponse, ApiAnnouncement } from '@/types/api';
 export const announcementKeys = {
   all: ['announcements'] as const,
   lists: () => [...announcementKeys.all, 'list'] as const,
-  list: (page: number) => [...announcementKeys.lists(), page] as const,
+  list: (page: number | undefined) => [...announcementKeys.lists(), page || 1] as const,
   details: () => [...announcementKeys.all, 'detail'] as const,
   detail: (id: number) => [...announcementKeys.details(), id] as const,
 };
@@ -26,7 +26,7 @@ interface UseAnnouncementsResult {
 }
 
 export function useAnnouncements(): UseAnnouncementsResult {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState<number | undefined>(undefined);
 
   const {
     data,
@@ -51,14 +51,16 @@ export function useAnnouncements(): UseAnnouncementsResult {
   }, [totalPages]);
 
   const nextPage = useCallback(() => {
-    if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
+    const current = currentPage || 1;
+    if (current < totalPages) {
+      setCurrentPage(current + 1);
     }
   }, [currentPage, totalPages]);
 
   const prevPage = useCallback(() => {
-    if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
+    const current = currentPage || 1;
+    if (current > 1) {
+      setCurrentPage(current - 1);
     }
   }, [currentPage]);
 
@@ -66,13 +68,13 @@ export function useAnnouncements(): UseAnnouncementsResult {
     queryRefetch();
   }, [queryRefetch]);
 
-  const hasMore = currentPage < totalPages;
+  const hasMore = (currentPage || 1) < totalPages;
 
   return {
     data: announcements,
     loading: isLoading,
     error: error ? (error as Error).message : null,
-    currentPage,
+    currentPage: currentPage || 1,
     totalPages,
     total,
     goToPage,

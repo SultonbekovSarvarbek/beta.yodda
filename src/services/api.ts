@@ -5,7 +5,8 @@ import type {
   ApiEducationLevelResponse,
   ApiRegionWithCities,
   ApiLanguage,
-  ApiFormat
+  ApiFormat,
+  ApiDay
 } from '@/types/api';
 import apiClient from '@/lib/axios';
 import type { AxiosRequestConfig } from 'axios';
@@ -24,11 +25,10 @@ export class ApiError extends Error {
 
 // Get announcements with pagination
 export async function getAnnouncements(
-  page: number = 1
+  page?: number
 ): Promise<ApiAnnouncementsResponse> {
-  const { data } = await apiClient.get<ApiAnnouncementsResponse>('/announcements', {
-    params: { page },
-  });
+  const config = page && page > 1 ? { params: { page } } : {};
+  const { data } = await apiClient.get<ApiAnnouncementsResponse>('/announcements', config);
 
   return data;
 }
@@ -84,6 +84,13 @@ export async function getLanguages(): Promise<ApiLanguage[]> {
 // Get all teaching formats
 export async function getFormats(): Promise<ApiFormat[]> {
   const { data } = await apiClient.get<ApiFormat[]>('/formats');
+
+  return data;
+}
+
+// Get all days
+export async function getDays(): Promise<ApiDay[]> {
+  const { data } = await apiClient.get<ApiDay[]>('/days');
 
   return data;
 }

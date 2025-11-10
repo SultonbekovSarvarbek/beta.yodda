@@ -88,7 +88,7 @@ export function TutorProfile() {
   // Generate mock posts (using tutor image or placeholders)
   const mockPosts = Array.from({ length: 9 }, (_, i) => ({
     id: i + 1,
-    image: tutor.image || `https://images.unsplash.com/photo-${1500000000000 + i * 1000}?w=400&h=400&fit=crop`,
+    image: tutor.image?.small || `https://images.unsplash.com/photo-${1500000000000 + i * 1000}?w=400&h=400&fit=crop`,
   }));
 
   return (
@@ -109,7 +109,7 @@ export function TutorProfile() {
               <div className="flex justify-center md:justify-start">
                 <Avatar className="h-32 w-32 md:h-40 md:w-40">
                   <AvatarImage
-                    src={tutor.image || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&h=300&fit=crop'}
+                    src={tutor.image?.medium || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&h=300&fit=crop'}
                     alt={tutor.fullname}
                   />
                   <AvatarFallback>{tutor.fullname.charAt(0)}</AvatarFallback>

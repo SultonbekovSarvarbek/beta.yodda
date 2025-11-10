@@ -45,6 +45,16 @@ export interface ApiSchedule {
   sun?: string[];
 }
 
+export interface ApiImage {
+  path: string;
+  original: string;
+  unique_id: string;
+  thumbnail: string;
+  small: string;
+  medium: string;
+  large: string;
+}
+
 export interface ApiAnnouncement {
   id: number;
   fullname: string;
@@ -52,7 +62,7 @@ export interface ApiAnnouncement {
   experience: string;
   rate: number;
   gender: number;
-  image: string | null;
+  image: ApiImage | null;
   region: ApiRegion;
   city: ApiCity;
   subjects: ApiSubject[];
@@ -126,6 +136,14 @@ export interface ApiFormat {
   id: number;
   name: string;
   value: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Day from /api/days
+export interface ApiDay {
+  id: number;
+  name: string;
   created_at: string;
   updated_at: string;
 }

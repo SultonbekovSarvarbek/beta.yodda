@@ -6,3 +6,4 @@ export * from './useEducationLevels';
 export * from './useRegions';
 export * from './useLanguages';
 export * from './useFormats';
+export * from './useDays';

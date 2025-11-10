@@ -14,7 +14,7 @@ export function SuggestionItem({ name, photo, description }: SuggestionItemProps
   return (
     <div className="flex items-center justify-between py-2">
       <div className="flex items-center gap-3">
-        <Avatar className="w-9 h-9">
+        <Avatar className="w-9 h-9 border">
           <AvatarImage src={photo} alt={name} />
           <AvatarFallback>{name.charAt(0)}</AvatarFallback>
         </Avatar>
@@ -23,7 +23,7 @@ export function SuggestionItem({ name, photo, description }: SuggestionItemProps
           <span className="text-xs text-gray-500">{description}</span>
         </div>
       </div>
-      <Button variant="ghost" className="text-blue-500 font-semibold text-xs h-auto p-0 hover:bg-transparent">
+      <Button variant="ghost" className="text-blue-500 font-semibold text-xs h-auto p-0 hover:bg-transparent cursor-pointer">
         {t('suggestions.follow')}
       </Button>
     </div>

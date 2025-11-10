@@ -16,8 +16,9 @@ import { CertificateUpload } from './CertificateUpload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useSubjects, useEducationLevels, useRegions, useLanguages, useFormats } from '@/hooks/api';
-import { registerTutor, loginUser, createAnnouncement } from '@/services/api';
+import { useSubjects, useEducationLevels, useRegions, useLanguages, useFormats, useDays } from '@/hooks/api';
+import { registerTutor, createAnnouncement } from '@/services/api';
+import * as authService from '@/services/auth';
 
 interface SubjectWithLevels {
   subjectId: number;
@@ -53,15 +54,21 @@ interface FormData {
   additionalInfo: string;
 }
 
-// Helper function to generate time slots based on duration
-const generateTimeSlots = (duration: number): string[] => {
+// Helper function to generate time slots based on duration in minutes
+const generateTimeSlots = (durationMinutes: number): string[] => {
   const slots: string[] = [];
-  const startHour = 8;
-  const endHour = 22;
+  const startMinutes = 8 * 60; // 8:00 AM in minutes
+  const endMinutes = 22 * 60; // 10:00 PM in minutes
 
-  for (let hour = startHour; hour + duration <= endHour; hour += duration) {
-    const startTime = `${hour.toString().padStart(2, '0')}:00`;
-    const endTime = `${(hour + duration).toString().padStart(2, '0')}:00`;
+  for (let minutes = startMinutes; minutes + durationMinutes <= endMinutes; minutes += durationMinutes) {
+    const startHour = Math.floor(minutes / 60);
+    const startMin = minutes % 60;
+    const endTotalMinutes = minutes + durationMinutes;
+    const endHour = Math.floor(endTotalMinutes / 60);
+    const endMin = endTotalMinutes % 60;
+
+    const startTime = `${startHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`;
+    const endTime = `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`;
     slots.push(`${startTime} - ${endTime}`);
   }
 
@@ -135,6 +142,21 @@ export function BeTutorForm() {
   // Filter to show only online format
   const onlineFormats = formats.filter(format => format.value === 'online' || format.id === 8);
 
+  // Fetch days using React Query
+  const { data: days = [], isLoading: loadingDays } = useDays();
+
+  // Create day options for MultiSelect (convert API data to options format)
+  const dayOptions = days.map(day => ({
+    label: day.name,
+    value: day.name.toLowerCase(),
+  }));
+
+  // Create day mapping from name to ID (for API submission)
+  const dayMap: { [key: string]: number } = days.reduce((acc, day) => {
+    acc[day.name.toLowerCase()] = day.id;
+    return acc;
+  }, {} as { [key: string]: number });
+
   // Initialize subjectsWithLevels when education levels data changes
   useEffect(() => {
     if (educationLevels.length > 0) {
@@ -199,20 +221,13 @@ export function BeTutorForm() {
 
       await registerTutor(registerPayload);
 
-      // Step 2: Login to get token
-      const loginPayload = {
+      // Step 2: Login to get token via centralized auth service
+      await authService.login({
         phone: formData.phoneNumber,
         password: formData.password,
-      };
+      });
 
-      const loginResponse = await loginUser(loginPayload);
-
-      // Step 3: Store token in localStorage
-      if (loginResponse.token) {
-        localStorage.setItem('auth_token', loginResponse.token);
-      }
-
-      // Step 4: Create announcement
+      // Step 3: Create announcement
       // Create FormData object
       const apiFormData = new FormData();
 
@@ -234,9 +249,7 @@ export function BeTutorForm() {
       apiFormData.append('experience', formData.experienceYears);
 
       // Subjects and levels
-      formData.selectedSubjects.forEach((subjectId) => {
-        apiFormData.append('subjects[]', subjectId.toString());
-      });
+      apiFormData.append('subjects', JSON.stringify(formData.selectedSubjects));
 
       // Subject levels as JSON string
       const subjectLevels = formData.subjectsWithLevels.map(({ subjectId, selectedLevels }) => ({
@@ -246,9 +259,7 @@ export function BeTutorForm() {
       apiFormData.append('subjectLevels', JSON.stringify(subjectLevels));
 
       // Teaching languages
-      formData.teachingLanguages.forEach((langId) => {
-        apiFormData.append('languages[]', langId.toString());
-      });
+      apiFormData.append('languages', JSON.stringify(formData.teachingLanguages));
 
       // Price and format
       apiFormData.append('amount', formData.pricePerHour);
@@ -257,32 +268,26 @@ export function BeTutorForm() {
       const formatsData = [{
         format_id: parseInt(formData.teachingFormat),
         amount: formData.pricePerHour,
-        duration: parseInt(formData.lessonDuration) * 60, // Convert hours to minutes
+        duration: parseInt(formData.lessonDuration), // Duration is already in minutes
       }];
       apiFormData.append('formatsData', JSON.stringify(formatsData));
-      apiFormData.append('formats[]', formData.teachingFormat);
+      apiFormData.append('formats', JSON.stringify([parseInt(formData.teachingFormat)]));
 
-      // Days mapping (convert to numbers: 1=Monday, 2=Tuesday, etc.)
-      const dayMap: { [key: string]: number } = {
-        monday: 1,
-        tuesday: 2,
-        wednesday: 3,
-        thursday: 4,
-        friday: 5,
-        saturday: 6,
-        sunday: 7,
-      };
-      formData.availableDays.forEach((day) => {
-        const dayNum = dayMap[day];
-        if (dayNum) {
-          apiFormData.append('days[]', dayNum.toString());
-        }
-      });
+      // Days mapping (using dynamic dayMap from API)
+      const dayIds = formData.availableDays.map(day => dayMap[day]).filter(Boolean);
+      apiFormData.append('days', JSON.stringify(dayIds));
 
       // Schedule - group time slots by day
+      // Map day ID to English abbreviation (backend expects English day names)
+      const dayIdToAbbrev: Record<number, string> = {
+        1: 'mon', 2: 'tue', 3: 'wed', 4: 'thu',
+        5: 'fri', 6: 'sat', 7: 'sun'
+      };
+
       const schedule: { [key: string]: string[] } = {};
       formData.timeSlots.forEach(({ day, time }) => {
-        const dayShort = day.substring(0, 3).toLowerCase(); // mon, tue, etc.
+        const dayId = dayMap[day];
+        const dayShort = dayIdToAbbrev[dayId];
         if (!schedule[dayShort]) {
           schedule[dayShort] = [];
         }
@@ -682,11 +687,12 @@ export function BeTutorForm() {
                         <SelectValue placeholder={t('beTutorForm.selectDuration')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">{t('beTutorForm.duration1h')}</SelectItem>
-                        <SelectItem value="1.5">{t('beTutorForm.duration1_5h')}</SelectItem>
-                        <SelectItem value="2">{t('beTutorForm.duration2h')}</SelectItem>
-                        <SelectItem value="2.5">{t('beTutorForm.duration2_5h')}</SelectItem>
-                        <SelectItem value="3">{t('beTutorForm.duration3h')}</SelectItem>
+                        <SelectItem value="30">30 минут (мини-сессия)</SelectItem>
+                        <SelectItem value="45">45 минут (акад. урок)</SelectItem>
+                        <SelectItem value="50">50 минут (урок)</SelectItem>
+                        <SelectItem value="60">60 минут (час)</SelectItem>
+                        <SelectItem value="90">90 минут (1.5 часа)</SelectItem>
+                        <SelectItem value="120">120 минут (2 часа)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -694,15 +700,7 @@ export function BeTutorForm() {
                   <div className="space-y-2">
                     <Label htmlFor="availableDays">{t('beTutorForm.availableDays')}</Label>
                     <MultiSelect
-                      options={[
-                        { label: t('days.monday'), value: 'monday' },
-                        { label: t('days.tuesday'), value: 'tuesday' },
-                        { label: t('days.wednesday'), value: 'wednesday' },
-                        { label: t('days.thursday'), value: 'thursday' },
-                        { label: t('days.friday'), value: 'friday' },
-                        { label: t('days.saturday'), value: 'saturday' },
-                        { label: t('days.sunday'), value: 'sunday' },
-                      ]}
+                      options={dayOptions}
                       selected={formData.availableDays}
                       onChange={(selected) => {
                         handleInputChange('availableDays', selected);
@@ -726,7 +724,7 @@ export function BeTutorForm() {
                         <div key={day} className="space-y-2">
                           <h4 className="font-medium capitalize">{t(`days.${day}`)}</h4>
                           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                            {generateTimeSlots(parseFloat(formData.lessonDuration)).map((slot) => {
+                            {generateTimeSlots(parseInt(formData.lessonDuration)).map((slot) => {
                               const isSelected = formData.timeSlots.some(
                                 (ts) => ts.day === day && ts.time === slot
                               );

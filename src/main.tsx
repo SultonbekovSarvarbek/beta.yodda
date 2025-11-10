@@ -55,11 +55,7 @@ const tutorsRoute = createRoute({
 const tutorProfileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/tutor/$id',
-  component: () => (
-    <ProtectedRoute>
-      <TutorProfile />
-    </ProtectedRoute>
-  ),
+  component: TutorProfile,
 })
 
 const profileRoute = createRoute({

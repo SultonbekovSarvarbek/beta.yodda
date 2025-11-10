@@ -1,4 +1,4 @@
-import type { ApiRegion, ApiCity, ApiFormatData, ApiSchedule } from './api';
+import type { ApiRegion, ApiCity, ApiFormatData, ApiSchedule, ApiImage } from './api';
 
 // Subject interface matching API
 export interface Subject {
@@ -26,7 +26,7 @@ export interface Tutor {
   experience: string;
   rate: number;
   gender: number; // 1 = male, 2 = female (presumably)
-  image: string | null;
+  image: ApiImage | null;
   region: Region;
   city: City;
   subjects: Subject[];

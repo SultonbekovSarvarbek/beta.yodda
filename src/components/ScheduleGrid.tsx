@@ -104,7 +104,11 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
     const daySchedule = schedule[dayKey as keyof Schedule];
     if (!daySchedule || daySchedule.length === 0) return false;
 
-    return daySchedule.includes(time);
+    // Check if the time matches the start of any time range
+    return daySchedule.some(range => {
+      const startTime = range.split('-')[0];
+      return startTime === time;
+    });
   };
 
   // Handle previous week
