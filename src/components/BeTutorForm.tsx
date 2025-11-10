@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Loader2 } from 'lucide-react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,17 +23,13 @@ import { useSubjects, useEducationLevels, useRegions, useLanguages, useFormats, 
 import { registerTutor, createAnnouncement } from '@/services/api';
 import * as authService from '@/services/auth';
 
-interface SubjectWithLevels {
-  subjectId: number;
-  selectedLevels: number[];
-}
-
-interface FormData {
+// Type definition for form data
+type FormData = {
   avatar: File | null;
   firstName: string;
   lastName: string;
   phoneNumber: string;
-  telegramUsername: string;
+  telegramUsername?: string;
   email: string;
   gender: string;
   password: string;
@@ -39,20 +38,26 @@ interface FormData {
   regionId: string;
   cityId: string;
   selectedSubjects: number[];
-  subjectsWithLevels: SubjectWithLevels[];
+  subjectsWithLevels: Array<{
+    subjectId: number;
+    selectedLevels: number[];
+  }>;
   experienceYears: string;
   universityName: string;
-  mba: string;
+  mba?: string;
   teachingLanguages: number[];
   pricePerHour: string;
   lessonDuration: string;
   availableDays: string[];
-  timeSlots: { day: string; time: string }[];
+  timeSlots: Array<{
+    day: string;
+    time: string;
+  }>;
   teachingFormat: string;
   bio: string;
   certificates: File[];
   additionalInfo: string;
-}
+};
 
 // Helper function to generate time slots based on duration in minutes
 const generateTimeSlots = (durationMinutes: number): string[] => {
@@ -78,37 +83,109 @@ const generateTimeSlots = (durationMinutes: number): string[] => {
 export function BeTutorForm() {
   const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [formData, setFormData] = useState<FormData>({
-    avatar: null,
-    firstName: '',
-    lastName: '',
-    phoneNumber: '',
-    telegramUsername: '',
-    email: '',
-    gender: '',
-    password: '',
-    repeatPassword: '',
-    age: '',
-    regionId: '',
-    cityId: '',
-    selectedSubjects: [],
-    subjectsWithLevels: [],
-    experienceYears: '',
-    universityName: '',
-    mba: '',
-    teachingLanguages: [],
-    pricePerHour: '',
-    lessonDuration: '',
-    availableDays: [],
-    timeSlots: [],
-    teachingFormat: '',
-    bio: '',
-    certificates: [],
-    additionalInfo: '',
+
+  // Create Zod schema with translations
+  const formSchema = useMemo(() => z.object({
+    avatar: z.instanceof(File).nullable(),
+    firstName: z.string().min(1, t('beTutorForm.errors.firstNameRequired')),
+    lastName: z.string().min(1, t('beTutorForm.errors.lastNameRequired')),
+    phoneNumber: z.string().min(1, t('beTutorForm.errors.phoneRequired')),
+    telegramUsername: z.string().optional(),
+    email: z.string().min(1, t('beTutorForm.errors.emailRequired')).email(t('beTutorForm.errors.invalidEmail')),
+    gender: z.string().min(1, t('beTutorForm.errors.genderRequired')),
+    password: z.string().min(6, t('beTutorForm.errors.passwordMinLength')),
+    repeatPassword: z.string().min(1, t('beTutorForm.errors.repeatPasswordRequired')),
+    age: z.string().min(1, t('beTutorForm.errors.ageRequired')),
+    regionId: z.string().min(1, t('beTutorForm.errors.regionRequired')),
+    cityId: z.string().min(1, t('beTutorForm.errors.cityRequired')),
+    selectedSubjects: z.array(z.number()).min(1, t('beTutorForm.errors.subjectsRequired')),
+    subjectsWithLevels: z.array(z.object({
+      subjectId: z.number(),
+      selectedLevels: z.array(z.number()).min(1, t('beTutorForm.errors.levelsRequired')),
+    })),
+    experienceYears: z.string().min(1, t('beTutorForm.errors.experienceRequired')),
+    universityName: z.string().min(1, t('beTutorForm.errors.universityRequired')),
+    mba: z.string().optional(),
+    teachingLanguages: z.array(z.number()).min(1, t('beTutorForm.errors.languagesRequired')),
+    pricePerHour: z.string()
+      .min(1, t('beTutorForm.errors.priceRequired'))
+      .refine((val) => {
+        const num = parseInt(val);
+        return !isNaN(num) && num >= 50000;
+      }, { message: t('beTutorForm.errors.priceMin') })
+      .refine((val) => {
+        const num = parseInt(val);
+        return !isNaN(num) && num <= 500000;
+      }, { message: t('beTutorForm.errors.priceMax') }),
+    lessonDuration: z.string().min(1, t('beTutorForm.errors.durationRequired')),
+    availableDays: z.array(z.string()).min(1, t('beTutorForm.errors.daysRequired')),
+    timeSlots: z.array(z.object({
+      day: z.string(),
+      time: z.string(),
+    })),
+    teachingFormat: z.string().min(1, t('beTutorForm.errors.formatRequired')),
+    bio: z.string().min(1, t('beTutorForm.errors.bioRequired')),
+    certificates: z.array(z.instanceof(File)).min(1, t('beTutorForm.errors.certificatesRequired')),
+    additionalInfo: z.string().min(1, t('beTutorForm.errors.additionalInfoRequired')),
+  })
+  .refine((data) => data.password === data.repeatPassword, {
+    message: t('beTutorForm.errors.passwordMismatch'),
+    path: ['repeatPassword'],
+  })
+  .refine((data) => {
+    // Only validate time slots if both duration and days are selected
+    if (data.lessonDuration && data.availableDays.length > 0) {
+      return data.timeSlots.length > 0;
+    }
+    return true; // Skip validation if prerequisites not met
+  }, {
+    message: t('beTutorForm.errors.timeSlotsRequired'),
+    path: ['timeSlots'],
+  }), [t]);
+
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    control,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      avatar: null,
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+      telegramUsername: '',
+      email: '',
+      gender: '',
+      password: '',
+      repeatPassword: '',
+      age: '',
+      regionId: '',
+      cityId: '',
+      selectedSubjects: [],
+      subjectsWithLevels: [],
+      experienceYears: '',
+      universityName: '',
+      mba: '',
+      teachingLanguages: [],
+      pricePerHour: '',
+      lessonDuration: '',
+      availableDays: [],
+      timeSlots: [],
+      teachingFormat: '',
+      bio: '',
+      certificates: [],
+      additionalInfo: '',
+    },
   });
+
+  // Watch form values for dependent logic
+  const formData = watch();
 
   const tabs = [
     t('beTutorForm.tab1'),
@@ -143,7 +220,7 @@ export function BeTutorForm() {
   const onlineFormats = formats.filter(format => format.value === 'online' || format.id === 8);
 
   // Fetch days using React Query
-  const { data: days = [], isLoading: loadingDays } = useDays();
+  const { data: days = [] } = useDays();
 
   // Create day options for MultiSelect (convert API data to options format)
   const dayOptions = days.map(day => ({
@@ -159,26 +236,29 @@ export function BeTutorForm() {
 
   // Initialize subjectsWithLevels when education levels data changes
   useEffect(() => {
-    if (educationLevels.length > 0) {
+    if (educationLevels.length > 0 && formData.selectedSubjects.length > 0) {
+      const currentSubjects = formData.subjectsWithLevels;
       const newSubjectsWithLevels = formData.selectedSubjects.map(subjectId => {
-        const existing = formData.subjectsWithLevels.find(s => s.subjectId === subjectId);
+        const existing = currentSubjects.find(s => s.subjectId === subjectId);
         return existing || { subjectId, selectedLevels: [] };
       });
-      setFormData(prev => ({ ...prev, subjectsWithLevels: newSubjectsWithLevels }));
-    }
-  }, [educationLevels]);
 
-  const handleInputChange = (field: keyof FormData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+      // Only update if the structure has changed (subjects added/removed)
+      const currentIds = currentSubjects.map(s => s.subjectId).sort();
+      const newIds = newSubjectsWithLevels.map(s => s.subjectId).sort();
+      const hasChanged = JSON.stringify(currentIds) !== JSON.stringify(newIds);
+
+      if (hasChanged) {
+        setValue('subjectsWithLevels', newSubjectsWithLevels);
+      }
+    }
+  }, [educationLevels, formData.selectedSubjects, setValue]);
 
   const handleSubjectLevelsChange = (subjectId: number, selectedLevels: number[]) => {
-    setFormData(prev => ({
-      ...prev,
-      subjectsWithLevels: prev.subjectsWithLevels.map(s =>
-        s.subjectId === subjectId ? { ...s, selectedLevels } : s
-      ),
-    }));
+    const updatedSubjects = formData.subjectsWithLevels.map(s =>
+      s.subjectId === subjectId ? { ...s, selectedLevels } : s
+    );
+    setValue('subjectsWithLevels', updatedSubjects, { shouldValidate: true });
   };
 
   const handleNext = () => {
@@ -193,28 +273,51 @@ export function BeTutorForm() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  // Map form fields to their respective tabs
+  const getTabForField = (fieldName: string): number => {
+    // Tab 0: Basic Information
+    if (['avatar', 'firstName', 'lastName', 'phoneNumber', 'telegramUsername', 'email', 'gender', 'age', 'password', 'repeatPassword', 'regionId', 'cityId'].includes(fieldName)) {
+      return 0;
+    }
+    // Tab 1: Professional Information
+    if (['selectedSubjects', 'subjectsWithLevels', 'experienceYears', 'universityName', 'mba', 'teachingLanguages'].includes(fieldName)) {
+      return 1;
+    }
+    // Tab 2: Work Conditions
+    if (['pricePerHour', 'teachingFormat', 'lessonDuration', 'availableDays', 'timeSlots'].includes(fieldName)) {
+      return 2;
+    }
+    // Tab 3: Additional Details
+    if (['certificates', 'bio', 'additionalInfo'].includes(fieldName)) {
+      return 3;
+    }
+    return 0; // Default to first tab
+  };
+
+  // Handle validation errors - navigate to first tab with error
+  const onError = (errors: any) => {
+    const errorFields = Object.keys(errors);
+    if (errorFields.length > 0) {
+      const firstErrorField = errorFields[0];
+      const tabWithError = getTabForField(firstErrorField);
+      setCurrentTab(tabWithError);
+    }
+  };
+
+  const onSubmit = async (data: FormData) => {
     setSubmitError(null);
     setSubmitSuccess(false);
 
     try {
-      // Validate passwords match
-      if (formData.password !== formData.repeatPassword) {
-        setSubmitError(t('beTutorForm.errors.passwordMismatch'));
-        setIsSubmitting(false);
-        return;
-      }
 
       // Step 1: Register tutor
       const registerPayload = {
-        name: `${formData.firstName} ${formData.lastName}`.trim(),
-        password: formData.password,
-        gender: formData.gender === 'male' ? 1 : 2,
-        phone: formData.phoneNumber,
-        email: formData.email,
-        age: formData.age,
+        name: `${data.firstName} ${data.lastName}`.trim(),
+        password: data.password,
+        gender: data.gender === 'male' ? 1 : 2,
+        phone: data.phoneNumber,
+        email: data.email,
+        age: data.age,
         termsAccepted: true,
         role_id: 1,
       };
@@ -223,8 +326,8 @@ export function BeTutorForm() {
 
       // Step 2: Login to get token via centralized auth service
       await authService.login({
-        phone: formData.phoneNumber,
-        password: formData.password,
+        phone: data.phoneNumber,
+        password: data.password,
       });
 
       // Step 3: Create announcement
@@ -232,49 +335,49 @@ export function BeTutorForm() {
       const apiFormData = new FormData();
 
       // Add basic fields
-      apiFormData.append('fullname', `${formData.firstName} ${formData.lastName}`.trim());
-      apiFormData.append('telegramUsername', formData.telegramUsername);
-      apiFormData.append('phone', formData.phoneNumber);
-      apiFormData.append('email', formData.email);
-      apiFormData.append('age', formData.age);
-      apiFormData.append('region_id', formData.regionId);
-      apiFormData.append('city_id', formData.cityId);
+      apiFormData.append('fullname', `${data.firstName} ${data.lastName}`.trim());
+      apiFormData.append('telegramUsername', data.telegramUsername || '');
+      apiFormData.append('phone', data.phoneNumber);
+      apiFormData.append('email', data.email);
+      apiFormData.append('age', data.age);
+      apiFormData.append('region_id', data.regionId);
+      apiFormData.append('city_id', data.cityId);
       apiFormData.append('is_active', 'true');
 
       // Education fields
-      apiFormData.append('education', formData.universityName);
-      apiFormData.append('mba', formData.mba);
+      apiFormData.append('education', data.universityName);
+      apiFormData.append('mba', data.mba || '');
 
       // Experience
-      apiFormData.append('experience', formData.experienceYears);
+      apiFormData.append('experience', data.experienceYears);
 
       // Subjects and levels
-      apiFormData.append('subjects', JSON.stringify(formData.selectedSubjects));
+      apiFormData.append('subjects', JSON.stringify(data.selectedSubjects));
 
       // Subject levels as JSON string
-      const subjectLevels = formData.subjectsWithLevels.map(({ subjectId, selectedLevels }) => ({
+      const subjectLevels = data.subjectsWithLevels.map(({ subjectId, selectedLevels }) => ({
         subject_id: subjectId,
         levels: selectedLevels,
       }));
       apiFormData.append('subjectLevels', JSON.stringify(subjectLevels));
 
       // Teaching languages
-      apiFormData.append('languages', JSON.stringify(formData.teachingLanguages));
+      apiFormData.append('languages', JSON.stringify(data.teachingLanguages));
 
       // Price and format
-      apiFormData.append('amount', formData.pricePerHour);
+      apiFormData.append('amount', data.pricePerHour);
 
       // Format data
       const formatsData = [{
-        format_id: parseInt(formData.teachingFormat),
-        amount: formData.pricePerHour,
-        duration: parseInt(formData.lessonDuration), // Duration is already in minutes
+        format_id: parseInt(data.teachingFormat),
+        amount: data.pricePerHour,
+        duration: parseInt(data.lessonDuration), // Duration is already in minutes
       }];
       apiFormData.append('formatsData', JSON.stringify(formatsData));
-      apiFormData.append('formats', JSON.stringify([parseInt(formData.teachingFormat)]));
+      apiFormData.append('formats', JSON.stringify([parseInt(data.teachingFormat)]));
 
       // Days mapping (using dynamic dayMap from API)
-      const dayIds = formData.availableDays.map(day => dayMap[day]).filter(Boolean);
+      const dayIds = data.availableDays.map(day => dayMap[day]).filter(Boolean);
       apiFormData.append('days', JSON.stringify(dayIds));
 
       // Schedule - group time slots by day
@@ -285,7 +388,7 @@ export function BeTutorForm() {
       };
 
       const schedule: { [key: string]: string[] } = {};
-      formData.timeSlots.forEach(({ day, time }) => {
+      data.timeSlots.forEach(({ day, time }) => {
         const dayId = dayMap[day];
         const dayShort = dayIdToAbbrev[dayId];
         if (!schedule[dayShort]) {
@@ -299,19 +402,19 @@ export function BeTutorForm() {
       apiFormData.append('walkingStudy', JSON.stringify({ enabled: false, days: [], duration: 60 }));
 
       // Text fields
-      apiFormData.append('description', formData.additionalInfo);
-      apiFormData.append('aboutme', formData.bio);
+      apiFormData.append('description', data.additionalInfo || '');
+      apiFormData.append('aboutme', data.bio);
 
       // Qty students (default or could be added to form)
       apiFormData.append('qty_students', '10');
 
       // Avatar file
-      if (formData.avatar) {
-        apiFormData.append('image', formData.avatar);
+      if (data.avatar) {
+        apiFormData.append('image', data.avatar);
       }
 
       // Certificate files
-      formData.certificates.forEach((file) => {
+      data.certificates.forEach((file) => {
         apiFormData.append('files[]', file);
       });
 
@@ -329,8 +432,6 @@ export function BeTutorForm() {
       console.error('Form submission error:', error);
       setSubmitError(error?.response?.data?.message || error?.message || t('beTutorForm.submitError'));
       setSubmitSuccess(false);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -345,8 +446,21 @@ export function BeTutorForm() {
                 {tabs[currentTab]}
               </CardDescription>
             </div>
-            <Button type="button" variant="success">
-              {t('beTutorForm.createProfile')}
+            <Button
+              type="submit"
+              form="tutor-form"
+              disabled={isSubmitting}
+              variant="success"
+              className="cursor-pointer"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t('beTutorForm.submitting')}
+                </>
+              ) : (
+                t('beTutorForm.createProfile')
+              )}
             </Button>
           </div>
         </CardHeader>
@@ -368,13 +482,19 @@ export function BeTutorForm() {
             ))}
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form id="tutor-form" onSubmit={handleFormSubmit(onSubmit, onError)}>
             {/* Tab 1: Basic Information */}
             {currentTab === 0 && (
               <div className="space-y-6">
-                <AvatarUpload
-                  value={formData.avatar ? URL.createObjectURL(formData.avatar) : undefined}
-                  onChange={(file) => handleInputChange('avatar', file)}
+                <Controller
+                  name="avatar"
+                  control={control}
+                  render={({ field }) => (
+                    <AvatarUpload
+                      value={field.value ? URL.createObjectURL(field.value) : undefined}
+                      onChange={field.onChange}
+                    />
+                  )}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -382,20 +502,18 @@ export function BeTutorForm() {
                     <Label htmlFor="firstName">{t('beTutorForm.firstName')}</Label>
                     <Input
                       id="firstName"
-                      value={formData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      required
+                      {...register('firstName')}
                     />
+                    {errors.firstName && <p className="text-sm text-red-500">{errors.firstName.message}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="lastName">{t('beTutorForm.lastName')}</Label>
                     <Input
                       id="lastName"
-                      value={formData.lastName}
-                      onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      required
+                      {...register('lastName')}
                     />
+                    {errors.lastName && <p className="text-sm text-red-500">{errors.lastName.message}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -403,20 +521,19 @@ export function BeTutorForm() {
                     <Input
                       id="phoneNumber"
                       type="tel"
-                      value={formData.phoneNumber}
-                      onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                      required
+                      {...register('phoneNumber')}
                     />
+                    {errors.phoneNumber && <p className="text-sm text-red-500">{errors.phoneNumber.message}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="telegramUsername">{t('beTutorForm.telegramUsername')}</Label>
                     <Input
                       id="telegramUsername"
-                      value={formData.telegramUsername}
-                      onChange={(e) => handleInputChange('telegramUsername', e.target.value)}
+                      {...register('telegramUsername')}
                       placeholder="@username"
                     />
+                    {errors.telegramUsername && <p className="text-sm text-red-500">{errors.telegramUsername.message}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -424,26 +541,29 @@ export function BeTutorForm() {
                     <Input
                       id="email"
                       type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      required
+                      {...register('email')}
                     />
+                    {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="gender">{t('beTutorForm.gender')}</Label>
-                    <Select
-                      value={formData.gender}
-                      onValueChange={(value) => handleInputChange('gender', value)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={t('beTutorForm.selectGender')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="male">{t('common.male')}</SelectItem>
-                        <SelectItem value="female">{t('common.female')}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="gender"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder={t('beTutorForm.selectGender')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="male">{t('common.male')}</SelectItem>
+                            <SelectItem value="female">{t('common.female')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.gender && <p className="text-sm text-red-500">{errors.gender.message}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -451,10 +571,9 @@ export function BeTutorForm() {
                     <Input
                       id="age"
                       type="number"
-                      value={formData.age}
-                      onChange={(e) => handleInputChange('age', e.target.value)}
-                      required
+                      {...register('age')}
                     />
+                    {errors.age && <p className="text-sm text-red-500">{errors.age.message}</p>}
                   </div>
 
                   <div className="space-y-2 col-span-2">
@@ -462,10 +581,9 @@ export function BeTutorForm() {
                     <Input
                       id="password"
                       type="password"
-                      value={formData.password}
-                      onChange={(e) => handleInputChange('password', e.target.value)}
-                      required
+                      {...register('password')}
                     />
+                    {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
                   </div>
 
                   <div className="space-y-2 col-span-2">
@@ -473,10 +591,9 @@ export function BeTutorForm() {
                     <Input
                       id="repeatPassword"
                       type="password"
-                      value={formData.repeatPassword}
-                      onChange={(e) => handleInputChange('repeatPassword', e.target.value)}
-                      required
+                      {...register('repeatPassword')}
                     />
+                    {errors.repeatPassword && <p className="text-sm text-red-500">{errors.repeatPassword.message}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -484,25 +601,31 @@ export function BeTutorForm() {
                       <MapPin className="h-4 w-4" />
                       {t('beTutorForm.region')}
                     </Label>
-                    <Select
-                      value={formData.regionId}
-                      onValueChange={(value) => {
-                        handleInputChange('regionId', value);
-                        // Reset city when region changes
-                        handleInputChange('cityId', '');
-                      }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={loadingRegions ? t('common.loading') : t('beTutorForm.selectRegion')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {regions.map((region) => (
-                          <SelectItem key={region.id} value={region.id.toString()}>
-                            {region.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="regionId"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            setValue('cityId', '', { shouldValidate: true });
+                          }}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder={loadingRegions ? t('common.loading') : t('beTutorForm.selectRegion')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {regions.map((region) => (
+                              <SelectItem key={region.id} value={region.id.toString()}>
+                                {region.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.regionId && <p className="text-sm text-red-500">{errors.regionId.message}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -510,23 +633,29 @@ export function BeTutorForm() {
                       <MapPin className="h-4 w-4" />
                       {t('beTutorForm.city')}
                     </Label>
-                    <Select
-                  
-                      value={formData.cityId}
-                      onValueChange={(value) => handleInputChange('cityId', value)}
-                      disabled={!formData.regionId || cities.length === 0}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={!formData.regionId ? t('beTutorForm.selectRegionFirst') : t('beTutorForm.selectCity')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {cities.map((city) => (
-                          <SelectItem key={city.id} value={city.id.toString()}>
-                            {city.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="cityId"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          disabled={!formData.regionId || cities.length === 0}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder={!formData.regionId ? t('beTutorForm.selectRegionFirst') : t('beTutorForm.selectCity')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {cities.map((city) => (
+                              <SelectItem key={city.id} value={city.id.toString()}>
+                                {city.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.cityId && <p className="text-sm text-red-500">{errors.cityId.message}</p>}
                   </div>
                 </div>
               </div>
@@ -537,20 +666,27 @@ export function BeTutorForm() {
               <div className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="subjects">{t('beTutorForm.subjects')}</Label>
-                  <MultiSelect
-                    options={subjects.map(subject => ({
-                      label: subject.name,
-                      value: subject.id.toString(),
-                    }))}
-                    selected={formData.selectedSubjects.map(id => id.toString())}
-                    onChange={(selected) => {
-                      const selectedIds = selected.map(id => parseInt(id));
-                      handleInputChange('selectedSubjects', selectedIds);
-                    }}
-                    placeholder={loadingSubjects ? t('common.loading') : t('beTutorForm.selectSubjects')}
-                    searchPlaceholder={t('common.search')}
-                    emptyText={t('common.noResults')}
+                  <Controller
+                    name="selectedSubjects"
+                    control={control}
+                    render={({ field }) => (
+                      <MultiSelect
+                        options={subjects.map(subject => ({
+                          label: subject.name,
+                          value: subject.id.toString(),
+                        }))}
+                        selected={field.value.map(id => id.toString())}
+                        onChange={(selected) => {
+                          const selectedIds = selected.map(id => parseInt(id));
+                          field.onChange(selectedIds);
+                        }}
+                        placeholder={loadingSubjects ? t('common.loading') : t('beTutorForm.selectSubjects')}
+                        searchPlaceholder={t('common.search')}
+                        emptyText={t('common.noResults')}
+                      />
+                    )}
                   />
+                  {errors.selectedSubjects && <p className="text-sm text-red-500">{errors.selectedSubjects.message}</p>}
                 </div>
 
                 {/* Education Levels for each selected subject */}
@@ -559,30 +695,43 @@ export function BeTutorForm() {
                     {t('common.loading')}...
                   </div>
                 ) : (
-                  educationLevels.map((eduLevel) => {
-                    const subjectData = formData.subjectsWithLevels.find(
-                      s => s.subjectId === eduLevel.subject_id
-                    );
-                    return (
-                      <div key={eduLevel.subject_id} className="space-y-2">
-                        <Label>{eduLevel.subject_name}</Label>
-                        <MultiSelect
-                          options={eduLevel.levels.map(level => ({
-                            label: level.label,
-                            value: level.value.toString(),
-                          }))}
-                          selected={subjectData?.selectedLevels.map(id => id.toString()) || []}
-                          onChange={(selected) => {
-                            const selectedLevels = selected.map(id => parseInt(id));
-                            handleSubjectLevelsChange(eduLevel.subject_id, selectedLevels);
-                          }}
-                          placeholder={t('beTutorForm.selectEducationLevels')}
-                          searchPlaceholder={t('common.search')}
-                          emptyText={t('common.noResults')}
-                        />
-                      </div>
-                    );
-                  })
+                  <>
+                    {educationLevels.map((eduLevel) => {
+                      const subjectData = formData.subjectsWithLevels.find(
+                        s => s.subjectId === eduLevel.subject_id
+                      );
+                      const subjectIndex = formData.subjectsWithLevels.findIndex(
+                        s => s.subjectId === eduLevel.subject_id
+                      );
+                      return (
+                        <div key={eduLevel.subject_id} className="space-y-2">
+                          <Label>{eduLevel.subject_name}</Label>
+                          <MultiSelect
+                            options={eduLevel.levels.map(level => ({
+                              label: level.label,
+                              value: level.value.toString(),
+                            }))}
+                            selected={subjectData?.selectedLevels.map(id => id.toString()) || []}
+                            onChange={(selected) => {
+                              const selectedLevels = selected.map(id => parseInt(id));
+                              handleSubjectLevelsChange(eduLevel.subject_id, selectedLevels);
+                            }}
+                            placeholder={t('beTutorForm.selectEducationLevels')}
+                            searchPlaceholder={t('common.search')}
+                            emptyText={t('common.noResults')}
+                          />
+                          {subjectIndex >= 0 && errors.subjectsWithLevels?.[subjectIndex]?.selectedLevels && (
+                            <p className="text-sm text-red-500">
+                              {errors.subjectsWithLevels[subjectIndex].selectedLevels.message}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {errors.subjectsWithLevels && typeof errors.subjectsWithLevels.message === 'string' && (
+                      <p className="text-sm text-red-500">{errors.subjectsWithLevels.message}</p>
+                    )}
+                  </>
                 )}
 
                 <div className="space-y-2">
@@ -590,9 +739,9 @@ export function BeTutorForm() {
                   <Input
                     id="experienceYears"
                     type="number"
-                    value={formData.experienceYears}
-                    onChange={(e) => handleInputChange('experienceYears', e.target.value)}
+                    {...register('experienceYears')}
                   />
+                  {errors.experienceYears && <p className="text-sm text-red-500">{errors.experienceYears.message}</p>}
                 </div>
 
                 <div className="space-y-4 border-t pt-4">
@@ -602,38 +751,45 @@ export function BeTutorForm() {
                     <Label htmlFor="universityName">{t('beTutorForm.universityName')}</Label>
                     <Input
                       id="universityName"
-                      value={formData.universityName}
-                      onChange={(e) => handleInputChange('universityName', e.target.value)}
+                      {...register('universityName')}
                       placeholder={t('beTutorForm.universityNamePlaceholder')}
                     />
+                    {errors.universityName && <p className="text-sm text-red-500">{errors.universityName.message}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="mba">{t('beTutorForm.mba')}</Label>
                     <Input
                       id="mba"
-                      value={formData.mba}
-                      onChange={(e) => handleInputChange('mba', e.target.value)}
+                      {...register('mba')}
                       placeholder={t('beTutorForm.mbaPlaceholder')}
                     />
+                    {errors.mba && <p className="text-sm text-red-500">{errors.mba.message}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="teachingLanguages">{t('beTutorForm.teachingLanguages')}</Label>
-                    <MultiSelect
-                      options={languages.map(language => ({
-                        label: language.name,
-                        value: language.id.toString(),
-                      }))}
-                      selected={formData.teachingLanguages.map(id => id.toString())}
-                      onChange={(selected) => {
-                        const selectedIds = selected.map(id => parseInt(id));
-                        handleInputChange('teachingLanguages', selectedIds);
-                      }}
-                      placeholder={loadingLanguages ? t('common.loading') : t('beTutorForm.selectTeachingLanguages')}
-                      searchPlaceholder={t('common.search')}
-                      emptyText={t('common.noResults')}
+                    <Controller
+                      name="teachingLanguages"
+                      control={control}
+                      render={({ field }) => (
+                        <MultiSelect
+                          options={languages.map(language => ({
+                            label: language.name,
+                            value: language.id.toString(),
+                          }))}
+                          selected={field.value.map(id => id.toString())}
+                          onChange={(selected) => {
+                            const selectedIds = selected.map(id => parseInt(id));
+                            field.onChange(selectedIds);
+                          }}
+                          placeholder={loadingLanguages ? t('common.loading') : t('beTutorForm.selectTeachingLanguages')}
+                          searchPlaceholder={t('common.search')}
+                          emptyText={t('common.noResults')}
+                        />
+                      )}
                     />
+                    {errors.teachingLanguages && <p className="text-sm text-red-500">{errors.teachingLanguages.message}</p>}
                   </div>
                 </div>
               </div>
@@ -642,75 +798,92 @@ export function BeTutorForm() {
             {/* Tab 3: Work Conditions */}
             {currentTab === 2 && (
               <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="pricePerHour">{t('beTutorForm.pricePerHour')}</Label>
+                  <p className="text-sm text-muted-foreground">{t('beTutorForm.priceDescription')}</p>
+                  <Input
+                    id="pricePerHour"
+                    type="number"
+                    {...register('pricePerHour')}
+                  />
+                  {errors.pricePerHour && <p className="text-sm text-red-500">{errors.pricePerHour.message}</p>}
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="pricePerHour">{t('beTutorForm.pricePerHour')}</Label>
-                    <Input
-                      id="pricePerHour"
-                      type="number"
-                      value={formData.pricePerHour}
-                      onChange={(e) => handleInputChange('pricePerHour', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
                     <Label htmlFor="teachingFormat">{t('beTutorForm.teachingFormat')}</Label>
-                    <Select
-                      value={formData.teachingFormat}
-                      onValueChange={(value) => handleInputChange('teachingFormat', value)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={loadingFormats ? t('common.loading') : t('beTutorForm.selectFormat')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {onlineFormats.map((format) => (
-                          <SelectItem key={format.id} value={format.id.toString()}>
-                            {format.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="teachingFormat"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder={loadingFormats ? t('common.loading') : t('beTutorForm.selectFormat')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {onlineFormats.map((format) => (
+                              <SelectItem key={format.id} value={format.id.toString()}>
+                                {format.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.teachingFormat && <p className="text-sm text-red-500">{errors.teachingFormat.message}</p>}
                   </div>
                 </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="lessonDuration">{t('beTutorForm.lessonDuration')}</Label>
-                    <Select
-                      value={formData.lessonDuration}
-                      onValueChange={(value) => {
-                        handleInputChange('lessonDuration', value);
-                        // Reset time slots when duration changes
-                        handleInputChange('timeSlots', []);
-                      }}
-                    >
-                      <SelectTrigger className="w-sm">
-                        <SelectValue placeholder={t('beTutorForm.selectDuration')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="30">30 минут (мини-сессия)</SelectItem>
-                        <SelectItem value="45">45 минут (акад. урок)</SelectItem>
-                        <SelectItem value="50">50 минут (урок)</SelectItem>
-                        <SelectItem value="60">60 минут (час)</SelectItem>
-                        <SelectItem value="90">90 минут (1.5 часа)</SelectItem>
-                        <SelectItem value="120">120 минут (2 часа)</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="lessonDuration"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            setValue('timeSlots', [], { shouldValidate: true });
+                          }}
+                        >
+                          <SelectTrigger className="w-sm">
+                            <SelectValue placeholder={t('beTutorForm.selectDuration')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="30">30 минут (мини-сессия)</SelectItem>
+                            <SelectItem value="45">45 минут (акад. урок)</SelectItem>
+                            <SelectItem value="50">50 минут (урок)</SelectItem>
+                            <SelectItem value="60">60 минут (час)</SelectItem>
+                            <SelectItem value="90">90 минут (1.5 часа)</SelectItem>
+                            <SelectItem value="120">120 минут (2 часа)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.lessonDuration && <p className="text-sm text-red-500">{errors.lessonDuration.message}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="availableDays">{t('beTutorForm.availableDays')}</Label>
-                    <MultiSelect
-                      options={dayOptions}
-                      selected={formData.availableDays}
-                      onChange={(selected) => {
-                        handleInputChange('availableDays', selected);
-                        // Reset time slots when days change
-                        handleInputChange('timeSlots', []);
-                      }}
-                      placeholder={t('beTutorForm.selectAvailableDays')}
-                      searchPlaceholder={t('common.search')}
-                      emptyText={t('common.noResults')}
+                    <Controller
+                      name="availableDays"
+                      control={control}
+                      render={({ field }) => (
+                        <MultiSelect
+                          options={dayOptions}
+                          selected={field.value}
+                          onChange={(selected) => {
+                            field.onChange(selected);
+                            setValue('timeSlots', [], { shouldValidate: true });
+                          }}
+                          placeholder={t('beTutorForm.selectAvailableDays')}
+                          searchPlaceholder={t('common.search')}
+                          emptyText={t('common.noResults')}
+                        />
+                      )}
                     />
+                    {errors.availableDays && <p className="text-sm text-red-500">{errors.availableDays.message}</p>}
                   </div>
 
                   {/* Time Slots Selection */}
@@ -738,16 +911,17 @@ export function BeTutorForm() {
                                     checked={isSelected}
                                     onCheckedChange={(checked) => {
                                       if (checked) {
-                                        handleInputChange('timeSlots', [
+                                        setValue('timeSlots', [
                                           ...formData.timeSlots,
                                           { day, time: slot },
-                                        ]);
+                                        ], { shouldValidate: true });
                                       } else {
-                                        handleInputChange(
+                                        setValue(
                                           'timeSlots',
                                           formData.timeSlots.filter(
                                             (ts) => !(ts.day === day && ts.time === slot)
-                                          )
+                                          ),
+                                          { shouldValidate: true }
                                         );
                                       }
                                     }}
@@ -766,35 +940,43 @@ export function BeTutorForm() {
                       ))}
                     </div>
                   )}
+                  {errors.timeSlots && <p className="text-sm text-red-500">{errors.timeSlots.message}</p>}
               </div>
             )}
 
             {/* Tab 4: Additional Details */}
             {currentTab === 3 && (
               <div className="space-y-6">
-                <CertificateUpload
-                  files={formData.certificates}
-                  onChange={(files) => handleInputChange('certificates', files)}
+                <Controller
+                  name="certificates"
+                  control={control}
+                  render={({ field }) => (
+                    <CertificateUpload
+                      files={field.value}
+                      onChange={field.onChange}
+                    />
+                  )}
                 />
+                {errors.certificates && <p className="text-sm text-red-500">{errors.certificates.message}</p>}
 
                 <div className="space-y-2">
                   <Label htmlFor="bio">{t('beTutorForm.bio')}</Label>
                   <textarea
                     id="bio"
-                    value={formData.bio}
-                    onChange={(e) => handleInputChange('bio', e.target.value)}
+                    {...register('bio')}
                     className="w-full min-h-[120px] px-3 py-2 border rounded-md"
                   />
+                  {errors.bio && <p className="text-sm text-red-500">{errors.bio.message}</p>}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="additionalInfo">{t('beTutorForm.additionalInfo')}</Label>
                   <textarea
                     id="additionalInfo"
-                    value={formData.additionalInfo}
-                    onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
+                    {...register('additionalInfo')}
                     className="w-full min-h-[100px] px-3 py-2 border rounded-md"
                   />
+                  {errors.additionalInfo && <p className="text-sm text-red-500">{errors.additionalInfo.message}</p>}
                 </div>
               </div>
             )}
@@ -827,20 +1009,9 @@ export function BeTutorForm() {
                 {t('common.previous')}
               </Button>
 
-              {currentTab < tabs.length - 1 ? (
+              {currentTab < tabs.length - 1 && (
                 <Button type="button" onClick={handleNext} disabled={isSubmitting}>
                   {t('common.next')}
-                </Button>
-              ) : (
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {t('beTutorForm.submitting')}
-                    </>
-                  ) : (
-                    t('common.submit')
-                  )}
                 </Button>
               )}
             </div>

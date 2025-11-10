@@ -1,5 +1,5 @@
-import { Link } from '@tanstack/react-router';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { LogOut, User as UserIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -14,10 +14,12 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { toast } from 'sonner';
 
 export function Header() {
   const { t } = useTranslation();
-  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, isLoggingOut, logout } = useAuth();
 
   const getUserInitials = (name: string) => {
     return name
@@ -26,6 +28,12 @@ export function Header() {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    toast.success(t('auth.logoutSuccess') || 'Logged out successfully');
+    navigate({ to: '/' });
   };
 
   return (
@@ -117,9 +125,17 @@ export function Header() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="cursor-pointer">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    {t('auth.logout')}
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer"
+                    disabled={isLoggingOut}
+                  >
+                    {isLoggingOut ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <LogOut className="mr-2 h-4 w-4" />
+                    )}
+                    {isLoggingOut ? t('auth.loggingOut') || 'Logging out...' : t('auth.logout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

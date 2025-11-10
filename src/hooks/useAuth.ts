@@ -4,19 +4,20 @@
  */
 
 import { useAuthStore } from '@/stores/authStore';
-import type { LoginRequest, RegisterRequest } from '@/types/auth';
+import type { LoginRequest, RegisterRequest, User } from '@/types/auth';
 
 /**
  * Auth hook return type (compatible with previous Context API)
  */
 export interface UseAuthReturn {
-  user: ReturnType<typeof useAuthStore>['user'];
+  user: User | null;
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  isLoggingOut: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   clearError: () => void;
   refreshProfile: () => Promise<void>;
 }
@@ -30,6 +31,7 @@ export function useAuth(): UseAuthReturn {
   const loading = useAuthStore((state) => state.loading);
   const error = useAuthStore((state) => state.error);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoggingOut = useAuthStore((state) => state.isLoggingOut);
   const login = useAuthStore((state) => state.login);
   const register = useAuthStore((state) => state.register);
   const logout = useAuthStore((state) => state.logout);
@@ -41,6 +43,7 @@ export function useAuth(): UseAuthReturn {
     loading,
     error,
     isAuthenticated,
+    isLoggingOut,
     login,
     register,
     logout,

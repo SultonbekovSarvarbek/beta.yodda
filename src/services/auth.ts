@@ -120,8 +120,17 @@ export async function getProfile(): Promise<User> {
 /**
  * Logout user
  */
-export function logout(): void {
-  removeToken();
+export async function logout(): Promise<void> {
+  try {
+    // Call logout API endpoint to invalidate token on server
+    await apiClient.post('/logout');
+  } catch (error) {
+    // Log error but continue with local logout
+    console.error('Logout API call failed:', error);
+  } finally {
+    // Always clear local storage regardless of API call result
+    removeToken();
+  }
 }
 
 /**

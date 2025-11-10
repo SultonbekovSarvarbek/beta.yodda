@@ -112,7 +112,8 @@
     "teachingLanguages": "Языки обучения",
     "selectTeachingLanguages": "Укажите язык, на котором вы будете объяснять материал студенту",
     "certifications": "Сертификаты",
-    "pricePerHour": "Цена за час",
+    "pricePerHour": "Цена за один урок",
+    "priceDescription": "Пожалуйста, укажите стоимость одного занятия (1 урока), а не оплату за месяц. Если вы проводите 1 урок по математике за 100 000 сум, укажите 100 000 сум. Если у вас урок длится 60 минут, именно за этот один час и нужно указать цену.",
     "availability": "Доступность",
     "teachingFormat": "Формат обучения",
     "selectFormat": "Выберите формат",
@@ -152,7 +153,33 @@
       "invalidEmail": "Неверный email адрес",
       "passwordMismatch": "Пароли не совпадают",
       "minLength": "Минимальная длина {{min}} символов",
-      "invalidPhone": "Неверный номер телефона"
+      "invalidPhone": "Неверный номер телефона",
+      "firstNameRequired": "Имя обязательно",
+      "lastNameRequired": "Фамилия обязательна",
+      "phoneRequired": "Номер телефона обязателен",
+      "emailRequired": "Email обязателен",
+      "genderRequired": "Пол обязателен",
+      "passwordRequired": "Пароль обязателен",
+      "passwordMinLength": "Пароль должен содержать минимум 6 символов",
+      "repeatPasswordRequired": "Подтвердите пароль",
+      "ageRequired": "Возраст обязателен",
+      "regionRequired": "Регион обязателен",
+      "cityRequired": "Город обязателен",
+      "subjectsRequired": "Выберите хотя бы один предмет",
+      "levelsRequired": "Выберите хотя бы один уровень для каждого предмета",
+      "experienceRequired": "Укажите опыт работы",
+      "universityRequired": "Укажите образование",
+      "languagesRequired": "Выберите хотя бы один язык обучения",
+      "priceRequired": "Укажите цену за урок",
+      "priceMin": "Минимальная цена 50,000 сум",
+      "priceMax": "Максимальная цена 500,000 сум",
+      "formatRequired": "Выберите формат обучения",
+      "durationRequired": "Выберите длительность урока",
+      "daysRequired": "Выберите хотя бы один день",
+      "timeSlotsRequired": "Выберите хотя бы один временной слот",
+      "bioRequired": "Расскажите о себе",
+      "certificatesRequired": "Загрузите хотя бы один сертификат",
+      "additionalInfoRequired": "Заполните дополнительную информацию"
     }
   },
   "marketing": {
@@ -342,6 +369,8 @@
       }
     },
     "logout": "Выйти",
-    "profile": "Профиль"
+    "profile": "Профиль",
+    "logoutSuccess": "Вы успешно вышли из системы",
+    "loggingOut": "Выход из системы..."
   }
 }

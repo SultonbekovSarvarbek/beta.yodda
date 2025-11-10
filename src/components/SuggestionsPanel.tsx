@@ -5,6 +5,9 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { useAnnouncements } from '@/hooks/api';
+import { useNavigate } from '@tanstack/react-router';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 interface Suggestion {
   id: string;
@@ -15,7 +18,8 @@ interface Suggestion {
 
 export function SuggestionsPanel() {
   const { t } = useTranslation();
-  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, isLoggingOut, logout } = useAuth();
   const { data: announcements, loading } = useAnnouncements();
 
   // Map API announcements to Suggestion format
@@ -33,6 +37,12 @@ export function SuggestionsPanel() {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    toast.success(t('auth.logoutSuccess') || 'Logged out successfully');
+    navigate({ to: '/' });
   };
 
   return (
@@ -59,10 +69,12 @@ export function SuggestionsPanel() {
           </div>
           <Button
             variant="ghost"
-            className="text-red-500 font-semibold text-xs h-auto p-0 hover:bg-transparent hover:text-red-600"
-            onClick={logout}
+            className="text-red-500 font-semibold text-xs h-auto p-0 hover:bg-transparent hover:text-red-600 flex items-center gap-1 cursor-pointer"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
           >
-            {t('suggestions.logout')}
+            {isLoggingOut && <Loader2 className="h-3 w-3 animate-spin" />}
+            {isLoggingOut ? t('auth.loggingOut') || 'Logging out...' : t('suggestions.logout')}
           </Button>
         </div>
       )}

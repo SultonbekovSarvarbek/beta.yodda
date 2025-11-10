@@ -106,7 +106,8 @@
     "teachingLanguages": "O'qitish tillari",
     "selectTeachingLanguages": "Talabaga tushuntirishda foydalanadigan tilni kiriting",
     "certifications": "Sertifikatlar",
-    "pricePerHour": "Soatiga narx",
+    "pricePerHour": "Bitta dars narxi",
+    "priceDescription": "Iltimos, bitta dars (1 ta dars) narxini kiriting, oylik to'lovni emas. Agar siz matematikadan 1 ta darsni 100 000 so'mga o'qitsangiz, 100 000 so'm kiriting. Agar darsiz 60 daqiqa davom etsa, aynan shu bir soat uchun narxni ko'rsating.",
     "availability": "Mavjudlik",
     "teachingFormat": "O'qitish formati",
     "online": "Onlayn",
@@ -135,7 +136,33 @@
       "invalidEmail": "Noto'g'ri email manzil",
       "passwordMismatch": "Parollar mos kelmaydi",
       "minLength": "Minimal uzunlik {{min}} belgi",
-      "invalidPhone": "Noto'g'ri telefon raqami"
+      "invalidPhone": "Noto'g'ri telefon raqami",
+      "firstNameRequired": "Ism kiritish majburiy",
+      "lastNameRequired": "Familiya kiritish majburiy",
+      "phoneRequired": "Telefon raqam kiritish majburiy",
+      "emailRequired": "Email kiritish majburiy",
+      "genderRequired": "Jinsni tanlash majburiy",
+      "passwordRequired": "Parol kiritish majburiy",
+      "passwordMinLength": "Parol kamida 6 belgidan iborat bo'lishi kerak",
+      "repeatPasswordRequired": "Parolni tasdiqlang",
+      "ageRequired": "Yoshni kiriting",
+      "regionRequired": "Viloyatni tanlang",
+      "cityRequired": "Shaharni tanlang",
+      "subjectsRequired": "Kamida bitta fanni tanlang",
+      "levelsRequired": "Har bir fan uchun kamida bitta darajani tanlang",
+      "experienceRequired": "Ish tajribasini kiriting",
+      "universityRequired": "Ta'limni kiriting",
+      "languagesRequired": "Kamida bitta tilni tanlang",
+      "priceRequired": "Dars narxini kiriting",
+      "priceMin": "Minimal narx 50,000 so'm",
+      "priceMax": "Maksimal narx 500,000 so'm",
+      "formatRequired": "O'qitish formatini tanlang",
+      "durationRequired": "Dars davomiyligini tanlang",
+      "daysRequired": "Kamida bitta kunni tanlang",
+      "timeSlotsRequired": "Kamida bitta vaqt oralig'ini tanlang",
+      "bioRequired": "O'zingiz haqingizda yozing",
+      "certificatesRequired": "Kamida bitta sertifikat yuklang",
+      "additionalInfoRequired": "Qo'shimcha ma'lumotni to'ldiring"
     }
   },
   "marketing": {
@@ -318,6 +345,8 @@
       }
     },
     "logout": "Chiqish",
-    "profile": "Profil"
+    "profile": "Profil",
+    "logoutSuccess": "Siz tizimdan muvaffaqiyatli chiqdingiz",
+    "loggingOut": "Tizimdan chiqilmoqda..."
   }
 }

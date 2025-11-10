@@ -16,6 +16,7 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  isLoggingOut: boolean;
 }
 
 /**
@@ -27,7 +28,7 @@ interface AuthActions {
   setError: (error: string | null) => void;
   login: (credentials: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   clearError: () => void;
   refreshProfile: () => Promise<void>;
   initializeAuth: () => Promise<void>;
@@ -49,6 +50,7 @@ export const useAuthStore = create<AuthStore>()(
       loading: true,
       error: null,
       isAuthenticated: false,
+      isLoggingOut: false,
 
       // Actions
       setUser: (user) =>
@@ -165,13 +167,30 @@ export const useAuthStore = create<AuthStore>()(
       /**
        * Logout user
        */
-      logout: () => {
-        authService.logout();
-        set({
-          user: null,
-          isAuthenticated: false,
-          error: null,
-        });
+      logout: async () => {
+        try {
+          set({ isLoggingOut: true });
+
+          // Call logout API (always clears local storage regardless of result)
+          await authService.logout();
+
+          // Clear auth state
+          set({
+            user: null,
+            isAuthenticated: false,
+            error: null,
+            isLoggingOut: false,
+          });
+        } catch (error) {
+          // Even if there's an error, clear the state (fail-safe)
+          console.error('Logout error:', error);
+          set({
+            user: null,
+            isAuthenticated: false,
+            error: null,
+            isLoggingOut: false,
+          });
+        }
       },
 
       /**
