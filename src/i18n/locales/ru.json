@@ -177,6 +177,7 @@
       "durationRequired": "Выберите длительность урока",
       "daysRequired": "Выберите хотя бы один день",
       "timeSlotsRequired": "Выберите хотя бы один временной слот",
+      "timeSlotsRequiredForDay": "Выберите временной слот для {{day}}",
       "bioRequired": "Расскажите о себе",
       "certificatesRequired": "Загрузите хотя бы один сертификат",
       "additionalInfoRequired": "Заполните дополнительную информацию"
