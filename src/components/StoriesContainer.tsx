@@ -8,7 +8,7 @@ interface StoriesContainerProps {
 
 export function StoriesContainer({ stories }: StoriesContainerProps) {
   return (
-    <div className="bg-white border-b lg:border lg:rounded-lg p-4 mb-0 lg:mb-6">
+    <div className="bg-white sm:border-0 md:border lg:border xl:border lg:rounded-lg p-4 mb-6 p-0">
       <div className="flex gap-4 overflow-x-auto scrollbar-hide">
         {/* Your Story - First Item */}
         <YourStoryItem

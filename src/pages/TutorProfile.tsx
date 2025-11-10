@@ -103,59 +103,65 @@ export function TutorProfile() {
       <main className="flex-1 lg:ml-64 xl:mr-80 pb-16 lg:pb-0">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-4">
           {/* Profile Header - Instagram Style */}
-          <div className="p-6 md:p-8 mb-0">
-            <div className="flex flex-col md:flex-row gap-8">
+          <div className="mb-0">
+            {/* Top Row: Avatar + Info */}
+            <div className="flex items-start gap-4 md:gap-8 mb-4">
               {/* Avatar */}
-              <div className="flex justify-center md:justify-start">
-                <Avatar className="h-32 w-32 md:h-40 md:w-40">
-                  <AvatarImage
-                    src={tutor.image?.medium || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&h=300&fit=crop'}
-                    alt={tutor.fullname}
-                  />
-                  <AvatarFallback>{tutor.fullname.charAt(0)}</AvatarFallback>
-                </Avatar>
-              </div>
+              <Avatar className="h-[77px] w-[77px] md:h-30 md:w-30 lg:h-[150px] lg:w-[150px] shrink-0">
+                <AvatarImage
+                  src={tutor.image?.medium || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&h=300&fit=crop'}
+                  alt={tutor.fullname}
+                />
+                <AvatarFallback>{tutor.fullname.charAt(0)}</AvatarFallback>
+              </Avatar>
 
-              {/* Profile Info */}
-              <div className="flex-1">
-                {/* Name and Actions */}
-                <div className="flex justify-between flex-col sm:flex-row sm:items-center gap-4 mb-4">
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-2xl font-semibold">{tutor.fullname}</h1>
-                    
+              {/* Right Side: Username, Stats, Buttons, Bio */}
+              <div className="flex-1 min-w-0">
+                {/* Username + Stats */}
+                <div className="flex flex-col mb-4">
+                  {/* Username */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <h1 className="text-md sm:text-sm md:text-2xl font-semibold">{tutor.fullname}</h1>
                     <div className="flex items-center justify-center w-4 h-4 bg-blue-500 rounded-full shrink-0">
                       <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button onClick={handleBookLesson} size="sm">
-                      {t('tutorProfile.bookLesson')}
-                    </Button>
-                    <Button onClick={handleShare} variant="outline" size="sm">
-                      <Share2 className="h-4 w-4" />
-                    </Button>
+                  {/* Instagram Stats */}
+                  <div className="flex flex-wrap gap-3 md:gap-4">
+                    <div>
+                      <span className="font-semibold">{postsCount}</span>{' '}
+                      <span className="text-gray-600 text-sm md:text-base">{t('tutorProfile.posts')}</span>
+                    </div>
+                    <div>
+                      <span className="font-semibold">{followersCount}</span>{' '}
+                      <span className="text-gray-600 text-sm md:text-base">{t('tutorProfile.followers')}</span>
+                    </div>
+                    <div>
+                      <span className="font-semibold">{followingCount}</span>{' '}
+                      <span className="text-gray-600 text-sm md:text-base">{t('tutorProfile.following')}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Instagram Stats */}
-                <div className="flex gap-8 mb-4">
-                  <div>
-                    <span className="font-semibold">{postsCount}</span>{' '}
-                    <span className="text-gray-600">{t('tutorProfile.posts')}</span>
-                  </div>
-                  <div>
-                    <span className="font-semibold">{followersCount}</span>{' '}
-                    <span className="text-gray-600">{t('tutorProfile.followers')}</span>
-                  </div>
-                  <div>
-                    <span className="font-semibold">{followingCount}</span>{' '}
-                    <span className="text-gray-600">{t('tutorProfile.following')}</span>
-                  </div>
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Button onClick={handleBookLesson} size="sm" className="flex-1 md:flex-none cursor-pointer">
+                    {t('tutorProfile.bookLesson')}
+                  </Button>
+                  <Button onClick={handleShare} variant="outline" size="sm" className="cursor-pointer">
+                    <Share2 className="h-4 w-4" />
+                  </Button>
                 </div>
+              </div>
+            </div>
+          </div>
+          
 
-                {/* Bio Section */}
-                <div className="space-y-2">
+          <div className="my-5">
+
+             {/* Bio Section */}
+             <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <MapPin className="h-4 w-4" />
                     <span>
@@ -176,8 +182,6 @@ export function TutorProfile() {
                     ))}
                   </div>
                 </div>
-              </div>
-            </div>
           </div>
 
           {/* Instagram-Style Tabs */}
