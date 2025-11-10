@@ -151,6 +151,7 @@ export function BeTutorForm() {
     control,
     watch,
     setValue,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -844,7 +845,8 @@ export function BeTutorForm() {
                           value={field.value}
                           onValueChange={(value) => {
                             field.onChange(value);
-                            setValue('timeSlots', [], { shouldValidate: true });
+                            setValue('timeSlots', [], { shouldValidate: false });
+                            trigger('timeSlots');
                           }}
                         >
                           <SelectTrigger className="w-sm">
@@ -875,7 +877,8 @@ export function BeTutorForm() {
                           selected={field.value}
                           onChange={(selected) => {
                             field.onChange(selected);
-                            setValue('timeSlots', [], { shouldValidate: true });
+                            setValue('timeSlots', [], { shouldValidate: false });
+                            trigger('timeSlots');
                           }}
                           placeholder={t('beTutorForm.selectAvailableDays')}
                           searchPlaceholder={t('common.search')}
@@ -938,9 +941,9 @@ export function BeTutorForm() {
                           </div>
                         </div>
                       ))}
+                      {errors.timeSlots && <p className="text-sm text-red-500">{errors.timeSlots.message}</p>}
                     </div>
                   )}
-                  {errors.timeSlots && <p className="text-sm text-red-500">{errors.timeSlots.message}</p>}
               </div>
             )}
 
