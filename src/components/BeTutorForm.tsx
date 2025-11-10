@@ -137,7 +137,10 @@ export function BeTutorForm() {
   .refine((data) => {
     // Only validate time slots if both duration and days are selected
     if (data.lessonDuration && data.availableDays.length > 0) {
-      return data.timeSlots.length > 0;
+      // Check that each selected day has at least one timeslot
+      return data.availableDays.every(day =>
+        data.timeSlots.some(ts => ts.day === day)
+      );
     }
     return true; // Skip validation if prerequisites not met
   }, {
