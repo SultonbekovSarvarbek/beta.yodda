@@ -846,7 +846,6 @@ export function BeTutorForm() {
                           onValueChange={(value) => {
                             field.onChange(value);
                             setValue('timeSlots', [], { shouldValidate: false });
-                            trigger('timeSlots');
                           }}
                         >
                           <SelectTrigger className="w-sm">
@@ -878,7 +877,6 @@ export function BeTutorForm() {
                           onChange={(selected) => {
                             field.onChange(selected);
                             setValue('timeSlots', [], { shouldValidate: false });
-                            trigger('timeSlots');
                           }}
                           placeholder={t('beTutorForm.selectAvailableDays')}
                           searchPlaceholder={t('common.search')}
