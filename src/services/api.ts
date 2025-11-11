@@ -158,3 +158,13 @@ export async function createAnnouncement(formData: FormData): Promise<ApiAnnounc
 
   return data;
 }
+
+// Send contact message
+export async function sendContactMessage(payload: {
+  name: string;
+  phone: string;
+  message: string;
+}): Promise<{ message: string }> {
+  const { data } = await apiClient.post<{ message: string }>('/contact/send-message', payload);
+  return data;
+}

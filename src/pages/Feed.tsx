@@ -1,4 +1,4 @@
-import { FeedLayout } from '@/components/FeedLayout';
+import { FeedContent } from '@/components/FeedContent';
 import { useAnnouncements } from '@/hooks/api';
 import { stories } from '@/data/stories';
 
@@ -14,7 +14,7 @@ export function Feed() {
   } = useAnnouncements();
 
   return (
-    <FeedLayout
+    <FeedContent
       stories={stories}
       announcements={announcements}
       loading={loading}

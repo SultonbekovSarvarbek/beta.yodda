@@ -5,11 +5,6 @@
 
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
-import { Sidebar } from '@/components/Sidebar';
-import { MobileHeader } from '@/components/MobileHeader';
-import { SuggestionsPanel } from '@/components/SuggestionsPanel';
-import { BottomNavigation } from '@/components/BottomNavigation';
-import { Footer } from '@/components/Footer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,11 +39,7 @@ export function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <MobileHeader />
-      <Sidebar />
-      <main className="flex-1 lg:ml-64 xl:mr-80 pb-16 lg:pb-0">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Profile Header */}
           <Card className="mb-6">
             <CardContent className="pt-6">
@@ -88,16 +79,11 @@ export function Profile() {
           </Card>
 
           {/* Role-Specific Content */}
-          {user.role === 'tutor' ? (
-            <TutorDashboard />
-          ) : (
-            <SeekerDashboard />
-          )}
-        </div>
-      </main>
-      <SuggestionsPanel />
-      <BottomNavigation />
-      <Footer />
+      {user.role === 'tutor' ? (
+        <TutorDashboard />
+      ) : (
+        <SeekerDashboard />
+      )}
     </div>
   );
 }

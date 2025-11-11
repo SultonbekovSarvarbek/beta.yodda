@@ -1,4 +1,4 @@
-import type { ApiRegion, ApiCity, ApiFormatData, ApiSchedule, ApiImage } from './api';
+import type { ApiRegion, ApiCity, ApiFormatData, ApiSchedule, ApiImage, ApiFile } from './api';
 
 // Subject interface matching API
 export interface Subject {
@@ -35,6 +35,7 @@ export interface Tutor {
   formatsData: FormatData[];
   description: string;
   schedule: Schedule;
+  file?: ApiFile[];
   created_at: string;
   updated_at: string;
   // Optional fields not in API (for backward compatibility)

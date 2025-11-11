@@ -390,5 +390,86 @@
   "pagination": {
     "previous": "Orqaga",
     "next": "Keyingisi"
+  },
+  "forParents": {
+    "hero": {
+      "title": "Farzandingiz uchun repetitorni bir necha daqiqada toping",
+      "description": "Yodda - bu har qanday fan bo'yicha mos o'qituvchini tez topishingiz mumkin bo'lgan onlayn-platforma. Hammasi oddiy: repetitorni tanlang, sinov darsni band qiling va o'qishni boshlang.",
+      "button": "Repetitor topish"
+    },
+    "howItWorks": {
+      "title": "Bu qanday ishlaydi",
+      "step1": {
+        "title": "Fanni tanlang",
+        "description": "Masalan, ingliz tili, matematika, fizika va boshqalar. Mos repetitorni qidirish uchun filtrlardan foydalaning."
+      },
+      "step2": {
+        "title": "Repetitorlar anketalarini ko'ring",
+        "description": "Har bir anketada narx, jadval, rasm va tajriba tavsifi mavjud. Farzandingizga mos o'qituvchini tanlang."
+      },
+      "step3": {
+        "title": "Sinov darsini band qiling",
+        "description": "Birinchi dars - bu o'qituvchi bilan tanishish va u farzandingizga mos kelishini baholash imkoniyati."
+      },
+      "step4": {
+        "title": "Qulay vaqtni tanlang",
+        "description": "Repetitor bandni tasdiqlaydi va siz Zoom, Google Meet orqali onlayn yoki oflayn dars o'tkazishingiz mumkin."
+      }
+    },
+    "benefits": {
+      "title": "Ota-onalar nima uchun Yodda ni tanlaydi",
+      "verified": {
+        "title": "Barcha repetitorlar tekshirilgan",
+        "description": "Har bir o'qituvchi platformaga joylashtirishdan oldin tekshiruvdan o'tadi. Biz sifat va professionallikni kafolatlaymiz."
+      },
+      "convenient": {
+        "title": "Parametrlar bo'yicha qulay tanlov",
+        "description": "Repetitorlarni fanlar, vaqt va narx bo'yicha filtrlang. Ideal o'qituvchini bir necha daqiqada toping."
+      },
+      "transparent": {
+        "title": "To'liq shaffoflik",
+        "description": "Ortiqcha to'lov va yashirin komissiyalar yo'q. Siz haqiqiy narxni ko'rasiz va faqat darslar uchun to'laysiz."
+      }
+    },
+    "cta": {
+      "title": "Boshlashga tayyormisiz?",
+      "description": "Farzandingiz uchun ideal repetitorni hoziroq toping"
+    }
+  },
+  "support": {
+    "title": "Qo'llab-quvvatlash",
+    "description": "Biz sizga yordam berishga tayyormiz! Biz bilan qulay usulda bog'laning.",
+    "form": {
+      "title": "Xabar yuborish",
+      "name": "Ismingiz",
+      "namePlaceholder": "Ismingizni kiriting",
+      "phone": "Telefon raqami",
+      "phonePlaceholder": "+998 XX XXX XX XX",
+      "message": "Xabar",
+      "messagePlaceholder": "Savol yoki muammo haqida yozing",
+      "submit": "Yuborish",
+      "sending": "Yuborilmoqda...",
+      "success": "Xabaringiz muvaffaqiyatli yuborildi! Tez orada siz bilan bog'lanamiz.",
+      "error": "Xabar yuborishda xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.",
+      "errors": {
+        "nameRequired": "Iltimos, ismingizni kiriting",
+        "phoneRequired": "Iltimos, telefon raqamini kiriting",
+        "phoneInvalid": "Iltimos, to'g'ri telefon raqamini kiriting",
+        "messageRequired": "Iltimos, xabar kiriting"
+      }
+    },
+    "contact": {
+      "phone": {
+        "title": "Telefon raqami"
+      },
+      "telegram": {
+        "title": "Telegram",
+        "link": "Menejerga yozish"
+      },
+      "social": {
+        "title": "Ijtimoiy tarmoqlar",
+        "description": "Ijtimoiy tarmoqlarda yangiliklarimizni kuzatib boring!"
+      }
+    }
   }
 }

@@ -475,7 +475,7 @@ export function BeTutorForm() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <Card className="shadow-none">
+      <Card className="shadow-none border rounded-md">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>

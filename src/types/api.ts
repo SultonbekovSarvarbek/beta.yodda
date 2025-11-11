@@ -55,6 +55,11 @@ export interface ApiImage {
   large: string;
 }
 
+export interface ApiFile {
+  path: string;
+  unique_id: string;
+}
+
 export interface ApiAnnouncement {
   id: number;
   fullname: string;
@@ -71,6 +76,7 @@ export interface ApiAnnouncement {
   formatsData: ApiFormatData[];
   description: string;
   schedule: ApiSchedule;
+  file?: ApiFile[];
   created_at: string;
   updated_at: string;
 }

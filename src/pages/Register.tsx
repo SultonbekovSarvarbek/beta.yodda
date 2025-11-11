@@ -14,11 +14,6 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sidebar } from '@/components/Sidebar';
-import { MobileHeader } from '@/components/MobileHeader';
-import { SuggestionsPanel } from '@/components/SuggestionsPanel';
-import { BottomNavigation } from '@/components/BottomNavigation';
-import { Footer } from '@/components/Footer';
 import type { UserRole } from '@/types/auth';
 
 export function Register() {
@@ -116,12 +111,8 @@ export function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <MobileHeader />
-      <Sidebar />
-      <main className="flex-1 lg:ml-64 xl:mr-80 pb-16 lg:pb-0">
-        <div className="flex items-center justify-center px-4 py-12 min-h-screen">
-          <Card className="w-full max-w-xl border">
+    <div className="flex items-center justify-center px-4 py-12 min-h-screen">
+      <Card className="w-full max-w-xl border">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
               {t('auth.register.title')}
@@ -364,7 +355,6 @@ export function Register() {
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
-                    <span className="animate-spin">⏳</span>
                     {t('common.submit')}
                   </span>
                 ) : (
@@ -382,13 +372,8 @@ export function Register() {
                 </Link>
               </p>
             </CardFooter>
-          </form>
-        </Card>
-        </div>
-      </main>
-      <SuggestionsPanel />
-      <BottomNavigation />
-      <Footer />
+        </form>
+      </Card>
     </div>
   );
 }

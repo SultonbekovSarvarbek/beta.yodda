@@ -42,7 +42,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
   const [saved, setSaved] = useState(false);
 
   return (
-    <Card className="overflow-hidden sm:rounded-none md:rounded-md lg:rounded-lg xl:rounded-xl bg-white shadow-none">
+    <Card className="overflow-hidden sm:rounded-none md:rounded-md lg:rounded-lg xl:rounded-xl bg-white shadow-none sm:border-0 md:border lg:border xl:border">
       {/* Header - Instagram Post Header Style */}
       <div className="flex items-center justify-between px-4">
         <div className="flex items-center gap-3">

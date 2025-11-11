@@ -1,60 +1,85 @@
-import { Sidebar } from '@/components/Sidebar';
-import { MobileHeader } from '@/components/MobileHeader';
-import { SuggestionsPanel } from '@/components/SuggestionsPanel';
-import { BottomNavigation } from '@/components/BottomNavigation';
-import { Footer } from '@/components/Footer';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScheduleGrid } from '@/components/ScheduleGrid';
 import { PricingCard } from '@/components/PricingCard';
-import { Check, Share2, MapPin, Grid3x3, User, Calendar, DollarSign, Star } from 'lucide-react';
-import { useParams } from '@tanstack/react-router';
+import { Check, Share2, MapPin, Grid3x3, User, Calendar, DollarSign, Star, FileText, Play } from 'lucide-react';
+import { useParams, useNavigate } from '@tanstack/react-router';
 import { useAnnouncementById } from '@/hooks/api';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+
+// Utility function to detect file type
+const getFileType = (filePath: string): 'pdf' | 'image' | 'video' => {
+  const extension = filePath.split('.').pop()?.toLowerCase();
+
+  // Video extensions
+  const videoExtensions = ['mp4', 'webm', 'mov', 'avi', 'mkv', 'ogg', 'm4v'];
+  if (videoExtensions.includes(extension || '')) {
+    return 'video';
+  }
+
+  // PDF extension
+  if (extension === 'pdf') {
+    return 'pdf';
+  }
+
+  // Default to image
+  return 'image';
+};
 
 export function TutorProfile() {
   const { t } = useTranslation();
   const { id } = useParams({ from: '/tutor/$id' });
+  const navigate = useNavigate();
   const { data: tutor, isLoading, isError } = useAnnouncementById(parseInt(id));
+  const [selectedPost, setSelectedPost] = useState<{ id: string | number; image: string; fileType: 'pdf' | 'image' | 'video'; isFile: boolean } | null>(null);
+
+  // Handle post click with mobile detection
+  const handlePostClick = (post: { id: string | number; image: string; fileType: 'pdf' | 'image' | 'video'; isFile: boolean }) => {
+    // Detect if mobile (< 1024px)
+    const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+
+    if (isMobile) {
+      // Navigate to dedicated post view on mobile
+      navigate({
+        to: '/tutor/$tutorId/post/$postId',
+        params: {
+          tutorId: id,
+          postId: post.id.toString()
+        }
+      });
+    } else {
+      // Open dialog on desktop
+      setSelectedPost(post);
+    }
+  };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <MobileHeader />
-        <Sidebar />
-        <main className="flex-1 lg:ml-64 xl:mr-80 pb-16 lg:pb-0">
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-12 w-12 animate-spin text-gray-400" />
-          </div>
-        </main>
-        <SuggestionsPanel />
-        <BottomNavigation />
-        <Footer />
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-12 w-12 animate-spin text-gray-400" />
       </div>
     );
   }
 
   if (isError || !tutor) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <MobileHeader />
-        <Sidebar />
-        <main className="flex-1 lg:ml-64 xl:mr-80 pb-16 lg:pb-0">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center py-20">
-              <p className="text-gray-600 text-lg mb-2">{t('tutorProfile.errors.notFound')}</p>
-              <p className="text-gray-500 text-sm">
-                {t('tutorProfile.errors.notFoundDesc')}
-              </p>
-            </div>
-          </div>
-        </main>
-        <SuggestionsPanel />
-        <BottomNavigation />
-        <Footer />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center py-20">
+          <p className="text-gray-600 text-lg mb-2">{t('tutorProfile.errors.notFound')}</p>
+          <p className="text-gray-500 text-sm">
+            {t('tutorProfile.errors.notFoundDesc')}
+          </p>
+        </div>
       </div>
     );
   }
@@ -80,28 +105,41 @@ export function TutorProfile() {
     alert(t('tutorProfile.booking.bookingFor', { date, time }));
   };
 
-  // Mock posts count based on tutor data
-  const postsCount = tutor.subjects.length * 4 || 12;
+  // Mock stats
   const followersCount = Math.floor(Math.random() * 500) + 100;
   const followingCount = Math.floor(Math.random() * 200) + 50;
 
-  // Generate mock posts (using tutor image or placeholders)
-  const mockPosts = Array.from({ length: 9 }, (_, i) => ({
-    id: i + 1,
-    image: tutor.image?.small || `https://images.unsplash.com/photo-${1500000000000 + i * 1000}?w=400&h=400&fit=crop`,
+  // Combine tutor files with mock posts
+  const filePosts = (tutor.file || []).map((file) => ({
+    id: `file-${file.unique_id}`,
+    image: file.path,
+    fileType: getFileType(file.path),
+    isFile: true,
   }));
 
+  const mockPosts = [
+    // Test video post
+    {
+      id: 'video-test-1',
+      image: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      fileType: 'video' as const,
+      isFile: false,
+    },
+    // Image posts
+    ...Array.from({ length: 8 }, (_, i) => ({
+      id: i + 1,
+      image: tutor.image?.small || `https://images.unsplash.com/photo-${1500000000000 + i * 1000}?w=400&h=400&fit=crop`,
+      fileType: 'image' as const,
+      isFile: false,
+    }))
+  ];
+
+  const allPosts = [...filePosts, ...mockPosts];
+  const postsCount = allPosts.length;
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Mobile Header */}
-      <MobileHeader />
-
-      {/* Desktop Sidebar */}
-      <Sidebar />
-
-      {/* Main Content */}
-      <main className="flex-1 lg:ml-64 xl:mr-80 pb-16 lg:pb-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-4">
+    <>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-4">
           {/* Profile Header - Instagram Style */}
           <div className="mb-0">
             {/* Top Row: Avatar + Info */}
@@ -228,16 +266,39 @@ export function TutorProfile() {
             <TabsContent value="posts" className="mt-0">
               <div>
                 <div className="grid grid-cols-3 gap-0.5 sm:gap-0.5 my-0 -mx-4 lg:mx-0">
-                  {mockPosts.map((post) => (
+                  {allPosts.map((post) => (
                     <div
                       key={post.id}
-                      className="aspect-[3/4] bg-gray-200 overflow-hidden cursor-pointer hover:opacity-75 transition-opacity min-w-[105px] sm:min-w-[140px]"
+                      onClick={() => handlePostClick(post)}
+                      className="aspect-[3/4] bg-gray-200 overflow-hidden cursor-pointer hover:opacity-75 transition-opacity min-w-[105px] sm:min-w-[140px] relative group"
                     >
-                      <img
-                        src={post.image}
-                        alt={`Post ${post.id}`}
-                        className="w-full h-full object-cover"
-                      />
+                      {post.fileType === 'pdf' ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100">
+                          <FileText className="h-12 w-12 text-gray-400 mb-2" />
+                          <span className="text-xs text-gray-500">PDF</span>
+                        </div>
+                      ) : post.fileType === 'video' ? (
+                        <div className="relative w-full h-full">
+                          <video
+                            src={post.image}
+                            className="w-full h-full object-cover"
+                            preload="metadata"
+                            muted
+                            playsInline
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-opacity group-hover:bg-black/20">
+                            <div className="bg-white/90 rounded-full p-2 sm:p-3 shadow-lg">
+                              <Play className="h-6 w-6 sm:h-8 sm:w-8 text-gray-900 fill-gray-900" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <img
+                          src={post.image}
+                          alt={`Post ${post.id}`}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -312,16 +373,79 @@ export function TutorProfile() {
             </TabsContent>
           </Tabs>
         </div>
-      </main>
 
-      {/* Desktop Suggestions Panel */}
-      <SuggestionsPanel />
+      {/* Image/File Preview Modal - Desktop Only */}
+      <Dialog open={selectedPost !== null} onOpenChange={(open) => !open && setSelectedPost(null)}>
+        <DialogContent className="hidden lg:block max-w-7xl w-[90vw] h-[85vh] p-0">
+          <div className="flex h-full">
+            {/* Left side - Image/File/Video Preview */}
+            <div className="flex-[7] bg-black flex items-center justify-center p-8">
+              {selectedPost?.fileType === 'pdf' ? (
+                <div className="flex flex-col items-center gap-4">
+                  <FileText className="h-32 w-32 text-white" />
+                  <span className="text-white text-lg font-medium">PDF Document</span>
+                  <Button
+                    onClick={() => window.open(selectedPost.image, '_blank')}
+                    variant="outline"
+                    className="bg-white text-black hover:bg-gray-100"
+                  >
+                    Open PDF in New Tab
+                  </Button>
+                </div>
+              ) : selectedPost?.fileType === 'video' ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <video
+                    src={selectedPost.image}
+                    controls
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="max-w-full max-h-full object-contain"
+                  >
+                    <source src={selectedPost.image} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              ) : (
+                <img
+                  src={selectedPost?.image}
+                  alt="Preview"
+                  className="max-w-full max-h-full object-contain"
+                />
+              )}
+            </div>
 
-      {/* Mobile Bottom Navigation */}
-      <BottomNavigation />
-
-      {/* Footer */}
-      <Footer />
-    </div>
+            {/* Right side - File Information */}
+            <div className="flex-[3] p-6 bg-white overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>File Information</DialogTitle>
+              </DialogHeader>
+              <div className="mt-4 space-y-4">
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-600 mb-1">File Type</h4>
+                  <p className="text-base">
+                    {selectedPost?.fileType === 'pdf' ? 'PDF Document' :
+                     selectedPost?.fileType === 'video' ? 'Video' : 'Image'}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-600 mb-1">File ID</h4>
+                  <p className="text-base">{selectedPost?.id}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-600 mb-1">Source</h4>
+                  <p className="text-base">{selectedPost?.isFile ? 'Tutor Upload' : 'Profile Gallery'}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-600 mb-1">Description</h4>
+                  <p className="text-sm text-gray-500">Mock information - This section will display file metadata and description in future updates.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

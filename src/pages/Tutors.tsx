@@ -1,10 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
-import { Sidebar } from '@/components/Sidebar';
-import { MobileHeader } from '@/components/MobileHeader';
-import { SuggestionsPanel } from '@/components/SuggestionsPanel';
-import { BottomNavigation } from '@/components/BottomNavigation';
-import { Footer } from '@/components/Footer';
 import { TutorCard } from '@/components/TutorCard';
 import { StoriesContainer } from '@/components/StoriesContainer';
 import { TutorsFilters, type FilterValues } from '@/components/TutorsFilters';
@@ -177,16 +172,7 @@ export function Tutors() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Mobile Header */}
-      <MobileHeader />
-
-      {/* Desktop Sidebar */}
-      <Sidebar />
-
-      {/* Main Content */}
-      <main className="flex-1 lg:ml-64 xl:mr-80 pb-16 lg:pb-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stories */}
           <div className="mb-6">
             <StoriesContainer stories={stories} />
@@ -309,17 +295,6 @@ export function Tutors() {
               )}
             </>
           )}
-        </div>
-      </main>
-
-      {/* Desktop Suggestions Panel */}
-      <SuggestionsPanel />
-
-      {/* Mobile Bottom Navigation */}
-      <BottomNavigation />
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }

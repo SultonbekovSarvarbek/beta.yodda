@@ -18,10 +18,14 @@ import reportWebVitals from './reportWebVitals.ts'
 
 import { useAuthStore } from './stores/authStore'
 import { ProtectedRoute } from './components/ProtectedRoute.tsx'
+import { AppLayout } from './components/AppLayout.tsx'
 import { Feed } from './pages/Feed.tsx'
 import { BeTutor } from './pages/BeTutor.tsx'
+import { ForParents } from './pages/ForParents.tsx'
+import { Support } from './pages/Support.tsx'
 import { Tutors } from './pages/Tutors.tsx'
 import { TutorProfile } from './pages/TutorProfile.tsx'
+import { PostView } from './pages/PostView.tsx'
 import { Profile } from './pages/Profile.tsx'
 import { Login } from './pages/Login.tsx'
 import { Register } from './pages/Register.tsx'
@@ -38,54 +42,113 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: Feed,
+  component: () => (
+    <AppLayout>
+      <Feed />
+    </AppLayout>
+  ),
 })
 
 const beTutorRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/be-tutor',
-  component: BeTutor,
+  component: () => (
+    <AppLayout>
+      <BeTutor />
+    </AppLayout>
+  ),
+})
+
+const forParentsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/for-parents',
+  component: () => (
+    <AppLayout>
+      <ForParents />
+    </AppLayout>
+  ),
+})
+
+const supportRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/support',
+  component: () => (
+    <AppLayout>
+      <Support />
+    </AppLayout>
+  ),
 })
 
 const tutorsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/tutors',
-  component: Tutors,
+  component: () => (
+    <AppLayout>
+      <Tutors />
+    </AppLayout>
+  ),
 })
 
 const tutorProfileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/tutor/$id',
-  component: TutorProfile,
+  component: () => (
+    <AppLayout>
+      <TutorProfile />
+    </AppLayout>
+  ),
+})
+
+const tutorPostRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/tutor/$tutorId/post/$postId',
+  component: () => (
+    <AppLayout>
+      <PostView />
+    </AppLayout>
+  ),
 })
 
 const profileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/profile',
   component: () => (
-    <ProtectedRoute>
-      <Profile />
-    </ProtectedRoute>
+    <AppLayout>
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    </AppLayout>
   ),
 })
 
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
-  component: Login,
+  component: () => (
+    <AppLayout>
+      <Login />
+    </AppLayout>
+  ),
 })
 
 const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/register',
-  component: Register,
+  component: () => (
+    <AppLayout>
+      <Register />
+    </AppLayout>
+  ),
 })
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
   beTutorRoute,
+  forParentsRoute,
+  supportRoute,
   tutorsRoute,
   tutorProfileRoute,
+  tutorPostRoute,
   profileRoute,
   loginRoute,
   registerRoute,
