@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
   Outlet,
@@ -19,16 +19,21 @@ import reportWebVitals from './reportWebVitals.ts'
 import { useAuthStore } from './stores/authStore'
 import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 import { AppLayout } from './components/AppLayout.tsx'
+import { PageSkeleton, FormSkeleton, ProfileSkeleton } from './components/skeletons'
+
+// Eager load: Landing page only
 import { Feed } from './pages/Feed.tsx'
-import { BeTutor } from './pages/BeTutor.tsx'
-import { ForParents } from './pages/ForParents.tsx'
-import { Support } from './pages/Support.tsx'
-import { Tutors } from './pages/Tutors.tsx'
-import { TutorProfile } from './pages/TutorProfile.tsx'
-import { PostView } from './pages/PostView.tsx'
-import { Profile } from './pages/Profile.tsx'
-import { Login } from './pages/Login.tsx'
-import { Register } from './pages/Register.tsx'
+
+// Lazy load: All other pages
+const BeTutor = lazy(() => import('./pages/BeTutor.tsx').then(m => ({ default: m.BeTutor })))
+const ForParents = lazy(() => import('./pages/ForParents.tsx').then(m => ({ default: m.ForParents })))
+const Support = lazy(() => import('./pages/Support.tsx').then(m => ({ default: m.Support })))
+const Tutors = lazy(() => import('./pages/Tutors.tsx').then(m => ({ default: m.Tutors })))
+const TutorProfile = lazy(() => import('./pages/TutorProfile.tsx').then(m => ({ default: m.TutorProfile })))
+const PostView = lazy(() => import('./pages/PostView.tsx').then(m => ({ default: m.PostView })))
+const Profile = lazy(() => import('./pages/Profile.tsx').then(m => ({ default: m.Profile })))
+const Login = lazy(() => import('./pages/Login.tsx').then(m => ({ default: m.Login })))
+const Register = lazy(() => import('./pages/Register.tsx').then(m => ({ default: m.Register })))
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -54,7 +59,9 @@ const beTutorRoute = createRoute({
   path: '/be-tutor',
   component: () => (
     <AppLayout>
-      <BeTutor />
+      <Suspense fallback={<FormSkeleton />}>
+        <BeTutor />
+      </Suspense>
     </AppLayout>
   ),
 })
@@ -64,7 +71,9 @@ const forParentsRoute = createRoute({
   path: '/for-parents',
   component: () => (
     <AppLayout>
-      <ForParents />
+      <Suspense fallback={<PageSkeleton />}>
+        <ForParents />
+      </Suspense>
     </AppLayout>
   ),
 })
@@ -74,7 +83,9 @@ const supportRoute = createRoute({
   path: '/support',
   component: () => (
     <AppLayout>
-      <Support />
+      <Suspense fallback={<PageSkeleton />}>
+        <Support />
+      </Suspense>
     </AppLayout>
   ),
 })
@@ -84,7 +95,9 @@ const tutorsRoute = createRoute({
   path: '/tutors',
   component: () => (
     <AppLayout>
-      <Tutors />
+      <Suspense fallback={<PageSkeleton />}>
+        <Tutors />
+      </Suspense>
     </AppLayout>
   ),
 })
@@ -94,7 +107,9 @@ const tutorProfileRoute = createRoute({
   path: '/tutor/$id',
   component: () => (
     <AppLayout>
-      <TutorProfile />
+      <Suspense fallback={<ProfileSkeleton />}>
+        <TutorProfile />
+      </Suspense>
     </AppLayout>
   ),
 })
@@ -104,7 +119,9 @@ const tutorPostRoute = createRoute({
   path: '/tutor/$tutorId/post/$postId',
   component: () => (
     <AppLayout>
-      <PostView />
+      <Suspense fallback={<PageSkeleton />}>
+        <PostView />
+      </Suspense>
     </AppLayout>
   ),
 })
@@ -115,7 +132,9 @@ const profileRoute = createRoute({
   component: () => (
     <AppLayout>
       <ProtectedRoute>
-        <Profile />
+        <Suspense fallback={<ProfileSkeleton />}>
+          <Profile />
+        </Suspense>
       </ProtectedRoute>
     </AppLayout>
   ),
@@ -126,7 +145,9 @@ const loginRoute = createRoute({
   path: '/login',
   component: () => (
     <AppLayout>
-      <Login />
+      <Suspense fallback={<PageSkeleton />}>
+        <Login />
+      </Suspense>
     </AppLayout>
   ),
 })
@@ -136,7 +157,9 @@ const registerRoute = createRoute({
   path: '/register',
   component: () => (
     <AppLayout>
-      <Register />
+      <Suspense fallback={<FormSkeleton />}>
+        <Register />
+      </Suspense>
     </AppLayout>
   ),
 })
