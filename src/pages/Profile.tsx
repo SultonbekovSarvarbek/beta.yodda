@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ProfileEditForm } from '@/components/ProfileEditForm';
+import { PasswordChangeForm } from '@/components/PasswordChangeForm';
 import {
   User,
   Mail,
@@ -313,17 +315,9 @@ function SeekerDashboard() {
         </Card>
       </TabsContent>
 
-      <TabsContent value="settings">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('profile.profileSettings') || 'Profile Settings'}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-gray-600">
-              {t('profile.settingsPlaceholder') || 'Manage your account settings and preferences.'}
-            </p>
-          </CardContent>
-        </Card>
+      <TabsContent value="settings" className="space-y-6">
+        <ProfileEditForm />
+        <PasswordChangeForm />
       </TabsContent>
     </Tabs>
   );

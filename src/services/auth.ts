@@ -7,7 +7,6 @@ import type {
   LoginRequest,
   RegisterRequest,
   AuthResponse,
-  ProfileResponse,
   User,
 } from '@/types/auth';
 import apiClient from '@/lib/axios';
@@ -138,4 +137,42 @@ export async function logout(): Promise<void> {
  */
 export function isAuthenticated(): boolean {
   return !!getToken();
+}
+
+/**
+ * Update profile information
+ */
+export interface UpdateProfileRequest {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export async function updateProfile(data: UpdateProfileRequest): Promise<User> {
+  const { data: response } = await apiClient.patch<User>('/updateprofileuser', data);
+
+  // Update stored user data
+  if (response) {
+    setStoredUser(response);
+  }
+
+  return response;
+}
+
+/**
+ * Change password
+ */
+export interface ChangePasswordRequest {
+  current_password: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export async function changePassword(userId: number, data: ChangePasswordRequest): Promise<{ message: string }> {
+  const { data: response } = await apiClient.patch<{ message: string }>(
+    `/profile/${userId}/password`,
+    data
+  );
+
+  return response;
 }

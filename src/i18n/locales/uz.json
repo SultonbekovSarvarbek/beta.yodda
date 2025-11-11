@@ -474,5 +474,45 @@
         "description": "Ijtimoiy tarmoqlarda yangiliklarimizni kuzatib boring!"
       }
     }
+  },
+  "profileEdit": {
+    "title": "Profilni tahrirlash",
+    "description": "Profil ma'lumotlarini yangilang",
+    "name": "Ism va familiya",
+    "namePlaceholder": "Ism va familiyani kiriting",
+    "email": "Elektron pochta",
+    "emailPlaceholder": "example@gmail.com",
+    "phone": "Telefon raqami",
+    "phonePlaceholder": "+998 XX XXX XX XX",
+    "saveChanges": "O'zgarishlarni saqlash",
+    "updateSuccess": "Profil muvaffaqiyatli yangilandi!",
+    "updateError": "Profilni yangilashda xatolik. Iltimos, qayta urinib ko'ring.",
+    "errors": {
+      "nameRequired": "Ism va familiya majburiy",
+      "emailRequired": "Elektron pochta majburiy",
+      "emailInvalid": "Noto'g'ri elektron pochta formati",
+      "phoneRequired": "Telefon raqami majburiy",
+      "phoneInvalid": "Noto'g'ri telefon raqami formati"
+    }
+  },
+  "passwordChange": {
+    "title": "Parolni o'zgartirish",
+    "description": "Akkauntingiz uchun parolni yangilang",
+    "currentPassword": "Joriy parol",
+    "currentPasswordPlaceholder": "Joriy parolni kiriting",
+    "newPassword": "Yangi parol",
+    "newPasswordPlaceholder": "Yangi parolni kiriting",
+    "confirmPassword": "Parolni tasdiqlash",
+    "confirmPasswordPlaceholder": "Yangi parolni takrorlang",
+    "changePassword": "Parolni o'zgartirish",
+    "updateSuccess": "Parol muvaffaqiyatli o'zgartirildi!",
+    "updateError": "Parolni o'zgartirishda xatolik. Iltimos, qayta urinib ko'ring.",
+    "errors": {
+      "currentPasswordRequired": "Joriy parolni kiriting",
+      "newPasswordRequired": "Yangi parolni kiriting",
+      "passwordMinLength": "Parol kamida 6 ta belgidan iborat bo'lishi kerak",
+      "confirmPasswordRequired": "Yangi parolni tasdiqlang",
+      "passwordMismatch": "Parollar mos kelmaydi"
+    }
   }
 }
