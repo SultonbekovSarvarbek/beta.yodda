@@ -43,7 +43,7 @@ export function Profile() {
   return (
     <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Profile Header */}
-          <Card className="mb-6">
+          <Card className="mb-6 border rounded-md">
             <CardContent className="pt-6">
               <div className="flex items-start gap-6">
                 <Avatar className="h-24 w-24">

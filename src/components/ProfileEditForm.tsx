@@ -78,7 +78,7 @@ export function ProfileEditForm() {
   };
 
   return (
-    <Card>
+    <Card className="border rounded-md">
       <CardHeader>
         <CardTitle>{t('profileEdit.title')}</CardTitle>
         <CardDescription>{t('profileEdit.description')}</CardDescription>
@@ -124,7 +124,7 @@ export function ProfileEditForm() {
             {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
           </div>
 
-          <Button type="submit" disabled={isLoading} className="w-full">
+          <Button type="submit" disabled={isLoading} variant="success" className="w-full">
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {t('profileEdit.saveChanges')}
           </Button>

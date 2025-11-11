@@ -92,7 +92,7 @@ export function PasswordChangeForm() {
   };
 
   return (
-    <Card>
+    <Card className="border rounded-md">
       <CardHeader>
         <CardTitle>{t('passwordChange.title')}</CardTitle>
         <CardDescription>{t('passwordChange.description')}</CardDescription>
@@ -165,7 +165,7 @@ export function PasswordChangeForm() {
             {errors.password_confirmation && <p className="text-sm text-red-500">{errors.password_confirmation}</p>}
           </div>
 
-          <Button type="submit" disabled={isLoading} className="w-full">
+          <Button type="submit" disabled={isLoading} variant="success" className="w-full">
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {t('passwordChange.changePassword')}
           </Button>

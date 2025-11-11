@@ -169,7 +169,7 @@ export interface ChangePasswordRequest {
 }
 
 export async function changePassword(userId: number, data: ChangePasswordRequest): Promise<{ message: string }> {
-  const { data: response } = await apiClient.patch<{ message: string }>(
+  const { data: response } = await apiClient.put<{ message: string }>(
     `/profile/${userId}/password`,
     data
   );
