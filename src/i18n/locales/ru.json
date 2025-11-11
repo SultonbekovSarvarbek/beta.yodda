@@ -225,7 +225,15 @@
     "yearsExperience_few": "года",
     "yearsExperience_many": "лет",
     "subject": "Предмет:",
-    "workExperience": "Опыт работы:"
+    "workExperience": "Опыт работы:",
+    "from": "от",
+    "currency": "сум"
+  },
+  "favorites": {
+    "addedSuccess": "Добавлено в избранное",
+    "removedSuccess": "Удалено из избранного",
+    "error": "Не удалось обновить избранное. Пожалуйста, попробуйте еще раз.",
+    "loginRequired": "Вам нужно войти или зарегистрироваться"
   },
   "languages": {
     "russian": "Русский",

@@ -171,6 +171,7 @@ export async function sendContactMessage(payload: {
 }
 
 // Get all favorites for the current user
+// API returns array directly: ApiFavorite[]
 export async function getFavorites(): Promise<ApiFavoritesResponse> {
   const { data } = await apiClient.get<ApiFavoritesResponse>('/favorites');
   return data;

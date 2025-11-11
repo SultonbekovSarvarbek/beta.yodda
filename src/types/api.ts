@@ -67,6 +67,7 @@ export interface ApiAnnouncement {
   experience: string;
   rate: number;
   gender: number;
+  is_favorite: boolean;
   image: ApiImage | null;
   region: ApiRegion;
   city: ApiCity;
@@ -155,6 +156,8 @@ export interface ApiDay {
 }
 
 // Favorite from /api/favorites
+// Note: This interface is kept for reference but not used
+// The API actually returns announcements directly, not favorite wrapper objects
 export interface ApiFavorite {
   id: number;
   user_id: number;
@@ -164,6 +167,5 @@ export interface ApiFavorite {
   updated_at: string;
 }
 
-export interface ApiFavoritesResponse {
-  data: ApiFavorite[];
-}
+// API /favorites returns array of announcements directly (with is_favorite: true)
+export type ApiFavoritesResponse = ApiAnnouncement[];

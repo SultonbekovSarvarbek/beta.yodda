@@ -25,6 +25,7 @@ export interface Tutor {
   age: string;
   experience: string;
   rate: number;
+  is_favorite?: boolean; // From API /announcements endpoint
   gender: number; // 1 = male, 2 = female (presumably)
   image: ApiImage | null;
   region: Region;

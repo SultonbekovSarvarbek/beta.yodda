@@ -112,7 +112,7 @@ export function Register() {
 
   return (
     <div className="flex items-center justify-center px-4 py-12 min-h-screen">
-      <Card className="w-full max-w-xl border">
+      <Card className="w-full max-w-xl border rounded-md">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
               {t('auth.register.title')}
@@ -347,10 +347,11 @@ export function Register() {
               )}
             </CardContent>
 
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex flex-col space-y-4 mt-4">
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-base font-semibold"
+                size="lg"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold"
                 disabled={loading}
               >
                 {loading ? (

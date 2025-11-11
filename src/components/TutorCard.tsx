@@ -2,14 +2,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import type { Tutor } from '@/types/tutor';
-import { Check, Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from 'lucide-react';
-import { Link } from '@tanstack/react-router';
+import type { ApiAnnouncement } from '@/types/api';
+import { Check, Heart, MessageCircle, Send, MoreHorizontal } from 'lucide-react';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useFavorites } from '@/hooks/api/useFavorites';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 interface TutorCardProps {
-  tutor: Tutor;
+  tutor: Tutor | ApiAnnouncement;
 }
 
 // Helper function to get correct Russian plural form for years
@@ -39,10 +41,19 @@ function getYearsWord(num: number | string): 'one' | 'few' | 'many' {
 
 export function TutorCard({ tutor }: TutorCardProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const { isFavorited, toggleFavorite: toggleFavoriteApi, isToggling } = useFavorites();
   const isFavorite = isFavorited(tutor.id);
 
   const handleToggleFavorite = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast.warning(t('favorites.loginRequired', 'Вам нужно войти или зарегистрироваться'));
+      navigate({ to: '/login' });
+      return;
+    }
+
     try {
       await toggleFavoriteApi(tutor.id);
 
@@ -134,7 +145,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
           </button>
         </div>
 
-        <button
+        {/* <button
           onClick={handleToggleFavorite}
           disabled={isToggling}
           className="transition-transform hover:scale-110 active:scale-95 disabled:opacity-50"
@@ -144,7 +155,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
               isFavorite ? 'fill-gray-900 text-gray-900' : 'text-gray-900'
             }`}
           />
-        </button>
+        </button> */}
       </div>
 
       {/* Content Section */}
@@ -152,7 +163,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
         {/* Rating */}
         <div className="flex items-center gap-1 text-sm">
           <span className="font-semibold">⭐ {tutor.rate.toFixed(1)}</span>
-          {tutor.reviewCount && (
+          {'reviewCount' in tutor && tutor.reviewCount && (
             <span className="text-gray-500">• {tutor.reviewCount} {t('tutorCard.reviews', 'reviews')}</span>
           )}
         </div>

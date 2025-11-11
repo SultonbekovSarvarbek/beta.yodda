@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProfileEditForm } from '@/components/ProfileEditForm';
 import { PasswordChangeForm } from '@/components/PasswordChangeForm';
 import { useFavorites } from '@/hooks/api/useFavorites';
-import { TutorCard } from '@/components/TutorCard';
+import { FavoriteItem } from '@/components/FavoriteItem';
 import {
   User,
   Mail,
@@ -23,7 +23,6 @@ import {
   Star,
   Settings,
   Edit,
-  Trash2,
 } from 'lucide-react';
 
 export function Profile() {
@@ -229,6 +228,15 @@ function SeekerDashboard() {
   const { t } = useTranslation();
   const { favorites, loading, error, deleteFavorite: deleteFavoriteApi, isDeleting } = useFavorites();
 
+  // Debug logging to verify favorites data
+  console.log('Favorites Debug:', {
+    favorites,
+    favoritesLength: favorites.length,
+    loading,
+    error,
+    firstFavorite: favorites[0]
+  });
+
   const handleDeleteFavorite = async (announcementId: number) => {
     try {
       await deleteFavoriteApi(announcementId);
@@ -315,7 +323,7 @@ function SeekerDashboard() {
       </TabsContent>
 
       <TabsContent value="favorites">
-        <Card>
+        <Card className="border rounded-md">
           <CardHeader>
             <CardTitle>{t('profile.favoriteTutors') || 'Favorite Tutors'}</CardTitle>
           </CardHeader>
@@ -329,21 +337,14 @@ function SeekerDashboard() {
                 {t('profile.noFavorites') || 'You haven\'t saved any favorite tutors yet.'}
               </p>
             ) : (
-              <div className="space-y-6">
-                {favorites.map((favorite) => (
-                  <div key={favorite.id} className="relative">
-                    <TutorCard tutor={favorite.announcement} />
-                    <Button
-                      onClick={() => handleDeleteFavorite(favorite.announcement_id)}
-                      disabled={isDeleting}
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-2 right-2 z-10"
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      {t('common.delete') || 'Delete'}
-                    </Button>
-                  </div>
+              <div className="space-y-2">
+                {favorites.map((announcement) => (
+                  <FavoriteItem
+                    key={announcement.id}
+                    announcement={announcement}
+                    onDelete={handleDeleteFavorite}
+                    isDeleting={isDeleting}
+                  />
                 ))}
               </div>
             )}

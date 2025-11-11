@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getFavorites, toggleFavorite, deleteFavorite } from '@/services/api';
-import type { ApiFavoritesResponse, ApiFavorite } from '@/types/api';
+import type { ApiFavoritesResponse, ApiAnnouncement } from '@/types/api';
+import { useAuth } from '@/hooks/useAuth';
 
 export const favoriteKeys = {
   all: ['favorites'] as const,
@@ -8,7 +9,7 @@ export const favoriteKeys = {
 };
 
 interface UseFavoritesResult {
-  favorites: ApiFavorite[];
+  favorites: ApiAnnouncement[];
   loading: boolean;
   error: string | null;
   refetch: () => void;
@@ -21,6 +22,11 @@ interface UseFavoritesResult {
 
 export function useFavorites(): UseFavoritesResult {
   const queryClient = useQueryClient();
+  const { user, isAuthenticated } = useAuth();
+
+  // Only fetch favorites for authenticated seekers
+  const isSeeker = user?.role_id === 2;
+  const shouldFetch = isAuthenticated && isSeeker;
 
   const {
     data,
@@ -30,9 +36,11 @@ export function useFavorites(): UseFavoritesResult {
   } = useQuery<ApiFavoritesResponse>({
     queryKey: favoriteKeys.lists(),
     queryFn: getFavorites,
+    enabled: shouldFetch, // Only fetch when logged in as seeker
   });
 
-  const favorites = data?.data || [];
+  // API returns array directly, not wrapped in { data: [...] }
+  const favorites = data || [];
 
   // Toggle favorite mutation
   const toggleMutation = useMutation({
@@ -54,7 +62,7 @@ export function useFavorites(): UseFavoritesResult {
 
   // Helper function to check if an announcement is favorited
   const isFavorited = (announcementId: number): boolean => {
-    return favorites.some(fav => fav.announcement_id === announcementId);
+    return favorites.some(fav => fav.id === announcementId);
   };
 
   const handleToggleFavorite = async (announcementId: number) => {

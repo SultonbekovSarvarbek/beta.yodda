@@ -62,7 +62,7 @@ export function Login() {
 
   return (
     <div className="flex items-center justify-center px-4 py-12 min-h-screen">
-      <Card className="w-full max-w-md border">
+      <Card className="w-full max-w-md border rounded-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
             {t('auth.login.title')}
@@ -167,9 +167,10 @@ export function Login() {
             )}
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col space-y-4 mt-4">
             <Button
               type="submit"
+              size="lg"
               className="w-full bg-blue-600 hover:bg-blue-700"
               disabled={loading}
             >
