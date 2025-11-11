@@ -153,3 +153,17 @@ export interface ApiDay {
   created_at: string;
   updated_at: string;
 }
+
+// Favorite from /api/favorites
+export interface ApiFavorite {
+  id: number;
+  user_id: number;
+  announcement_id: number;
+  announcement: ApiAnnouncement;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiFavoritesResponse {
+  data: ApiFavorite[];
+}

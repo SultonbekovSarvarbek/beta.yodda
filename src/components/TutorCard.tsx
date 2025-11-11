@@ -6,6 +6,7 @@ import type { Tutor } from '@/types/tutor';
 import { Check, Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import { useFavorites } from '@/hooks/api/useFavorites';
 
 interface TutorCardProps {
   tutor: Tutor;
@@ -39,7 +40,16 @@ function getYearsWord(num: number | string): 'one' | 'few' | 'many' {
 export function TutorCard({ tutor }: TutorCardProps) {
   const { t } = useTranslation();
   const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const { isFavorited, toggleFavorite: toggleFavoriteApi, isToggling } = useFavorites();
+  const saved = isFavorited(tutor.id);
+
+  const handleToggleFavorite = async () => {
+    try {
+      await toggleFavoriteApi(tutor.id);
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
+  };
 
   return (
     <Card className="overflow-hidden sm:rounded-none md:rounded-md lg:rounded-lg xl:rounded-xl bg-white shadow-none sm:border-0 md:border lg:border xl:border">
@@ -117,8 +127,9 @@ export function TutorCard({ tutor }: TutorCardProps) {
         </div>
 
         <button
-          onClick={() => setSaved(!saved)}
-          className="transition-transform hover:scale-110 active:scale-95"
+          onClick={handleToggleFavorite}
+          disabled={isToggling}
+          className="transition-transform hover:scale-110 active:scale-95 disabled:opacity-50"
         >
           <Bookmark
             className={`w-6 h-6 ${
