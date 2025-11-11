@@ -192,7 +192,10 @@
     "aboutUs": "Biz haqimizda",
     "contact": "Aloqa",
     "followUs": "Bizni kuzatib boring",
-    "allRightsReserved": "Barcha huquqlar himoyalangan"
+    "allRightsReserved": "Barcha huquqlar himoyalangan",
+    "privacyPolicy": "Политика конфиденциальности",
+    "userAgreement": "Пользовательское соглашение",
+    "offer": "Оферта"
   },
   "tutorCard": {
     "reviews": "sharhlar",

@@ -34,6 +34,9 @@ const PostView = lazy(() => import('./pages/PostView.tsx').then(m => ({ default:
 const Profile = lazy(() => import('./pages/Profile.tsx').then(m => ({ default: m.Profile })))
 const Login = lazy(() => import('./pages/Login.tsx').then(m => ({ default: m.Login })))
 const Register = lazy(() => import('./pages/Register.tsx').then(m => ({ default: m.Register })))
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy.tsx').then(m => ({ default: m.PrivacyPolicy })))
+const Terms = lazy(() => import('./pages/Terms.tsx').then(m => ({ default: m.Terms })))
+const Offer = lazy(() => import('./pages/Offer.tsx').then(m => ({ default: m.Offer })))
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -164,6 +167,42 @@ const registerRoute = createRoute({
   ),
 })
 
+const privacyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/privacy',
+  component: () => (
+    <AppLayout>
+      <Suspense fallback={<PageSkeleton />}>
+        <PrivacyPolicy />
+      </Suspense>
+    </AppLayout>
+  ),
+})
+
+const termsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/terms',
+  component: () => (
+    <AppLayout>
+      <Suspense fallback={<PageSkeleton />}>
+        <Terms />
+      </Suspense>
+    </AppLayout>
+  ),
+})
+
+const offerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/offer',
+  component: () => (
+    <AppLayout>
+      <Suspense fallback={<PageSkeleton />}>
+        <Offer />
+      </Suspense>
+    </AppLayout>
+  ),
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   beTutorRoute,
@@ -175,6 +214,9 @@ const routeTree = rootRoute.addChildren([
   profileRoute,
   loginRoute,
   registerRoute,
+  privacyRoute,
+  termsRoute,
+  offerRoute,
 ])
 
 const router = createRouter({

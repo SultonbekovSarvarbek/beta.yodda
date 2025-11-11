@@ -210,7 +210,10 @@
     "aboutUs": "О нас",
     "contact": "Контакты",
     "followUs": "Следите за нами",
-    "allRightsReserved": "Все права защищены"
+    "allRightsReserved": "Все права защищены",
+    "privacyPolicy": "Политика конфиденциальности",
+    "userAgreement": "Пользовательское соглашение",
+    "offer": "Оферта"
   },
   "tutorCard": {
     "reviews": "отзывов",
