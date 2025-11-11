@@ -58,9 +58,9 @@ export function Profile() {
                       <h1 className="text-2xl font-bold">{user.name}</h1>
                       <Badge className="mt-2 capitalize">{user.role}</Badge>
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" className="cursor-pointer" size="sm">
                       <Edit className="h-4 w-4 mr-2" />
-                      {t('common.edit') || 'Edit Profile'}
+                      {t('common.edit')}
                     </Button>
                   </div>
                   <div className="mt-4 space-y-2 text-sm text-gray-600">
