@@ -12,6 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProfileEditForm } from '@/components/ProfileEditForm';
 import { PasswordChangeForm } from '@/components/PasswordChangeForm';
+import { useFavorites } from '@/hooks/api/useFavorites';
+import { TutorCard } from '@/components/TutorCard';
 import {
   User,
   Mail,
@@ -21,6 +23,7 @@ import {
   Star,
   Settings,
   Edit,
+  Trash2,
 } from 'lucide-react';
 
 export function Profile() {
@@ -224,6 +227,15 @@ function TutorDashboard() {
  */
 function SeekerDashboard() {
   const { t } = useTranslation();
+  const { favorites, loading, error, deleteFavorite: deleteFavoriteApi, isDeleting } = useFavorites();
+
+  const handleDeleteFavorite = async (announcementId: number) => {
+    try {
+      await deleteFavoriteApi(announcementId);
+    } catch (error) {
+      console.error('Failed to delete favorite:', error);
+    }
+  };
 
   return (
     <Tabs defaultValue="overview" className="space-y-6">
@@ -308,9 +320,33 @@ function SeekerDashboard() {
             <CardTitle>{t('profile.favoriteTutors') || 'Favorite Tutors'}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">
-              {t('profile.noFavorites') || 'You haven\'t saved any favorite tutors yet.'}
-            </p>
+            {loading ? (
+              <p className="text-gray-600">{t('common.loading') || 'Loading...'}</p>
+            ) : error ? (
+              <p className="text-red-600">{error}</p>
+            ) : favorites.length === 0 ? (
+              <p className="text-gray-600">
+                {t('profile.noFavorites') || 'You haven\'t saved any favorite tutors yet.'}
+              </p>
+            ) : (
+              <div className="space-y-6">
+                {favorites.map((favorite) => (
+                  <div key={favorite.id} className="relative">
+                    <TutorCard tutor={favorite.announcement} />
+                    <Button
+                      onClick={() => handleDeleteFavorite(favorite.announcement_id)}
+                      disabled={isDeleting}
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2 z-10"
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      {t('common.delete') || 'Delete'}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </TabsContent>

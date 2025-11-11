@@ -6,7 +6,8 @@ import type {
   ApiRegionWithCities,
   ApiLanguage,
   ApiFormat,
-  ApiDay
+  ApiDay,
+  ApiFavoritesResponse
 } from '@/types/api';
 import apiClient from '@/lib/axios';
 import type { AxiosRequestConfig } from 'axios';
@@ -166,5 +167,23 @@ export async function sendContactMessage(payload: {
   message: string;
 }): Promise<{ message: string }> {
   const { data } = await apiClient.post<{ message: string }>('/contact/send-message', payload);
+  return data;
+}
+
+// Get all favorites for the current user
+export async function getFavorites(): Promise<ApiFavoritesResponse> {
+  const { data } = await apiClient.get<ApiFavoritesResponse>('/favorites');
+  return data;
+}
+
+// Toggle favorite status for an announcement
+export async function toggleFavorite(announcementId: number): Promise<{ message: string; is_favorited: boolean }> {
+  const { data } = await apiClient.post<{ message: string; is_favorited: boolean }>(`/favorites/toggle/${announcementId}`);
+  return data;
+}
+
+// Delete a favorite
+export async function deleteFavorite(announcementId: number): Promise<{ message: string }> {
+  const { data } = await apiClient.delete<{ message: string }>(`/favorites/${announcementId}`);
   return data;
 }
