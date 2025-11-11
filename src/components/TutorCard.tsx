@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -7,6 +6,7 @@ import { Check, Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from 'luc
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useFavorites } from '@/hooks/api/useFavorites';
+import { toast } from 'sonner';
 
 interface TutorCardProps {
   tutor: Tutor;
@@ -39,15 +39,22 @@ function getYearsWord(num: number | string): 'one' | 'few' | 'many' {
 
 export function TutorCard({ tutor }: TutorCardProps) {
   const { t } = useTranslation();
-  const [liked, setLiked] = useState(false);
   const { isFavorited, toggleFavorite: toggleFavoriteApi, isToggling } = useFavorites();
-  const saved = isFavorited(tutor.id);
+  const isFavorite = isFavorited(tutor.id);
 
   const handleToggleFavorite = async () => {
     try {
       await toggleFavoriteApi(tutor.id);
+
+      // Show success notification
+      if (isFavorite) {
+        toast.success(t('favorites.removedSuccess', 'Removed from favorites'));
+      } else {
+        toast.success(t('favorites.addedSuccess', 'Added to favorites'));
+      }
     } catch (error) {
       console.error('Failed to toggle favorite:', error);
+      toast.error(t('favorites.error', 'Failed to update favorites. Please try again.'));
     }
   };
 
@@ -109,12 +116,13 @@ export function TutorCard({ tutor }: TutorCardProps) {
       <div className="flex items-center justify-between px-4 py-3 pt-0">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => setLiked(!liked)}
-            className="transition-transform hover:scale-110 active:scale-95"
+            onClick={handleToggleFavorite}
+            disabled={isToggling}
+            className="transition-transform hover:scale-110 active:scale-95 disabled:opacity-50"
           >
             <Heart
               className={`w-6 h-6 ${
-                liked ? 'fill-red-500 text-red-500' : 'text-gray-900'
+                isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-900'
               }`}
             />
           </button>
@@ -133,7 +141,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
         >
           <Bookmark
             className={`w-6 h-6 ${
-              saved ? 'fill-gray-900 text-gray-900' : 'text-gray-900'
+              isFavorite ? 'fill-gray-900 text-gray-900' : 'text-gray-900'
             }`}
           />
         </button>
