@@ -83,7 +83,11 @@ export function SuggestionsPanel() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <span className="text-sm font-semibold text-gray-500">{t('suggestions.suggestedForYou')}</span>
-          <Button variant="ghost" className="text-xs h-auto p-0 hover:bg-transparent">
+          <Button
+            variant="ghost"
+            className="text-xs h-auto p-0 hover:bg-transparent cursor-pointer"
+            onClick={() => navigate({ to: '/tutors' })}
+          >
             {t('suggestions.seeAll')}
           </Button>
         </div>
