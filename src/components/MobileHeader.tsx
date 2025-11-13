@@ -1,4 +1,4 @@
-import { LogIn, UserPlus } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -40,20 +40,12 @@ export function MobileHeader() {
             </Avatar>
           </Link>
         ) : (
-          <div className="flex items-center gap-2">
-            <Link to="/login">
-              <Button variant="ghost" size="sm" className="gap-1">
-                <LogIn className="w-4 h-4" />
-                <span className="text-sm">{t('auth.login.title')}</span>
-              </Button>
-            </Link>
-            <Link to="/register">
-              <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 gap-1">
-                <UserPlus className="w-4 h-4" />
-                <span className="text-sm">{t('auth.register.title')}</span>
-              </Button>
-            </Link>
-          </div>
+          <Link to="/login">
+            <Button variant="ghost" size="sm" className="gap-1">
+              <LogIn className="w-4 h-4" />
+              <span className="text-sm">{t('auth.login.title')}</span>
+            </Button>
+          </Link>
         )}
       </div>
     </header>

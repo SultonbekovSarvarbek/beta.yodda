@@ -3,6 +3,7 @@ import { useAnnouncementById } from '@/hooks/api';
 import { ArrowLeft, FileText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
+import { InstagramVideoPlayer } from '@/components/InstagramVideoPlayer';
 
 // Utility function to detect file type
 const getFileType = (filePath: string): 'pdf' | 'image' | 'video' => {
@@ -61,12 +62,22 @@ export function PostView() {
     isFile: true,
   }));
 
-  const mockPosts = Array.from({ length: 9 }, (_, i) => ({
-    id: i + 1,
-    image: tutor.image?.small || `https://images.unsplash.com/photo-${1500000000000 + i * 1000}?w=400&h=400&fit=crop`,
-    fileType: 'image' as const,
-    isFile: false,
-  }));
+  const mockPosts = [
+    // Test video post (matches TutorProfile)
+    {
+      id: 'video-test-1',
+      image: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      fileType: 'video' as const,
+      isFile: false,
+    },
+    // Image posts
+    ...Array.from({ length: 8 }, (_, i) => ({
+      id: i + 1,
+      image: tutor.image?.small || `https://images.unsplash.com/photo-${1500000000000 + i * 1000}?w=400&h=400&fit=crop`,
+      fileType: 'image' as const,
+      isFile: false,
+    }))
+  ];
 
   const allPosts = [...filePosts, ...mockPosts];
   const post = allPosts.find((p) => p.id.toString() === postId);
@@ -121,19 +132,8 @@ export function PostView() {
               </Button>
             </div>
           ) : post.fileType === 'video' ? (
-            <div className="w-full">
-              <video
-                src={post.image}
-                controls
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="w-full rounded-lg"
-              >
-                <source src={post.image} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+            <div className="w-full aspect-video rounded-lg overflow-hidden">
+              <InstagramVideoPlayer src={post.image} />
             </div>
           ) : (
             <img
@@ -162,13 +162,8 @@ export function PostView() {
             </div>
             <div>
               <p className="text-white/80 text-sm">
-                <span className="text-white/60 font-medium">Type:</span>{' '}
-                {post.fileType === 'pdf' ? 'PDF Document' :
-                 post.fileType === 'video' ? 'Video' : 'Image'}
-              </p>
-              <p className="text-white/80 text-sm">
-                <span className="text-white/60 font-medium">Source:</span>{' '}
-                {post.isFile ? 'Tutor Upload' : 'Profile Gallery'}
+                <span className="text-white/60 font-medium">Subject:</span>{' '}
+                {tutor.subjects?.map(s => s.name).join(', ') || 'Not specified'}
               </p>
             </div>
           </div>

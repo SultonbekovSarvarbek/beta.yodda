@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { InstagramVideoPlayer } from '@/components/InstagramVideoPlayer';
 
 // Utility function to detect file type
 const getFileType = (filePath: string): 'pdf' | 'image' | 'video' => {
@@ -376,10 +377,10 @@ export function TutorProfile() {
 
       {/* Image/File Preview Modal - Desktop Only */}
       <Dialog open={selectedPost !== null} onOpenChange={(open) => !open && setSelectedPost(null)}>
-        <DialogContent className="hidden lg:block max-w-7xl w-[90vw] h-[85vh] p-0">
+        <DialogContent className="hidden lg:block !max-w-[70vw] !w-[70vw] h-[95vh] p-0">
           <div className="flex h-full">
             {/* Left side - Image/File/Video Preview */}
-            <div className="flex-[7] bg-black flex items-center justify-center p-8">
+            <div className="flex-1 bg-black flex items-center justify-center">
               {selectedPost?.fileType === 'pdf' ? (
                 <div className="flex flex-col items-center gap-4">
                   <FileText className="h-32 w-32 text-white" />
@@ -393,20 +394,7 @@ export function TutorProfile() {
                   </Button>
                 </div>
               ) : selectedPost?.fileType === 'video' ? (
-                <div className="w-full h-full flex items-center justify-center">
-                  <video
-                    src={selectedPost.image}
-                    controls
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    className="max-w-full max-h-full object-contain"
-                  >
-                    <source src={selectedPost.image} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
+                <InstagramVideoPlayer src={selectedPost.image} />
               ) : (
                 <img
                   src={selectedPost?.image}
@@ -417,7 +405,7 @@ export function TutorProfile() {
             </div>
 
             {/* Right side - File Information */}
-            <div className="flex-[3] p-6 bg-white overflow-y-auto">
+            <div className="w-1/2 p-6 bg-white overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>File Information</DialogTitle>
               </DialogHeader>

@@ -129,7 +129,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
           <button
             onClick={handleToggleFavorite}
             disabled={isToggling}
-            className="transition-transform hover:scale-110 active:scale-95 disabled:opacity-50"
+            className="transition-transform hover:scale-110 active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             <Heart
               className={`w-6 h-6 ${
@@ -137,10 +137,10 @@ export function TutorCard({ tutor }: TutorCardProps) {
               }`}
             />
           </button>
-          <button className="transition-transform hover:scale-110 active:scale-95">
+          <button className="transition-transform hover:scale-110 active:scale-95 cursor-pointer">
             <MessageCircle className="w-6 h-6 text-gray-900" />
           </button>
-          <button className="transition-transform hover:scale-110 active:scale-95">
+          <button className="transition-transform hover:scale-110 active:scale-95 cursor-pointer">
             <Send className="w-6 h-6 text-gray-900" />
           </button>
         </div>
