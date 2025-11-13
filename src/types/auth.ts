@@ -18,6 +18,8 @@ export interface User {
   role: UserRole;
   avatar?: string;
   createdAt?: string;
+  gender?: string;
+  lang?: 'uz' | 'ru';
 }
 
 /**

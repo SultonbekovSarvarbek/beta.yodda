@@ -22,6 +22,7 @@ export function Header() {
   const { user, isAuthenticated, isLoggingOut, logout } = useAuth();
 
   const getUserInitials = (name: string) => {
+    if (!name) return '??';
     return name
       .split(' ')
       .map((n) => n[0])

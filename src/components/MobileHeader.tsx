@@ -10,6 +10,7 @@ export function MobileHeader() {
   const { user, isAuthenticated } = useAuth();
 
   const getUserInitials = (name: string) => {
+    if (!name) return '??';
     return name
       .split(' ')
       .map((n) => n[0])

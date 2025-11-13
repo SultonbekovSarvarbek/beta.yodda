@@ -7,12 +7,41 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAuthStore } from '@/stores/authStore';
+import { updateLanguage } from '@/services/auth';
+import { toast } from 'sonner';
+
+const LANGUAGE_STORAGE_KEY = 'i18n_language';
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
+  const { user, setUser } = useAuthStore();
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
+  const changeLanguage = async (lng: string) => {
+    const language = lng as 'uz' | 'ru';
+
+    try {
+      if (user) {
+        // Authenticated user: persist to backend
+        const updatedUser = await updateLanguage(language);
+        setUser(updatedUser);
+        await i18n.changeLanguage(language);
+        toast.success(
+          language === 'uz' ? "Til o'zgartirildi" : 'Язык изменен'
+        );
+      } else {
+        // Non-authenticated user: save to localStorage
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+        await i18n.changeLanguage(language);
+      }
+    } catch (error) {
+      console.error('Failed to change language:', error);
+      toast.error(
+        language === 'uz'
+          ? "Tilni o'zgartirishda xatolik"
+          : 'Ошибка при изменении языка'
+      );
+    }
   };
 
   return (

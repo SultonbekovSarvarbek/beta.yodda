@@ -341,7 +341,17 @@
     "myBookings": "Мои записи",
     "noBookings": "У вас пока нет записей. Просмотрите репетиторов, чтобы запланировать урок!",
     "favoriteTutors": "Избранные репетиторы",
-    "noFavorites": "Вы ещё не добавили избранных репетиторов."
+    "noFavorites": "Вы ещё не добавили избранных репетиторов.",
+    "personalInfo": "Личная информация",
+    "yourRole": "Ваша роль",
+    "gender": "Пол",
+    "language": "Язык",
+    "roleSeeker": "Ищу репетитора",
+    "selectLanguage": "Выберите опцию",
+    "languageUzbek": "O'zbek tili",
+    "languageRussian": "Русский язык",
+    "languageUpdated": "Язык успешно обновлен",
+    "languageUpdateError": "Ошибка при обновлении языка"
   },
   "auth": {
     "login": {

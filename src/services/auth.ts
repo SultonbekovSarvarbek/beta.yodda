@@ -106,14 +106,20 @@ export async function register(userData: RegisterRequest): Promise<AuthResponse>
  * Get current user profile
  */
 export async function getProfile(): Promise<User> {
-  const { data } = await apiClient.get<User>('/getprofileuser');
+  const { data } = await apiClient.get<any>('/getprofileuser');
+
+  // Transform backend field names to match frontend types
+  const user: User = {
+    ...data,
+    lang: data.language || data.lang, // Map backend 'language' to frontend 'lang'
+  };
 
   // Update stored user data
-  if (data) {
-    setStoredUser(data);
+  if (user) {
+    setStoredUser(user);
   }
 
-  return data;
+  return user;
 }
 
 /**
@@ -175,4 +181,24 @@ export async function changePassword(userId: number, data: ChangePasswordRequest
   );
 
   return response;
+}
+
+/**
+ * Update user language preference
+ */
+export async function updateLanguage(lang: 'uz' | 'ru'): Promise<User> {
+  const { data: response } = await apiClient.put<any>('/getprofileuser', { lang });
+
+  // Transform backend field names to match frontend types
+  const user: User = {
+    ...response,
+    lang: response.language || response.lang, // Map backend 'language' to frontend 'lang'
+  };
+
+  // Update stored user data
+  if (user) {
+    setStoredUser(user);
+  }
+
+  return user;
 }

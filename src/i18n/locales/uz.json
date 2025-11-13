@@ -310,7 +310,17 @@
     "myBookings": "Mening yozuvlarim",
     "noBookings": "Hali yozuvlaringiz yo'q. Dars rejalashtirish uchun repetitorlarni ko'ring!",
     "favoriteTutors": "Sevimli repetitorlar",
-    "noFavorites": "Hali sevimli repetitorlarni qo'shmadingiz."
+    "noFavorites": "Hali sevimli repetitorlarni qo'shmadingiz.",
+    "personalInfo": "Shaxsiy ma'lumotlar",
+    "yourRole": "Sizning rolingiz",
+    "gender": "Jins",
+    "language": "Til",
+    "roleSeeker": "Repetitor izlayapman",
+    "selectLanguage": "Variantni tanlang",
+    "languageUzbek": "O'zbek tili",
+    "languageRussian": "Rus tili",
+    "languageUpdated": "Til muvaffaqiyatli yangilandi",
+    "languageUpdateError": "Tilni yangilashda xatolik"
   },
   "auth": {
     "login": {

@@ -10,10 +10,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ProfileEditForm } from '@/components/ProfileEditForm';
 import { PasswordChangeForm } from '@/components/PasswordChangeForm';
 import { useFavorites } from '@/hooks/api/useFavorites';
 import { FavoriteItem } from '@/components/FavoriteItem';
+import { updateLanguage } from '@/services/auth';
+import { useState } from 'react';
+import { useAuthStore } from '@/stores/authStore';
+import { toast } from 'sonner';
 import {
   User,
   Mail,
@@ -34,6 +41,7 @@ export function Profile() {
   }
 
   const getUserInitials = (name: string) => {
+    if (!name) return '??';
     return name
       .split(' ')
       .map((n) => n[0])
@@ -225,8 +233,11 @@ function TutorDashboard() {
  * Seeker-specific dashboard content
  */
 function SeekerDashboard() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const { setUser } = useAuthStore();
   const { favorites, loading, error, deleteFavorite: deleteFavoriteApi, isDeleting } = useFavorites();
+  const [isUpdatingLanguage, setIsUpdatingLanguage] = useState(false);
 
   // Debug logging to verify favorites data
   console.log('Favorites Debug:', {
@@ -242,6 +253,29 @@ function SeekerDashboard() {
       await deleteFavoriteApi(announcementId);
     } catch (error) {
       console.error('Failed to delete favorite:', error);
+    }
+  };
+
+  const handleLanguageChange = async (newLang: 'uz' | 'ru') => {
+    if (!user) return;
+
+    setIsUpdatingLanguage(true);
+    try {
+      const updatedUser = await updateLanguage(newLang);
+      setUser(updatedUser);
+      await i18n.changeLanguage(newLang);
+      toast.success(
+        newLang === 'uz' ? "Til o'zgartirildi" : 'Язык изменен'
+      );
+    } catch (error) {
+      console.error('Failed to update language:', error);
+      toast.error(
+        newLang === 'uz'
+          ? "Tilni o'zgartirishda xatolik"
+          : 'Ошибка при изменении языка'
+      );
+    } finally {
+      setIsUpdatingLanguage(false);
     }
   };
 
@@ -296,6 +330,48 @@ function SeekerDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('profile.personalInfo')}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="role">{t('profile.yourRole')}</Label>
+              <Input
+                id="role"
+                value={t('profile.roleSeeker')}
+                disabled
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gender">{t('profile.gender')}</Label>
+              <Input
+                id="gender"
+                value={user?.gender || ''}
+                disabled
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="language">{t('profile.language')}</Label>
+              <Select
+                value={user?.lang || 'ru'}
+                onValueChange={handleLanguageChange}
+                disabled={isUpdatingLanguage}
+              >
+                <SelectTrigger id="language" className="w-full">
+                  <SelectValue placeholder={t('profile.selectLanguage')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="uz">{t('profile.languageUzbek')}</SelectItem>
+                  <SelectItem value="ru">{t('profile.languageRussian')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>

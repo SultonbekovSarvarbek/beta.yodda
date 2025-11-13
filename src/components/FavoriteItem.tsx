@@ -79,7 +79,7 @@ export function FavoriteItem({ announcement, onDelete, isDeleting }: FavoriteIte
             disabled={isDeleting}
             variant="ghost"
             size="icon"
-            className="shrink-0 text-gray-400 hover:text-red-600 hover:bg-red-50"
+            className="shrink-0 text-red-500 hover:text-gray bg-red-200 cursor-pointer"
           >
             <Trash2 className="h-5 w-5" />
           </Button>

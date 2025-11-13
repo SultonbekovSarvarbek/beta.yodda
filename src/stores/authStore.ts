@@ -7,6 +7,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, LoginRequest, RegisterRequest } from '@/types/auth';
 import * as authService from '@/services/auth';
+import i18n from '@/i18n/config';
 
 /**
  * Auth store state
@@ -79,6 +80,15 @@ export const useAuthStore = create<AuthStore>()(
 
           // Try to fetch fresh profile data
           const profile = await authService.getProfile();
+
+          // Clear guest language preference (backend takes over)
+          localStorage.removeItem('i18n_language');
+
+          // Sync i18n language with user's preference
+          if (profile.lang) {
+            await i18n.changeLanguage(profile.lang);
+          }
+
           set({
             user: profile,
             isAuthenticated: true,
@@ -102,11 +112,19 @@ export const useAuthStore = create<AuthStore>()(
       login: async (credentials) => {
         try {
           set({ loading: true, error: null });
-          
+
           await authService.login(credentials);
 
           // Fetch profile data
           const profile = await authService.getProfile();
+
+          // Clear guest language preference (backend takes over)
+          localStorage.removeItem('i18n_language');
+
+          // Sync i18n language with user's preference
+          if (profile.lang) {
+            await i18n.changeLanguage(profile.lang);
+          }
 
           // Synchronously update state - no race conditions!
           set({
@@ -141,6 +159,14 @@ export const useAuthStore = create<AuthStore>()(
 
           // Fetch profile data
           const profile = await authService.getProfile();
+
+          // Clear guest language preference (backend takes over)
+          localStorage.removeItem('i18n_language');
+
+          // Sync i18n language with user's preference
+          if (profile.lang) {
+            await i18n.changeLanguage(profile.lang);
+          }
 
           // Synchronously update state
           set({
@@ -205,6 +231,12 @@ export const useAuthStore = create<AuthStore>()(
         try {
           set({ loading: true });
           const profile = await authService.getProfile();
+
+          // Sync i18n language with user's preference
+          if (profile.lang) {
+            await i18n.changeLanguage(profile.lang);
+          }
+
           set({
             user: profile,
             isAuthenticated: true,
