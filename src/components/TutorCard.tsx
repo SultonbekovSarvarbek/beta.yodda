@@ -109,9 +109,9 @@ export function TutorCard({ tutor }: TutorCardProps) {
           </div>
         </div>
 
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        {/* <Button variant="ghost" size="icon" className="h-8 w-8">
           <MoreHorizontal className="w-5 h-5" />
-        </Button>
+        </Button> */}
       </div>
 
       {/* Main Image - Square */}
@@ -174,7 +174,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
         </div>
 
         {/* Subject and Price Row */}
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center flex-wrap gap-3 justify-between text-sm">
           {/* Subject with Label */}
           {tutor.subjects.length > 0 && (
             <div className="text-gray-700">
@@ -184,9 +184,9 @@ export function TutorCard({ tutor }: TutorCardProps) {
           )}
 
           {/* Price */}
-          <div className="font-semibold text-gray-900">
+          <div className="font-bold text-white">
             {tutor.min_price === tutor.max_price ? (
-              <span className="bg-gray-300 p-1 px-2 d-block rounded-full">от {tutor.min_price.toLocaleString()} сум</span>
+              <span className="bg-green-500 p-1 px-2 d-block rounded-full">от {tutor.min_price.toLocaleString()} сум</span>
             ) : (
               <span>
                 {tutor.min_price.toLocaleString()}-{tutor.max_price.toLocaleString()} сум
