@@ -27,7 +27,7 @@ export function Footer() {
 
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
-            <span>© {new Date().getFullYear()} Yodagram</span>
+            <span>© {new Date().getFullYear()} YODDAGRAM</span>
           </div>
         </div>
       </div>

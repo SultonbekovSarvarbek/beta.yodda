@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, Phone, Lock } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -82,8 +82,7 @@ export function Login() {
           <CardContent className="space-y-4">
             {/* Phone Number Field */}
             <div className="space-y-2">
-              <Label htmlFor="phone" className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
+              <Label htmlFor="phone">
                 {t('auth.login.phoneNumber')} <span className="text-red-500">*</span>
               </Label>
               <div className="relative">
@@ -109,8 +108,7 @@ export function Login() {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="flex items-center gap-2">
-                <Lock className="h-4 w-4" />
+              <Label htmlFor="password">
                 {t('auth.login.password')} <span className="text-red-500">*</span>
               </Label>
               <div className="relative">

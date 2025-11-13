@@ -79,14 +79,14 @@ export function ProfileEditForm() {
 
   return (
     <Card className="border rounded-md">
-      <CardHeader>
-        <CardTitle>{t('profileEdit.title')}</CardTitle>
-        <CardDescription>{t('profileEdit.description')}</CardDescription>
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="text-lg sm:text-xl">{t('profileEdit.title')}</CardTitle>
+        <CardDescription className="text-sm">{t('profileEdit.description')}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">{t('profileEdit.name')}</Label>
+      <CardContent className="p-4 md:p-6 pt-0">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="name" className="text-sm">{t('profileEdit.name')}</Label>
             <Input
               id="name"
               type="text"
@@ -95,11 +95,11 @@ export function ProfileEditForm() {
               placeholder={t('profileEdit.namePlaceholder')}
               className={errors.name ? 'border-red-500' : ''}
             />
-            {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+            {errors.name && <p className="text-xs sm:text-sm text-red-500">{errors.name}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">{t('profileEdit.email')}</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="email" className="text-sm">{t('profileEdit.email')}</Label>
             <Input
               id="email"
               type="email"
@@ -108,11 +108,11 @@ export function ProfileEditForm() {
               placeholder={t('profileEdit.emailPlaceholder')}
               className={errors.email ? 'border-red-500' : ''}
             />
-            {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+            {errors.email && <p className="text-xs sm:text-sm text-red-500">{errors.email}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">{t('profileEdit.phone')}</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="phone" className="text-sm">{t('profileEdit.phone')}</Label>
             <Input
               id="phone"
               type="tel"
@@ -121,10 +121,10 @@ export function ProfileEditForm() {
               placeholder={t('profileEdit.phonePlaceholder')}
               className={errors.phone ? 'border-red-500' : ''}
             />
-            {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
+            {errors.phone && <p className="text-xs sm:text-sm text-red-500">{errors.phone}</p>}
           </div>
 
-          <Button type="submit" disabled={isLoading} variant="success" className="w-full">
+          <Button type="submit" disabled={isLoading} variant="success" className="w-full mt-4 sm:mt-6">
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {t('profileEdit.saveChanges')}
           </Button>

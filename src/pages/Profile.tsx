@@ -5,6 +5,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from '@tanstack/react-router';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,11 +31,16 @@ import {
   Star,
   Settings,
   Edit,
+  LogOut,
+  Loader2,
 } from 'lucide-react';
 
 export function Profile() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const isLoggingOut = useAuthStore((state) => state.isLoggingOut);
+  const [activeTab, setActiveTab] = useState('overview');
 
   if (!user) {
     return null;
@@ -50,37 +56,64 @@ export function Profile() {
       .slice(0, 2);
   };
 
+  const handleLogout = async () => {
+    await logout();
+    toast.success(t('auth.logoutSuccess'));
+    navigate({ to: '/' });
+  };
+
   return (
-    <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Profile Header */}
-          <Card className="mb-6 border rounded-md">
-            <CardContent className="pt-6">
-              <div className="flex items-start gap-6">
-                <Avatar className="h-24 w-24">
+          <Card className="mb-3 border rounded-md">
+            <CardContent className="pt-4 sm:pt-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-start gap-4 sm:gap-6">
+                <Avatar className="h-20 w-20 sm:h-24 sm:w-24 mx-auto sm:mx-0">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="bg-blue-600 text-white text-2xl">
+                  <AvatarFallback className="bg-blue-600 text-white text-xl sm:text-2xl">
                     {getUserInitials(user.name)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h1 className="text-2xl font-bold">{user.name}</h1>
+                <div className="flex-1 w-full">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-0">
+                    <div className="text-center sm:text-left w-full sm:w-auto">
+                      <h1 className="text-xl sm:text-2xl font-bold">{user.name}</h1>
                       <Badge className="mt-2 capitalize">{user.role}</Badge>
                     </div>
-                    <Button variant="outline" className="cursor-pointer" size="sm">
-                      <Edit className="h-4 w-4 mr-2" />
-                      {t('common.edit')}
-                    </Button>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                      <Button
+                        variant="outline"
+                        className="cursor-pointer w-full sm:w-auto"
+                        size="sm"
+                        onClick={() => setActiveTab('settings')}
+                      >
+                        <Edit className="h-4 w-4" />
+                        {t('common.edit')}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="cursor-pointer w-full sm:w-auto"
+                        size="sm"
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                      >
+                        {isLoggingOut ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <LogOut className="h-4 w-4" />
+                        )}
+                        {isLoggingOut ? t('auth.loggingOut') : t('auth.logout')}
+                      </Button>
+                    </div>
                   </div>
                   <div className="mt-4 space-y-2 text-sm text-gray-600">
                     {user.email && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center sm:justify-start gap-2">
                         <Mail className="h-4 w-4" />
-                        {user.email}
+                        <span className="break-all">{user.email}</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center sm:justify-start gap-2">
                       <Phone className="h-4 w-4" />
                       {user.phone}
                     </div>
@@ -91,11 +124,13 @@ export function Profile() {
           </Card>
 
           {/* Role-Specific Content */}
+          <div className="p-3 border rounded-md bg-white">
       {user.role === 'tutor' ? (
-        <TutorDashboard />
+        <TutorDashboard activeTab={activeTab} onTabChange={setActiveTab} />
       ) : (
-        <SeekerDashboard />
+        <SeekerDashboard activeTab={activeTab} onTabChange={setActiveTab} />
       )}
+      </div>
     </div>
   );
 }
@@ -103,34 +138,39 @@ export function Profile() {
 /**
  * Tutor-specific dashboard content
  */
-function TutorDashboard() {
+interface DashboardProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+}
+
+function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
   const { t } = useTranslation();
 
   return (
-    <Tabs defaultValue="overview" className="space-y-6">
-      <TabsList>
-        <TabsTrigger value="overview">
-          <User className="h-4 w-4 mr-2" />
-          {t('profile.overview') || 'Overview'}
+    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4 md:space-y-6">
+      <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 h-auto">
+        <TabsTrigger value="overview" className="text-xs sm:text-sm">
+          <User className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{t('profile.overview') || 'Overview'}</span>
         </TabsTrigger>
-        <TabsTrigger value="schedule">
-          <Calendar className="h-4 w-4 mr-2" />
-          {t('profile.schedule') || 'Schedule'}
+        <TabsTrigger value="schedule" className="text-xs sm:text-sm">
+          <Calendar className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{t('profile.schedule') || 'Schedule'}</span>
         </TabsTrigger>
-        <TabsTrigger value="students">
-          <BookOpen className="h-4 w-4 mr-2" />
-          {t('profile.students') || 'Students'}
+        <TabsTrigger value="students" className="text-xs sm:text-sm">
+          <BookOpen className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{t('profile.students') || 'Students'}</span>
         </TabsTrigger>
-        <TabsTrigger value="settings">
-          <Settings className="h-4 w-4 mr-2" />
-          {t('profile.settings') || 'Settings'}
+        <TabsTrigger value="settings" className="text-xs sm:text-sm">
+          <Settings className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{t('profile.settings') || 'Settings'}</span>
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="overview" className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <TabsContent value="overview" className="space-y-4 md:space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">
                 {t('profile.totalStudents') || 'Total Students'}
               </CardTitle>
@@ -144,7 +184,7 @@ function TutorDashboard() {
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">
                 {t('profile.totalLessons') || 'Total Lessons'}
               </CardTitle>
@@ -158,7 +198,7 @@ function TutorDashboard() {
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">
                 {t('profile.rating') || 'Rating'}
               </CardTitle>
@@ -176,10 +216,10 @@ function TutorDashboard() {
         </div>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="p-4 md:p-6">
             <CardTitle>{t('profile.aboutMe') || 'About Me'}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 md:p-6 pt-0">
             <p className="text-gray-600">
               {t('profile.noDescription') || 'No description added yet. Click Edit Profile to add your bio.'}
             </p>
@@ -189,10 +229,10 @@ function TutorDashboard() {
 
       <TabsContent value="schedule">
         <Card>
-          <CardHeader>
+          <CardHeader className="p-4 md:p-6">
             <CardTitle>{t('profile.mySchedule') || 'My Schedule'}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 md:p-6 pt-0">
             <p className="text-gray-600">
               {t('profile.scheduleEmpty') || 'Your schedule is empty. Set your availability to start receiving bookings.'}
             </p>
@@ -202,10 +242,10 @@ function TutorDashboard() {
 
       <TabsContent value="students">
         <Card>
-          <CardHeader>
+          <CardHeader className="p-4 md:p-6">
             <CardTitle>{t('profile.myStudents') || 'My Students'}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 md:p-6 pt-0">
             <p className="text-gray-600">
               {t('profile.noStudents') || 'You don\'t have any students yet.'}
             </p>
@@ -215,10 +255,10 @@ function TutorDashboard() {
 
       <TabsContent value="settings">
         <Card>
-          <CardHeader>
+          <CardHeader className="p-4 md:p-6">
             <CardTitle>{t('profile.profileSettings') || 'Profile Settings'}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0">
             <p className="text-gray-600">
               {t('profile.settingsPlaceholder') || 'Manage your account settings and preferences.'}
             </p>
@@ -232,7 +272,7 @@ function TutorDashboard() {
 /**
  * Seeker-specific dashboard content
  */
-function SeekerDashboard() {
+function SeekerDashboard({ activeTab, onTabChange }: DashboardProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { setUser } = useAuthStore();
@@ -280,30 +320,30 @@ function SeekerDashboard() {
   };
 
   return (
-    <Tabs defaultValue="overview" className="space-y-6">
-      <TabsList>
-        <TabsTrigger value="overview">
-          <User className="h-4 w-4 mr-2" />
-          {t('profile.overview') || 'Overview'}
+    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4 md:space-y-6">
+      <TabsList className="w-full grid grid-cols-4 sm:grid-cols-4 h-auto">
+        <TabsTrigger value="overview" className="text-xs sm:text-sm cursor-pointer">
+          <User className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{t('profile.overview') || 'Overview'}</span>
         </TabsTrigger>
-        <TabsTrigger value="bookings">
-          <Calendar className="h-4 w-4 mr-2" />
-          {t('profile.bookings') || 'My Bookings'}
+        <TabsTrigger value="bookings" className="text-xs sm:text-sm cursor-pointer">
+          <Calendar className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{t('profile.bookings') || 'My Bookings'}</span>
         </TabsTrigger>
-        <TabsTrigger value="favorites">
-          <Star className="h-4 w-4 mr-2" />
-          {t('profile.favorites') || 'Favorites'}
+        <TabsTrigger value="favorites" className="text-xs sm:text-sm cursor-pointer">
+          <Star className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{t('profile.favorites') || 'Favorites'}</span>
         </TabsTrigger>
-        <TabsTrigger value="settings">
-          <Settings className="h-4 w-4 mr-2" />
-          {t('profile.settings') || 'Settings'}
+        <TabsTrigger value="settings" className="text-xs sm:text-sm cursor-pointer">
+          <Settings className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{t('profile.settings') || 'Settings'}</span>
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="overview" className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
+      <TabsContent value="overview" className="space-y-4 md:space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+          <Card className="pa-0 border rounded-md">
+            <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">
                 {t('profile.upcomingLessons') || 'Upcoming Lessons'}
               </CardTitle>
@@ -316,8 +356,8 @@ function SeekerDashboard() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-3">
+          <Card className="border rounded-md">
+            <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">
                 {t('profile.completedLessons') || 'Completed Lessons'}
               </CardTitle>
@@ -331,11 +371,11 @@ function SeekerDashboard() {
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
+        <Card className="border rounded-md">
+          <CardHeader className="pb-2">
             <CardTitle>{t('profile.personalInfo')}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 md:space-y-4 pa-4 pt-0">
             <div className="space-y-2">
               <Label htmlFor="role">{t('profile.yourRole')}</Label>
               <Input
@@ -373,11 +413,11 @@ function SeekerDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className="border rounded-md">
+          <CardHeader className="p-4 p-6 pb-0">
             <CardTitle>{t('profile.learningGoals') || 'My Learning Goals'}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 p-6 pt-0">
             <p className="text-gray-600">
               {t('profile.noGoals') || 'Set your learning goals to find the perfect tutor for you.'}
             </p>
@@ -386,11 +426,11 @@ function SeekerDashboard() {
       </TabsContent>
 
       <TabsContent value="bookings">
-        <Card>
-          <CardHeader>
+        <Card className='border rounded-md'>
+          <CardHeader className="p-4 p-6 pb-0">
             <CardTitle>{t('profile.myBookings') || 'My Bookings'}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 p-6 pt-0">
             <p className="text-gray-600">
               {t('profile.noBookings') || 'You don\'t have any bookings yet. Browse tutors to schedule a lesson!'}
             </p>
@@ -400,10 +440,10 @@ function SeekerDashboard() {
 
       <TabsContent value="favorites">
         <Card className="border rounded-md">
-          <CardHeader>
+          <CardHeader className="p-4 p-6 pb-0">
             <CardTitle>{t('profile.favoriteTutors') || 'Favorite Tutors'}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 p-6 pt-0">
             {loading ? (
               <p className="text-gray-600">{t('common.loading') || 'Loading...'}</p>
             ) : error ? (
@@ -413,7 +453,7 @@ function SeekerDashboard() {
                 {t('profile.noFavorites') || 'You haven\'t saved any favorite tutors yet.'}
               </p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2 md:space-y-3">
                 {favorites.map((announcement) => (
                   <FavoriteItem
                     key={announcement.id}
@@ -428,7 +468,7 @@ function SeekerDashboard() {
         </Card>
       </TabsContent>
 
-      <TabsContent value="settings" className="space-y-6">
+      <TabsContent value="settings" className="space-y-4 md:space-y-6">
         <ProfileEditForm />
         <PasswordChangeForm />
       </TabsContent>

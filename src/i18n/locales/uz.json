@@ -1,6 +1,6 @@
 {
   "sidebar": {
-    "appName": "Yodagram",
+    "appName": "YODDAGRAM",
     "home": "Bosh sahifa",
     "search": "Qidiruv",
     "allTutors": "Barcha repetitorlar",
@@ -181,7 +181,7 @@
     "stat2": "10,000+ mamnun o'quvchilar",
     "stat3": "98% ijobiy sharhlar",
     "testimonials": "Repetitorlar sharhlari",
-    "testimonial1": "\"Yodagram menga talabalarni topishga va biznesimni qurishga yordam berdi. Ajoyib platforma!\"",
+    "testimonial1": "\"YODDAGRAM menga talabalarni topishga va biznesimni qurishga yordam berdi. Ajoyib platforma!\"",
     "testimonial1Author": "Mariya, matematika repetitori",
     "testimonial2": "\"Moslashuvchan jadval va yaxshi to'lov. Hammaga tavsiya qilaman!\"",
     "testimonial2Author": "Aleksey, ingliz tili repetitori"
@@ -267,7 +267,7 @@
     },
     "share": {
       "profileTitle": "Repetitor profili",
-      "checkProfile": "{{name}}ning Yodagramdagi profilini ko'ring",
+      "checkProfile": "{{name}}ning YODDAGRAMdagi profilini ko'ring",
       "linkCopied": "Profil havolasi nusxalandi!"
     },
     "booking": {

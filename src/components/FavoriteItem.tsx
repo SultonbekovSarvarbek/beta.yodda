@@ -17,20 +17,20 @@ export function FavoriteItem({ announcement, onDelete, isDeleting }: FavoriteIte
 
   return (
     <Card className="py-2">
-      <CardContent className="p-4 border rounded-md">
-        <div className="flex items-start gap-4">
+      <CardContent className="p-3 sm:p-4 border rounded-md">
+        <div className="flex items-start gap-3 sm:gap-4">
           {/* Tutor Avatar */}
           <Link
             to="/tutor/$id"
             params={{ id: announcement.id.toString() }}
             className="shrink-0"
           >
-            <Avatar className="w-16 h-16">
+            <Avatar className="w-14 h-14 sm:w-16 sm:h-16">
               <AvatarImage
                 src={announcement.image?.thumbnail || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}
                 alt={announcement.fullname}
               />
-              <AvatarFallback className="text-lg font-semibold bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+              <AvatarFallback className="text-base sm:text-lg font-semibold bg-gradient-to-br from-purple-500 to-pink-500 text-white">
                 {announcement.fullname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
               </AvatarFallback>
             </Avatar>
@@ -42,27 +42,27 @@ export function FavoriteItem({ announcement, onDelete, isDeleting }: FavoriteIte
             <Link
               to="/tutor/$id"
               params={{ id: announcement.id.toString() }}
-              className="font-semibold text-lg hover:underline block mb-1"
+              className="font-semibold text-base sm:text-lg hover:underline block mb-1 line-clamp-1"
             >
               {announcement.fullname}
             </Link>
 
             {/* Subject */}
             {announcement.subjects.length > 0 && (
-              <div className="text-sm text-gray-600 mb-1">
+              <div className="text-xs sm:text-sm text-gray-600 mb-1 line-clamp-1">
                 <span className="font-medium">{t('tutorCard.subject', 'Предмет:')}</span>{' '}
                 {announcement.subjects.map(s => s.name).join(', ')}
               </div>
             )}
 
             {/* Location */}
-            <div className="flex items-center gap-1 text-sm text-gray-500 mb-2">
-              <MapPin className="w-4 h-4" />
-              <span>{announcement.city.name}, {announcement.region.name}</span>
+            <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500 mb-2 line-clamp-1">
+              <MapPin className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+              <span className="truncate">{announcement.city.name}, {announcement.region.name}</span>
             </div>
 
             {/* Price */}
-            <div className="text-sm font-semibold text-gray-900">
+            <div className="text-xs sm:text-sm font-semibold text-gray-900">
               {announcement.min_price === announcement.max_price ? (
                 <span>{t('tutorCard.from', 'от')} {announcement.min_price.toLocaleString()} {t('tutorCard.currency', 'сум')}</span>
               ) : (
@@ -79,9 +79,9 @@ export function FavoriteItem({ announcement, onDelete, isDeleting }: FavoriteIte
             disabled={isDeleting}
             variant="ghost"
             size="icon"
-            className="shrink-0 text-red-500 hover:text-gray bg-red-200 cursor-pointer"
+            className="shrink-0 text-red-500 hover:text-gray bg-red-200 cursor-pointer h-9 w-9 sm:h-10 sm:w-10"
           >
-            <Trash2 className="h-5 w-5" />
+            <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
         </div>
       </CardContent>

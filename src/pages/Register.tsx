@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation, Trans } from 'react-i18next';
-import { Eye, EyeOff, User, Phone, Mail, Lock, Briefcase } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,14 +127,13 @@ export function Register() {
                   {t('auth.register.fullName')} <span className="text-red-500">*</span>
                 </Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-600" />
                   <Input
                     id="name"
                     type="text"
                     placeholder={t('auth.register.fullNamePlaceholder')}
                     value={formData.name}
                     onChange={(e) => updateField('name', e.target.value)}
-                    className={`pl-10 ${validationErrors.name ? 'border-red-500' : ''}`}
+                    className={validationErrors.name ? 'border-red-500' : ''}
                     required
                   />
                 </div>
@@ -151,14 +150,13 @@ export function Register() {
                     {t('auth.register.phoneNumber')} <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-600" />
                     <Input
                       id="phone"
                       type="tel"
                       placeholder={t('auth.register.phonePlaceholder')}
                       value={formData.phone}
                       onChange={(e) => updateField('phone', e.target.value)}
-                      className={`pl-10 ${validationErrors.phone ? 'border-red-500' : ''}`}
+                      className={validationErrors.phone ? 'border-red-500' : ''}
                       required
                     />
                   </div>
@@ -173,14 +171,13 @@ export function Register() {
                     {t('auth.register.email')}
                   </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-600" />
                     <Input
                       id="email"
                       type="email"
                       placeholder={t('auth.register.emailPlaceholder')}
                       value={formData.email}
                       onChange={(e) => updateField('email', e.target.value)}
-                      className={`pl-10 ${validationErrors.email ? 'border-red-500' : ''}`}
+                      className={validationErrors.email ? 'border-red-500' : ''}
                     />
                   </div>
                   {validationErrors.email && (
@@ -199,22 +196,16 @@ export function Register() {
                   onValueChange={(value) => updateField('role', value)}
                 >
                   <SelectTrigger
-                    className={validationErrors.role ? 'border-red-500' : ''}
+                     className={`w-full ${validationErrors.role ? 'border-red-500' : ''}`}
                   >
                     <SelectValue placeholder={t('auth.register.rolePlaceholder')} />
                   </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="seeker">
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4" />
-                          {t('auth.register.roleSeeker')}
-                        </div>
+                        {t('auth.register.roleSeeker')}
                       </SelectItem>
                       <SelectItem value="tutor">
-                        <div className="flex items-center gap-2">
-                          <Briefcase className="h-4 w-4" />
-                          {t('auth.register.roleTutor')}
-                        </div>
+                        {t('auth.register.roleTutor')}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -231,14 +222,13 @@ export function Register() {
                     {t('auth.register.password')} <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-600" />
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder={t('auth.register.passwordPlaceholder')}
                       value={formData.password}
                       onChange={(e) => updateField('password', e.target.value)}
-                      className={`pl-10 pr-10 bg-white ${validationErrors.password ? 'border-red-500' : ''}`}
+                      className={`pr-10 bg-white ${validationErrors.password ? 'border-red-500' : ''}`}
                       required
                     />
                     <button
@@ -264,14 +254,13 @@ export function Register() {
                     {t('auth.register.confirmPassword')} <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-600" />
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? 'text' : 'password'}
                       placeholder={t('auth.register.confirmPasswordPlaceholder')}
                       value={formData.confirmPassword}
                       onChange={(e) => updateField('confirmPassword', e.target.value)}
-                      className={`pl-10 pr-10 bg-white ${validationErrors.confirmPassword ? 'border-red-500' : ''}`}
+                      className={`pr-10 bg-white ${validationErrors.confirmPassword ? 'border-red-500' : ''}`}
                       required
                     />
                     <button

@@ -52,7 +52,7 @@ export function Header() {
                 <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 2.18l8 3.6v8.72c0 4.42-3.05 8.55-8 9.65-4.95-1.1-8-5.23-8-9.65V7.78l8-3.6z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
-              <span className="text-xl font-bold text-primary">Yodagram</span>
+              <span className="text-xl font-bold text-primary">YODDAGRAM</span>
             </a>
 
             {/* Navigation */}

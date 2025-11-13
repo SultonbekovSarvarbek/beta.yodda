@@ -25,7 +25,7 @@ export function MobileHeader() {
         {/* Logo */}
         <Link to="/">
           <h1 className="text-2xl font-bold cursor-pointer">
-            Yodagram
+          YODDAGRAM
           </h1>
         </Link>
 
