@@ -353,7 +353,15 @@
     "languageUzbek": "O'zbek tili",
     "languageRussian": "Русский язык",
     "languageUpdated": "Язык успешно обновлен",
-    "languageUpdateError": "Ошибка при обновлении языка"
+    "languageUpdateError": "Ошибка при обновлении языка",
+    "myAnnouncements": "Мои объявления",
+    "noAnnouncements": "Вы еще не создали ни одного объявления.",
+    "confirmDeleteAnnouncement": "Вы уверены, что хотите удалить это объявление?",
+    "announcementDeleted": "Объявление успешно удалено",
+    "deleteAnnouncementError": "Не удалось удалить объявление",
+    "price": "Цена",
+    "view": "Просмотр",
+    "delete": "Удалить"
   },
   "auth": {
     "login": {

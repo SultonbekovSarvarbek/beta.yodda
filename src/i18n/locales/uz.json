@@ -320,7 +320,15 @@
     "languageUzbek": "O'zbek tili",
     "languageRussian": "Rus tili",
     "languageUpdated": "Til muvaffaqiyatli yangilandi",
-    "languageUpdateError": "Tilni yangilashda xatolik"
+    "languageUpdateError": "Tilni yangilashda xatolik",
+    "myAnnouncements": "Mening e'lonlarim",
+    "noAnnouncements": "Siz hali hech qanday e'lon yaratmadingiz.",
+    "confirmDeleteAnnouncement": "Ushbu e'lonni o'chirishga ishonchingiz komilmi?",
+    "announcementDeleted": "E'lon muvaffaqiyatli o'chirildi",
+    "deleteAnnouncementError": "E'lonni o'chirib bo'lmadi",
+    "price": "Narx",
+    "view": "Ko'rish",
+    "delete": "O'chirish"
   },
   "auth": {
     "login": {
