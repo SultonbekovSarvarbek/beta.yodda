@@ -23,6 +23,7 @@ import { updateLanguage } from '@/services/auth';
 import { useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from 'sonner';
+import { useProfileAnnouncements } from '@/hooks/api/useProfileAnnouncements';
 import {
   User,
   Mail,
@@ -34,6 +35,8 @@ import {
   Edit,
   LogOut,
   Loader2,
+  Eye,
+  Trash2,
 } from 'lucide-react';
 
 export function Profile() {
@@ -153,6 +156,8 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
   const { user } = useAuth();
   const { setUser } = useAuthStore();
   const [isUpdatingLanguage, setIsUpdatingLanguage] = useState(false);
+  const navigate = useNavigate();
+  const { announcements, loading: announcementsLoading, deleteAnnouncement, isDeleting } = useProfileAnnouncements();
 
   const handleLanguageChange = async (newLang: 'uz' | 'ru') => {
     if (!user) return;
@@ -175,6 +180,22 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
     } finally {
       setIsUpdatingLanguage(false);
     }
+  };
+
+  const handleDeleteAnnouncement = async (announcementId: number) => {
+    if (confirm(t('profile.confirmDeleteAnnouncement') || 'Are you sure you want to delete this announcement?')) {
+      try {
+        await deleteAnnouncement(announcementId);
+        toast.success(t('profile.announcementDeleted') || 'Announcement deleted successfully');
+      } catch (error) {
+        console.error('Failed to delete announcement:', error);
+        toast.error(t('profile.deleteAnnouncementError') || 'Failed to delete announcement');
+      }
+    }
+  };
+
+  const handleViewAnnouncement = (announcementId: number) => {
+    navigate({ to: `/tutor/${announcementId}` });
   };
 
   return (
@@ -292,6 +313,69 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
             <p className="text-gray-600">
               {t('profile.noDescription') || 'No description added yet. Click Edit Profile to add your bio.'}
             </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle>{t('profile.myAnnouncements') || 'My Announcements'}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 md:p-6 pt-0">
+            {announcementsLoading ? (
+              <p className="text-gray-600">{t('common.loading') || 'Loading...'}</p>
+            ) : announcements.length === 0 ? (
+              <p className="text-gray-600">
+                {t('profile.noAnnouncements') || 'You haven\'t created any announcements yet.'}
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {announcements.map((announcement) => (
+                  <div
+                    key={announcement.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex-1">
+                      <h3 className="font-medium text-lg">{announcement.fullname}</h3>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {announcement.subjects.map((subject) => (
+                          <Badge key={subject.id} variant="secondary">
+                            {subject.name}
+                          </Badge>
+                        ))}
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {t('profile.price')}: {announcement.min_price} - {announcement.max_price} {t('common.currency')}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 ml-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewAnnouncement(announcement.id)}
+                        className="cursor-pointer"
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        {t('profile.view') || 'View'}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteAnnouncement(announcement.id)}
+                        disabled={isDeleting}
+                        className="cursor-pointer"
+                      >
+                        {isDeleting ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4 mr-1" />
+                        )}
+                        {t('profile.delete') || 'Delete'}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </TabsContent>

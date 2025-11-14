@@ -188,3 +188,15 @@ export async function deleteFavorite(announcementId: number): Promise<{ message:
   const { data } = await apiClient.delete<{ message: string }>(`/favorites/${announcementId}`);
   return data;
 }
+
+// Get profile announcements for the current user
+export async function getProfileAnnouncements(): Promise<ApiAnnouncement[]> {
+  const { data } = await apiClient.get<ApiAnnouncement[]>('/getProfileAnnouncements');
+  return data;
+}
+
+// Delete an announcement
+export async function deleteAnnouncement(id: number): Promise<{ message: string }> {
+  const { data } = await apiClient.delete<{ message: string }>(`/announcements/${id}`);
+  return data;
+}
