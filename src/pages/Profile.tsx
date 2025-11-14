@@ -324,9 +324,17 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
             {announcementsLoading ? (
               <p className="text-gray-600">{t('common.loading') || 'Loading...'}</p>
             ) : announcements.length === 0 ? (
-              <p className="text-gray-600">
-                {t('profile.noAnnouncements') || 'You haven\'t created any announcements yet.'}
-              </p>
+              <div className="flex flex-col items-center gap-4 py-4">
+                <p className="text-gray-600 text-center">
+                  {t('profile.noAnnouncements') || 'You haven\'t created any announcements yet.'}
+                </p>
+                <Button
+                  className="bg-green-600 hover:bg-green-700 text-white cursor-pointer"
+                  onClick={() => navigate({ to: '/be-tutor' })}
+                >
+                  {t('beTutorForm.createProfile') || 'Создать анкету'}
+                </Button>
+              </div>
             ) : (
               <div className="space-y-3">
                 {announcements.map((announcement) => (
