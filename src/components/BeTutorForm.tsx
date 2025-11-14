@@ -27,8 +27,7 @@ import { useAuth } from '@/hooks/useAuth';
 // Type definition for form data
 type FormData = {
   avatar: File | null;
-  firstName: string;
-  lastName: string;
+  fullName: string;
   phoneNumber: string;
   telegramUsername?: string;
   email: string;
@@ -93,8 +92,7 @@ export function BeTutorForm() {
   // Create Zod schema with translations
   const formSchema = useMemo(() => z.object({
     avatar: z.instanceof(File).nullable(),
-    firstName: z.string().min(1, t('beTutorForm.errors.firstNameRequired')),
-    lastName: z.string().min(1, t('beTutorForm.errors.lastNameRequired')),
+    fullName: z.string().min(1, t('beTutorForm.errors.fullNameRequired')),
     phoneNumber: z.string().min(1, t('beTutorForm.errors.phoneRequired')),
     telegramUsername: z.string().optional(),
     email: z.string().min(1, t('beTutorForm.errors.emailRequired')).email(t('beTutorForm.errors.invalidEmail')),
@@ -169,8 +167,7 @@ export function BeTutorForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       avatar: null,
-      firstName: user?.name.split(' ')[0] || '',
-      lastName: user?.name.split(' ').slice(1).join(' ') || '',
+      fullName: user?.name || '',
       phoneNumber: user?.phone || '',
       telegramUsername: '',
       email: user?.email || '',
@@ -309,7 +306,7 @@ export function BeTutorForm() {
   // Map form fields to their respective tabs
   const getTabForField = (fieldName: string): number => {
     // Tab 0: Basic Information
-    if (['avatar', 'firstName', 'lastName', 'phoneNumber', 'telegramUsername', 'email', 'gender', 'age', 'password', 'repeatPassword', 'regionId', 'cityId'].includes(fieldName)) {
+    if (['avatar', 'fullName', 'phoneNumber', 'telegramUsername', 'email', 'gender', 'age', 'password', 'repeatPassword', 'regionId', 'cityId'].includes(fieldName)) {
       return 0;
     }
     // Tab 1: Professional Information
@@ -350,7 +347,7 @@ export function BeTutorForm() {
 
       // Step 1: Register tutor
       const registerPayload = {
-        name: `${data.firstName} ${data.lastName}`.trim(),
+        name: data.fullName.trim(),
         password: data.password,
         gender: data.gender === 'male' ? 1 : 2,
         phone: data.phoneNumber,
@@ -373,7 +370,7 @@ export function BeTutorForm() {
       const apiFormData = new FormData();
 
       // Add basic fields
-      apiFormData.append('fullname', `${data.firstName} ${data.lastName}`.trim());
+      apiFormData.append('fullname', data.fullName.trim());
       apiFormData.append('telegramUsername', data.telegramUsername || '');
       apiFormData.append('phone', data.phoneNumber);
       apiFormData.append('email', data.email);
@@ -537,27 +534,19 @@ export function BeTutorForm() {
                   )}
                 />
 
+                <div className="space-y-4 mb-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">{t('beTutorForm.fullName')}</Label>
+                    <Input
+                      id="fullName"
+                      placeholder="Мадина Усманова"
+                      {...register('fullName')}
+                    />
+                    {errors.fullName && <p className="text-sm text-red-500">{errors.fullName.message}</p>}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">{t('beTutorForm.firstName')}</Label>
-                    <Input
-                      id="firstName"
-                      placeholder="Мадина"
-                      {...register('firstName')}
-                    />
-                    {errors.firstName && <p className="text-sm text-red-500">{errors.firstName.message}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">{t('beTutorForm.lastName')}</Label>
-                    <Input
-                      id="lastName"
-                      placeholder="Усманова"
-                      {...register('lastName')}
-                    />
-                    {errors.lastName && <p className="text-sm text-red-500">{errors.lastName.message}</p>}
-                  </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="phoneNumber">{t('beTutorForm.phoneNumber')}</Label>
                     <Input
