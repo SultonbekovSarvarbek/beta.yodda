@@ -149,20 +149,46 @@ interface DashboardProps {
 }
 
 function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const { setUser } = useAuthStore();
+  const [isUpdatingLanguage, setIsUpdatingLanguage] = useState(false);
+
+  const handleLanguageChange = async (newLang: 'uz' | 'ru') => {
+    if (!user) return;
+
+    setIsUpdatingLanguage(true);
+    try {
+      const updatedUser = await updateLanguage(newLang);
+      setUser(updatedUser);
+      await i18n.changeLanguage(newLang);
+      toast.success(
+        newLang === 'uz' ? "Til o'zgartirildi" : 'Язык изменен'
+      );
+    } catch (error) {
+      console.error('Failed to update language:', error);
+      toast.error(
+        newLang === 'uz'
+          ? "Tilni o'zgartirishda xatolik"
+          : 'Ошибка при изменении языка'
+      );
+    } finally {
+      setIsUpdatingLanguage(false);
+    }
+  };
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4 md:space-y-6">
       <TabsList className="w-full grid grid-cols-3 sm:grid-cols-3 h-auto">
-        <TabsTrigger value="overview" className="text-xs sm:text-sm">
+        <TabsTrigger value="overview" className="text-xs sm:text-sm cursor-pointer">
           <User className="h-4 w-4 sm:mr-2" />
           <span className="hidden sm:inline">{t('profile.overview') || 'Overview'}</span>
         </TabsTrigger>
-        <TabsTrigger value="students" className="text-xs sm:text-sm">
+        <TabsTrigger value="students" className="text-xs sm:text-sm cursor-pointer">
           <BookOpen className="h-4 w-4 sm:mr-2" />
           <span className="hidden sm:inline">{t('profile.students') || 'Students'}</span>
         </TabsTrigger>
-        <TabsTrigger value="settings" className="text-xs sm:text-sm">
+        <TabsTrigger value="settings" className="text-xs sm:text-sm cursor-pointer">
           <Settings className="h-4 w-4 sm:mr-2" />
           <span className="hidden sm:inline">{t('profile.settings') || 'Settings'}</span>
         </TabsTrigger>
@@ -216,6 +242,48 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
           </Card>
         </div>
 
+        <Card className="border rounded-md">
+          <CardHeader className="pb-2">
+            <CardTitle>{t('profile.personalInfo')}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 md:space-y-4 pa-4 pt-0">
+            <div className="space-y-2">
+              <Label htmlFor="role">{t('profile.yourRole')}</Label>
+              <Input
+                id="role"
+                value={t('auth.register.roleTutor')}
+                disabled
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gender">{t('profile.gender')}</Label>
+              <Input
+                id="gender"
+                value={user?.gender || ''}
+                disabled
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="language">{t('profile.language')}</Label>
+              <Select
+                value={user?.lang || 'ru'}
+                onValueChange={handleLanguageChange}
+                disabled={isUpdatingLanguage}
+              >
+                <SelectTrigger id="language" className="w-full">
+                  <SelectValue placeholder={t('profile.selectLanguage')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="uz">{t('profile.languageUzbek')}</SelectItem>
+                  <SelectItem value="ru">{t('profile.languageRussian')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="p-4 md:p-6">
             <CardTitle>{t('profile.aboutMe') || 'About Me'}</CardTitle>
@@ -241,17 +309,9 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
         </Card>
       </TabsContent>
 
-      <TabsContent value="settings">
-        <Card>
-          <CardHeader className="p-4 md:p-6">
-            <CardTitle>{t('profile.profileSettings') || 'Profile Settings'}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0">
-            <p className="text-gray-600">
-              {t('profile.settingsPlaceholder') || 'Manage your account settings and preferences.'}
-            </p>
-          </CardContent>
-        </Card>
+      <TabsContent value="settings" className="space-y-4 md:space-y-6">
+        <ProfileEditForm />
+        <PasswordChangeForm />
       </TabsContent>
     </Tabs>
   );

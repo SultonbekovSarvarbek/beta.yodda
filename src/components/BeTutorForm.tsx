@@ -22,6 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useSubjects, useEducationLevels, useRegions, useLanguages, useFormats, useDays } from '@/hooks/api';
 import { registerTutor, createAnnouncement } from '@/services/api';
 import * as authService from '@/services/auth';
+import { useAuth } from '@/hooks/useAuth';
 
 // Type definition for form data
 type FormData = {
@@ -82,6 +83,7 @@ const generateTimeSlots = (durationMinutes: number): string[] => {
 
 export function BeTutorForm() {
   const { t } = useTranslation();
+  const { user, isAuthenticated } = useAuth();
   const [currentTab, setCurrentTab] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -97,8 +99,8 @@ export function BeTutorForm() {
     telegramUsername: z.string().optional(),
     email: z.string().min(1, t('beTutorForm.errors.emailRequired')).email(t('beTutorForm.errors.invalidEmail')),
     gender: z.string().min(1, t('beTutorForm.errors.genderRequired')),
-    password: z.string().min(6, t('beTutorForm.errors.passwordMinLength')),
-    repeatPassword: z.string().min(1, t('beTutorForm.errors.repeatPasswordRequired')),
+    password: isAuthenticated ? z.string().optional() : z.string().min(6, t('beTutorForm.errors.passwordMinLength')),
+    repeatPassword: isAuthenticated ? z.string().optional() : z.string().min(1, t('beTutorForm.errors.repeatPasswordRequired')),
     age: z.string().min(1, t('beTutorForm.errors.ageRequired')),
     regionId: z.string().min(1, t('beTutorForm.errors.regionRequired')),
     cityId: z.string().min(1, t('beTutorForm.errors.cityRequired')),
@@ -132,7 +134,7 @@ export function BeTutorForm() {
     certificates: z.array(z.instanceof(File)).min(1, t('beTutorForm.errors.certificatesRequired')),
     additionalInfo: z.string().min(1, t('beTutorForm.errors.additionalInfoRequired')),
   })
-  .refine((data) => data.password === data.repeatPassword, {
+  .refine((data) => isAuthenticated || data.password === data.repeatPassword, {
     message: t('beTutorForm.errors.passwordMismatch'),
     path: ['repeatPassword'],
   })
@@ -154,7 +156,7 @@ export function BeTutorForm() {
         }
       });
     }
-  }), [t, touchedDays, isSubmittingRef]);
+  }), [t, touchedDays, isSubmittingRef, isAuthenticated]);
 
   const {
     register,
@@ -167,12 +169,12 @@ export function BeTutorForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       avatar: null,
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
+      firstName: user?.name.split(' ')[0] || '',
+      lastName: user?.name.split(' ').slice(1).join(' ') || '',
+      phoneNumber: user?.phone || '',
       telegramUsername: '',
-      email: '',
-      gender: '',
+      email: user?.email || '',
+      gender: user?.gender || '',
       password: '',
       repeatPassword: '',
       age: '',
@@ -618,31 +620,35 @@ export function BeTutorForm() {
                     {errors.age && <p className="text-sm text-red-500">{errors.age.message}</p>}
                   </div>
 
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="password">{t('beTutorForm.password')}</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      {...register('password')}
-                    />
-                    {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
-                  </div>
+                  {!isAuthenticated && (
+                    <>
+                      <div className="space-y-2 col-span-2">
+                        <Label htmlFor="password">{t('beTutorForm.password')}</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          {...register('password')}
+                        />
+                        {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+                      </div>
 
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="repeatPassword">{t('beTutorForm.repeatPassword')}</Label>
-                    <Input
-                      id="repeatPassword"
-                      type="password"
-                      {...register('repeatPassword')}
-                    />
-                    {errors.repeatPassword && <p className="text-sm text-red-500">{errors.repeatPassword.message}</p>}
+                      <div className="space-y-2 col-span-2">
+                        <Label htmlFor="repeatPassword">{t('beTutorForm.repeatPassword')}</Label>
+                        <Input
+                          id="repeatPassword"
+                          type="password"
+                          {...register('repeatPassword')}
+                        />
+                        {errors.repeatPassword && <p className="text-sm text-red-500">{errors.repeatPassword.message}</p>}
 
-                    <p className="text-sm text-yellow-600">
-                      Ваш номер телефона и пароль будут использоваться для входа в личный кабинет.
-                    </p>
-                  </div>
+                        <p className="text-sm text-yellow-600">
+                          Ваш номер телефона и пароль будут использоваться для входа в личный кабинет.
+                        </p>
+                      </div>
+                    </>
+                  )}
 
-                
+
                   <div className="space-y-2">
                     <Label htmlFor="regionId" className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />

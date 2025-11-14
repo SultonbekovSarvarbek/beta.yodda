@@ -15,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { UserRole } from '@/types/auth';
+import { UserRole as UserRoleEnum } from '@/constants/roles';
 
 export function Register() {
   const { t } = useTranslation();
@@ -92,8 +93,10 @@ export function Register() {
         phone: formData.phone,
         email: formData.email,
         role: formData.role as UserRole,
+        role_id: formData.role === 'tutor' ? UserRoleEnum.TUTOR : UserRoleEnum.SEEKER,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
+        termsAccepted: agreedToTerms,
       });
       // Navigate to profile after successful registration
       navigate({ to: '/profile' });

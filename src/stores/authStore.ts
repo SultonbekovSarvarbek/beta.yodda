@@ -155,9 +155,16 @@ export const useAuthStore = create<AuthStore>()(
         try {
           set({ loading: true, error: null });
 
+          // 1. Call register API to create account
           await authService.register(data);
 
-          // Fetch profile data
+          // 2. Call login API to authenticate with the new credentials
+          await authService.login({
+            phone: data.phone,
+            password: data.password,
+          });
+
+          // 3. Fetch profile data
           const profile = await authService.getProfile();
 
           // Clear guest language preference (backend takes over)

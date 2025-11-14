@@ -39,8 +39,10 @@ export interface RegisterRequest {
   phone: string;
   email: string;
   role: UserRole;
+  role_id: number; // 1 = tutor, 2 = seeker
   password: string;
   confirmPassword: string;
+  termsAccepted: boolean;
 }
 
 /**
