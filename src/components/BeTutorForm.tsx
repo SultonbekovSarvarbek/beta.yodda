@@ -32,8 +32,8 @@ type FormData = {
   telegramUsername?: string;
   email: string;
   gender: string;
-  password: string;
-  repeatPassword: string;
+  password?: string;
+  repeatPassword?: string;
   age: string;
   regionId: string;
   cityId: string;
@@ -345,27 +345,35 @@ export function BeTutorForm() {
 
     try {
 
-      // Step 1: Register tutor
-      const registerPayload = {
-        name: data.fullName.trim(),
-        password: data.password,
-        gender: data.gender === 'male' ? 1 : 2,
-        phone: data.phoneNumber,
-        email: data.email,
-        age: data.age,
-        termsAccepted: true,
-        role_id: 1,
-      };
+      // Only register and login if user is not already authenticated
+      if (!isAuthenticated) {
+        // Password is required for new registrations (validated by schema)
+        if (!data.password) {
+          throw new Error('Password is required for registration');
+        }
 
-      await registerTutor(registerPayload);
+        // Step 1: Register tutor
+        const registerPayload = {
+          name: data.fullName.trim(),
+          password: data.password,
+          gender: data.gender === 'male' ? 1 : 2,
+          phone: data.phoneNumber,
+          email: data.email,
+          age: data.age,
+          termsAccepted: true,
+          role_id: 1,
+        };
 
-      // Step 2: Login to get token via centralized auth service
-      await authService.login({
-        phone: data.phoneNumber,
-        password: data.password,
-      });
+        await registerTutor(registerPayload);
 
-      // Step 3: Create announcement
+        // Step 2: Login to get token via centralized auth service
+        await authService.login({
+          phone: data.phoneNumber,
+          password: data.password,
+        });
+      }
+
+      // Step 3: Create announcement (always executed for both authenticated and new users)
       // Create FormData object
       const apiFormData = new FormData();
 
