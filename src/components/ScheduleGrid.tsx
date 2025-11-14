@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import type { Schedule, FormatData } from '@/types/tutor';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,14 @@ interface ScheduleGridProps {
 export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGridProps) {
   const { t } = useTranslation();
   const [weekOffset, setWeekOffset] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Reset scroll to start (Monday) when week changes
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = 0;
+    }
+  }, [weekOffset]);
 
   // Get lesson duration from first format (in minutes)
   const getDurationMinutes = (): number => {
@@ -155,21 +163,21 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
         <Button
           variant="outline"
           onClick={handlePreviousWeek}
-          className="flex-1 sm:flex-none rounded-full px-6"
+          className="flex-1 sm:flex-none rounded-full px-6 cursor-pointer"
         >
           {t('schedule.previousWeek')}
         </Button>
         <Button
           variant="outline"
           onClick={handleNextWeek}
-          className="flex-1 sm:flex-none rounded-full px-6"
+          className="flex-1 sm:flex-none rounded-full px-6 cursor-pointer"
         >
           {t('schedule.nextWeek')}
         </Button>
       </div>
 
       {/* Week Grid */}
-      <div className="overflow-x-auto">
+      <div ref={scrollContainerRef} className="overflow-x-auto">
         <div className="grid grid-cols-7 gap-0 min-w-[1000px] border border-gray-200 rounded-lg shadow-sm overflow-hidden bg-white">
           {/* Day Headers */}
           {weekDays.map((date, index) => {

@@ -16,6 +16,7 @@ export interface User {
   phone: string;
   email?: string;
   role: UserRole;
+  role_id: number; // 1 = tutor, 2 = seeker
   avatar?: string;
   createdAt?: string;
   gender?: string;

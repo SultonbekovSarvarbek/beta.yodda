@@ -6,6 +6,7 @@
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from '@tanstack/react-router';
+import { UserRole } from '@/constants/roles';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -78,7 +79,11 @@ export function Profile() {
                   <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-0">
                     <div className="text-center sm:text-left w-full sm:w-auto">
                       <h1 className="text-xl sm:text-2xl font-bold">{user.name}</h1>
-                      <Badge className="mt-2 capitalize">{user.role}</Badge>
+                      <Badge className="mt-2">
+                        {user.role_id === UserRole.TUTOR
+                          ? t('auth.register.roleTutor')
+                          : t('auth.register.roleSeeker')}
+                      </Badge>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                       <Button
@@ -148,14 +153,10 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4 md:space-y-6">
-      <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 h-auto">
+      <TabsList className="w-full grid grid-cols-3 sm:grid-cols-3 h-auto">
         <TabsTrigger value="overview" className="text-xs sm:text-sm">
           <User className="h-4 w-4 sm:mr-2" />
           <span className="hidden sm:inline">{t('profile.overview') || 'Overview'}</span>
-        </TabsTrigger>
-        <TabsTrigger value="schedule" className="text-xs sm:text-sm">
-          <Calendar className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">{t('profile.schedule') || 'Schedule'}</span>
         </TabsTrigger>
         <TabsTrigger value="students" className="text-xs sm:text-sm">
           <BookOpen className="h-4 w-4 sm:mr-2" />
@@ -222,19 +223,6 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
           <CardContent className="p-4 md:p-6 pt-0">
             <p className="text-gray-600">
               {t('profile.noDescription') || 'No description added yet. Click Edit Profile to add your bio.'}
-            </p>
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="schedule">
-        <Card>
-          <CardHeader className="p-4 md:p-6">
-            <CardTitle>{t('profile.mySchedule') || 'My Schedule'}</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 md:p-6 pt-0">
-            <p className="text-gray-600">
-              {t('profile.scheduleEmpty') || 'Your schedule is empty. Set your availability to start receiving bookings.'}
             </p>
           </CardContent>
         </Card>

@@ -3,8 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScheduleGrid } from '@/components/ScheduleGrid';
-import { PricingCard } from '@/components/PricingCard';
-import { Check, Share2, MapPin, Grid3x3, User, Calendar, DollarSign, Star, FileText, Play } from 'lucide-react';
+import { Check, Share2, MapPin, Grid3x3, User, Calendar, Star, FileText, Play, Clock } from 'lucide-react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { useAnnouncementById } from '@/hooks/api';
 import { Loader2 } from 'lucide-react';
@@ -119,6 +118,13 @@ export function TutorProfile() {
   }));
 
   const mockPosts = [
+    // Large test image (high resolution)
+    {
+      id: 'test-large-image',
+      image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=4000&h=3000&fit=crop',
+      fileType: 'image' as const,
+      isFile: false,
+    },
     // Test video post
     {
       id: 'video-test-1',
@@ -197,30 +203,81 @@ export function TutorProfile() {
           </div>
           
 
-          <div className="my-5">
-
-             {/* Bio Section */}
-             <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <MapPin className="h-4 w-4" />
-                    <span>
-                      {tutor.city.name}, {tutor.region.name}
-                    </span>
+          {/* Tutor Details Section - Reorganized */}
+          <div className="my-5 space-y-5">
+            {/* Personal Information */}
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-600">
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4 shrink-0" />
+                  <span>{tutor.city.name}, {tutor.region.name}</span>
+                </div>
+                <span>•</span>
+                <div className="flex items-center gap-1.5">
+                  <User className="h-4 w-4 shrink-0" />
+                  <span>{tutor.age} {t('tutorProfile.yearsOld')}</span>
+                </div>
+                {tutor.experience && tutor.experience !== '0' && (
+                  <>
                     <span>•</span>
-                    <span>{tutor.age} {t('tutorProfile.yearsOld')}</span>
+                    <div className="flex items-center gap-1.5">
+                      <Star className="h-4 w-4 shrink-0" />
+                      <span>{tutor.experience} {t('tutorProfile.about.yearsTeaching')}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+              <p className="text-sm text-gray-700 leading-relaxed">{tutor.description}</p>
+            </div>
+
+            {/* Subjects Section */}
+            <div className="space-y-2.5">
+              <h3 className="text-sm font-semibold text-gray-900">{t('tutorProfile.about.subjectsTeach')}</h3>
+              <div className="flex flex-wrap gap-2">
+                {tutor.subjects.map((subject) => (
+                  <Badge key={subject.id} variant="secondary" className="text-sm border border-blue-500">
+                    {subject.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Lesson Details Card */}
+            <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-blue-50/50 to-white">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {/* Format */}
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    {t('tutorProfile.format', { defaultValue: 'Формат' })}
                   </div>
-
-                  <p className="text-sm text-gray-800">{tutor.description}</p>
-
-                  {/* Subjects */}
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {tutor.subjects.map((subject) => (
-                      <Badge key={subject.id} variant="secondary">
-                        {subject.name}
-                      </Badge>
-                    ))}
+                  <Badge variant="outline" className="text-sm font-medium">
+                    {tutor.formatsData[0]?.name || t('tutorProfile.online', { defaultValue: 'Онлайн' })}
+                  </Badge>
+                </div>
+                {/* Duration */}
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    {t('tutorProfile.lessonDuration', { defaultValue: 'Длительность' })}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sm font-medium text-gray-900">
+                    <Clock className="h-4 w-4" />
+                    <span>{tutor.formatsData[0].duration} {t('pricingCard.minutes')}</span>
                   </div>
                 </div>
+              </div>
+              {/* Price */}
+              <div className="pt-4 border-t border-gray-200">
+                <div className="flex items-end justify-between">
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    {t('tutorProfile.priceLabel', { defaultValue: 'Стоимость' })}
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-gray-900">{tutor.formatsData[0]?.amount.toLocaleString()}</div>
+                    <div className="text-xs text-gray-500">{t('pricingCard.sumPerLesson')}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Instagram-Style Tabs */}
@@ -234,26 +291,19 @@ export function TutorProfile() {
                 <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.posts')}</span>
               </TabsTrigger>
               <TabsTrigger
-                value="about"
-                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
-              >
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.about')}</span>
-              </TabsTrigger>
-              <TabsTrigger
                 value="schedule"
                 className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
               >
                 <Calendar className="h-4 w-4" />
                 <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.schedule')}</span>
               </TabsTrigger>
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="pricing"
                 className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
               >
                 <DollarSign className="h-4 w-4" />
                 <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.pricing')}</span>
-              </TabsTrigger>
+              </TabsTrigger> */}
               <TabsTrigger
                 value="reviews"
                 className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
@@ -306,39 +356,6 @@ export function TutorProfile() {
               </div>
             </TabsContent>
 
-            {/* About Tab */}
-            <TabsContent value="about" className="mt-0">
-              <div className="bg-white border rounded-lg p-6 space-y-6">
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">{t('tutorProfile.about.aboutMe')}</h3>
-                  <p className="text-gray-700">{tutor.description}</p>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">{t('tutorProfile.about.experience')}</h3>
-                  <p className="text-gray-700">{tutor.experience} {t('tutorProfile.about.yearsTeaching')}</p>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">{t('tutorProfile.about.subjectsTeach')}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {tutor.subjects.map((subject) => (
-                      <Badge key={subject.id} variant="outline" className="text-sm">
-                        {subject.name}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">{t('tutorProfile.about.priceRange')}</h3>
-                  <p className="text-gray-700">
-                    {tutor.min_price.toLocaleString()} - {tutor.max_price.toLocaleString()} {t('tutorProfile.about.sumPerHour')}
-                  </p>
-                </div>
-              </div>
-            </TabsContent>
-
             {/* Schedule Tab */}
             <TabsContent value="schedule" className="mt-0">
               <div className="bg-white border rounded-lg p-6">
@@ -352,7 +369,7 @@ export function TutorProfile() {
             </TabsContent>
 
             {/* Pricing Tab */}
-            <TabsContent value="pricing" className="mt-0">
+            {/* <TabsContent value="pricing" className="mt-0">
               <div className="bg-white border rounded-lg p-6">
                 <div>
                   {tutor.formatsData.map((format) => (
@@ -360,7 +377,7 @@ export function TutorProfile() {
                   ))}
                 </div>
               </div>
-            </TabsContent>
+            </TabsContent> */}
 
             {/* Reviews Tab */}
             <TabsContent value="reviews" className="mt-0">
@@ -377,7 +394,7 @@ export function TutorProfile() {
 
       {/* Image/File Preview Modal - Desktop Only */}
       <Dialog open={selectedPost !== null} onOpenChange={(open) => !open && setSelectedPost(null)}>
-        <DialogContent className="hidden lg:block !max-w-[70vw] !w-[70vw] h-[95vh] p-0">
+        <DialogContent className="hidden lg:block !max-w-[80vw] !w-[70vw] h-[95vh] p-0">
           <div className="flex h-full">
             {/* Left side - Image/File/Video Preview */}
             <div className="flex-1 bg-black flex items-center justify-center">
@@ -405,7 +422,7 @@ export function TutorProfile() {
             </div>
 
             {/* Right side - File Information */}
-            <div className="w-1/2 p-6 bg-white overflow-y-auto">
+            <div className="p-6 bg-white overflow-y-auto flex-shrink-[2] flex-grow min-w-[405px] max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>File Information</DialogTitle>
               </DialogHeader>

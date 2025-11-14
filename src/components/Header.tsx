@@ -3,6 +3,7 @@ import { LogOut, User as UserIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { UserRole } from '@/constants/roles';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -113,8 +114,10 @@ export function Header() {
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email || user.phone}
                       </p>
-                      <p className="text-xs leading-none text-muted-foreground capitalize">
-                        {user.role}
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.role_id === UserRole.TUTOR
+                          ? t('auth.register.roleTutor')
+                          : t('auth.register.roleSeeker')}
                       </p>
                     </div>
                   </DropdownMenuLabel>

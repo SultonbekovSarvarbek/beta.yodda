@@ -656,7 +656,7 @@ export function BeTutorForm() {
                           value={field.value}
                           onValueChange={(value) => {
                             field.onChange(value);
-                            setValue('cityId', '', { shouldValidate: true });
+                            setValue('cityId', '', { shouldValidate: false });
                           }}
                         >
                           <SelectTrigger className="w-full">
