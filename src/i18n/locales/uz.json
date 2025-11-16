@@ -312,6 +312,18 @@
       "bookingFor": "{{date}}da {{time}}ga dars bronlash. Tez orada paydo bo'ladi!"
     }
   },
+  "bookingDialog": {
+    "title": "Repetitor aloqa ma'lumotlari",
+    "description": "Darsga yozilish uchun repetitor bilan bog'laning",
+    "price": "Dars narxi",
+    "contactInfo": "Aloqa ma'lumotlari",
+    "phone": "Telefon",
+    "email": "Elektron pochta",
+    "telegram": "Telegram",
+    "notProvided": "Ko'rsatilmagan",
+    "note": "Dars vaqti va joyi haqida kelishish uchun repetitor bilan bevosita bog'laning.",
+    "close": "Yopish"
+  },
   "pricingCard": {
     "sumPerLesson": "so'm/dars",
     "bookLesson": "Yozilish",

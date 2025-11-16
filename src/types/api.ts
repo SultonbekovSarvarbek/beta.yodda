@@ -79,6 +79,9 @@ export interface ApiAnnouncement {
   description: string;
   schedule: ApiSchedule;
   file?: ApiFile[];
+  phone?: string;
+  email?: string;
+  telegram?: string;
   created_at: string;
   updated_at: string;
 }
