@@ -9,6 +9,8 @@ import { useAnnouncementById } from '@/hooks/api';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -41,6 +43,7 @@ export function TutorProfile() {
   const { t } = useTranslation();
   const { id } = useParams({ from: '/tutor/$id' });
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const { data: tutor, isLoading, isError } = useAnnouncementById(parseInt(id));
   const [selectedPost, setSelectedPost] = useState<{ id: string | number; image: string; fileType: 'pdf' | 'image' | 'video'; isFile: boolean } | null>(null);
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
@@ -100,6 +103,13 @@ export function TutorProfile() {
   };
 
   const handleBookLesson = () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast.warning(t('favorites.loginRequired', 'Вам нужно войти или зарегистрироваться'));
+      navigate({ to: '/login' });
+      return;
+    }
+
     setIsBookingDialogOpen(true);
   };
 
