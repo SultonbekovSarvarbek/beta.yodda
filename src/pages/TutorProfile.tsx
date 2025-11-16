@@ -191,7 +191,7 @@ export function TutorProfile() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  <Button onClick={handleBookLesson} size="sm" className="flex-1 md:flex-none cursor-pointer">
+                  <Button onClick={handleBookLesson} size="sm" className="bg-indigo-600 hover:bg-indigo-700 flex-1 md:flex-none cursor-pointer">
                     {t('tutorProfile.bookLesson')}
                   </Button>
                   <Button onClick={handleShare} variant="outline" size="sm" className="cursor-pointer">
@@ -227,11 +227,9 @@ export function TutorProfile() {
                   </>
                 )}
               </div>
-              <p className="text-sm text-gray-700 leading-relaxed">{tutor.description}</p>
-            </div>
 
-            {/* Subjects with Levels Section */}
-            <div className="space-y-3">
+{/* Subjects with Levels Section */}
+<div className="space-y-3">
               <h3 className="text-sm font-semibold text-gray-900">{t('tutorProfile.about.subjectsTeach')}</h3>
               {tutor.subjectLevels && tutor.subjectLevels.length > 0 ? (
                 <div className="space-y-3">
@@ -245,13 +243,13 @@ export function TutorProfile() {
 
                     return (
                       <div key={subjectId} className="space-y-1.5">
-                        <h4 className="text-sm font-medium text-gray-700">{subject.name}</h4>
+                        <h4 className="text-md font-semibold tracking-wide text-indigo-500">- {subject.name}</h4>
                         <div className="flex flex-wrap gap-1.5">
                           {levels.map((level: any) => (
                             <Badge
                               key={level.value || level.id}
                               variant="outline"
-                              className="text-xs px-2.5 py-0.5 bg-gray-50 border-gray-300 text-gray-700 font-normal"
+                              className="text-xs px-2.5 py-0.5 bg-gray-50 border-slate-300 font-semibold text-slate-800"
                             >
                               {level.label || level.name}
                             </Badge>
@@ -271,6 +269,11 @@ export function TutorProfile() {
                 </div>
               )}
             </div>
+
+              <p className="text-sm text-gray-700 leading-relaxed">{tutor.description}</p>
+            </div>
+
+            
 
             {/* Lesson Details Card */}
             <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-blue-50/50 to-white">
@@ -302,7 +305,7 @@ export function TutorProfile() {
                     {t('tutorProfile.priceLabel', { defaultValue: 'Стоимость' })}
                   </div>
                   <div className="text-right">
-                    <div className="text-3xl font-bold text-gray-900">{tutor.formatsData[0]?.amount.toLocaleString()}</div>
+                    <div className="text-3xl font-bold text-green-500">{tutor.formatsData[0]?.amount.toLocaleString()}</div>
                     <div className="text-xs text-gray-500">{t('pricingCard.sumPerLesson')}</div>
                   </div>
                 </div>
@@ -315,28 +318,28 @@ export function TutorProfile() {
             <TabsList className="w-full h-auto justify-center gap-2 bg-gray-50">
               <TabsTrigger
                 value="posts"
-                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
               >
                 <Grid3x3 className="h-4 w-4" />
                 <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.posts')}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="schedule"
-                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
               >
                 <Calendar className="h-4 w-4" />
                 <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.schedule')}</span>
               </TabsTrigger>
               {/* <TabsTrigger
                 value="pricing"
-                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
               >
                 <DollarSign className="h-4 w-4" />
                 <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.pricing')}</span>
               </TabsTrigger> */}
               <TabsTrigger
                 value="reviews"
-                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-[#548bfa] data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
               >
                 <Star className="h-4 w-4" />
                 <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.reviews')}</span>
