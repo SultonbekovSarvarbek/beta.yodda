@@ -25,7 +25,7 @@ export function Register() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    email: '',
+    telegram: '',
     role: '' as UserRole | '',
     password: '',
     confirmPassword: '',
@@ -49,10 +49,13 @@ export function Register() {
       errors.phone = t('auth.register.errors.invalidPhone');
     }
 
-    if (!formData.email.trim()) {
-      errors.email = t('auth.register.errors.required');
-    } else if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      errors.email = t('auth.register.errors.invalidEmail');
+    // Validate telegram username for seekers
+    if (formData.role === 'seeker') {
+      if (!formData.telegram.trim()) {
+        errors.telegram = t('auth.register.errors.required');
+      } else if (!formData.telegram.match(/^@?[a-zA-Z0-9_]{5,32}$/)) {
+        errors.telegram = t('auth.register.errors.invalidTelegram');
+      }
     }
 
     if (!formData.role) {
@@ -91,7 +94,7 @@ export function Register() {
       await register({
         name: formData.name,
         phone: formData.phone,
-        email: formData.email,
+        telegram: formData.telegram,
         role: formData.role as UserRole,
         role_id: formData.role === 'tutor' ? UserRoleEnum.TUTOR : UserRoleEnum.SEEKER,
         password: formData.password,
@@ -168,23 +171,24 @@ export function Register() {
                   )}
                 </div>
 
-                {/* Email Field */}
+                {/* Telegram Username Field (for seekers) */}
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center gap-2">
-                    {t('auth.register.email')}
+                  <Label htmlFor="telegram" className="flex items-center gap-2">
+                    {t('auth.register.telegram')} <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder={t('auth.register.emailPlaceholder')}
-                      value={formData.email}
-                      onChange={(e) => updateField('email', e.target.value)}
-                      className={validationErrors.email ? 'border-red-500' : ''}
+                      id="telegram"
+                      type="text"
+                      placeholder={t('auth.register.telegramPlaceholder')}
+                      value={formData.telegram}
+                      onChange={(e) => updateField('telegram', e.target.value)}
+                      className={validationErrors.telegram ? 'border-red-500' : ''}
+                      required
                     />
                   </div>
-                  {validationErrors.email && (
-                    <p className="text-sm text-red-500">{validationErrors.email}</p>
+                  {validationErrors.telegram && (
+                    <p className="text-sm text-red-500">{validationErrors.telegram}</p>
                   )}
                 </div>
               </div>
@@ -196,7 +200,14 @@ export function Register() {
                 </Label>
                 <Select
                   value={formData.role}
-                  onValueChange={(value) => updateField('role', value)}
+                  onValueChange={(value) => {
+                    if (value === 'tutor') {
+                      // Redirect to tutor registration form
+                      navigate({ to: '/be-tutor' });
+                    } else {
+                      updateField('role', value);
+                    }
+                  }}
                 >
                   <SelectTrigger
                      className={`w-full ${validationErrors.role ? 'border-red-500' : ''}`}

@@ -385,6 +385,8 @@
       "phonePlaceholder": "+998",
       "email": "Электронная почта",
       "emailPlaceholder": "example@gmail.com",
+      "telegram": "Telegram username",
+      "telegramPlaceholder": "@username",
       "role": "Выбор роли",
       "rolePlaceholder": "Выбор роли",
       "roleSeeker": "Ученик",
@@ -403,6 +405,7 @@
         "required": "Это поле обязательно",
         "invalidEmail": "Неверный email адрес",
         "invalidPhone": "Неверный номер телефона",
+        "invalidTelegram": "Неверный Telegram username (5-32 символа, только буквы, цифры и подчеркивание)",
         "passwordMismatch": "Пароли не совпадают",
         "minPassword": "Пароль должен содержать минимум 6 символов",
         "registrationFailed": "Ошибка регистрации. Попробуйте еще раз."

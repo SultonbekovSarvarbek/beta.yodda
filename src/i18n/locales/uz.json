@@ -352,6 +352,8 @@
       "phonePlaceholder": "+998",
       "email": "Elektron pochta",
       "emailPlaceholder": "example@gmail.com",
+      "telegram": "Telegram username",
+      "telegramPlaceholder": "@username",
       "role": "Rolni tanlash",
       "rolePlaceholder": "Rolni tanlash",
       "roleSeeker": "O'quvchi",
@@ -370,6 +372,7 @@
         "required": "Bu maydon to'ldirilishi shart",
         "invalidEmail": "Noto'g'ri email manzil",
         "invalidPhone": "Noto'g'ri telefon raqami",
+        "invalidTelegram": "Noto'g'ri Telegram username (5-32 belgi, faqat harflar, raqamlar va pastki chiziq)",
         "passwordMismatch": "Parollar mos kelmaydi",
         "minPassword": "Parol kamida 6 ta belgidan iborat bo'lishi kerak",
         "registrationFailed": "Ro'yxatdan o'tishda xatolik. Qayta urinib ko'ring."

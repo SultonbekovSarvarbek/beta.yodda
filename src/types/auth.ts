@@ -37,7 +37,8 @@ export interface LoginRequest {
 export interface RegisterRequest {
   name: string;
   phone: string;
-  email: string;
+  telegram?: string; // Telegram username for seekers
+  email?: string; // Email for tutors (optional)
   role: UserRole;
   role_id: number; // 1 = tutor, 2 = seeker
   password: string;
