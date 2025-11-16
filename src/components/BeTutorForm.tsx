@@ -543,7 +543,7 @@ export function BeTutorForm() {
     <div className="max-w-4xl mx-auto p-6">
       <Card className="shadow-none border rounded-md">
         <CardHeader>
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between flex-wrap">
             <div>
               <CardTitle className="text-2xl">{t('beTutorForm.title')}</CardTitle>
               <CardDescription>
@@ -571,7 +571,7 @@ export function BeTutorForm() {
         </CardHeader>
         <CardContent>
           {/* Tabs Navigation */}
-          <div className="flex gap-2 mb-8 overflow-x-auto">
+          <div className="flex gap-2 mb-8 flex-wrap">
             {tabs.map((tab, index) => (
               <button
                 key={index}
