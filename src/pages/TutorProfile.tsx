@@ -186,6 +186,25 @@ export function TutorProfile() {
                       <span className="font-semibold">{followingCount}</span>{' '}
                       <span className="text-gray-600 text-sm md:text-base">{t('tutorProfile.following')}</span>
                     </div>
+                    {/* Additional tutor info */}
+                    <div className="text-sm md:text-base">
+                      📘 <span className="font-semibold">{tutor.experience}</span>{' '}
+                      <span className="text-gray-600">{t('tutorProfile.about.yearsTeaching')}</span>
+                    </div>
+                    <div className="text-sm md:text-base">
+                      ⏱ <span className="font-semibold">{tutor.formatsData[0]?.duration}</span>{' '}
+                      <span className="text-gray-600">{t('pricingCard.minutes')}</span>
+                    </div>
+                    <div className="text-sm md:text-base">
+                      💰 <span className="font-semibold">{tutor.formatsData[0]?.amount.toLocaleString()}</span>{' '}
+                      <span className="text-gray-600">{t('pricingCard.sumPerLesson')}</span>
+                    </div>
+                    <div className="text-sm md:text-base">
+                      🌐 <span className="text-gray-600">{tutor.formatsData[0]?.name || t('tutorProfile.online', { defaultValue: 'Онлайн' })}</span>
+                    </div>
+                    <div className="text-sm md:text-base">
+                      📍 <span className="text-gray-600">{tutor.city.name}, {tutor.region.name}</span>
+                    </div>
                   </div>
                 </div>
 
