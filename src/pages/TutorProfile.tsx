@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { InstagramVideoPlayer } from '@/components/InstagramVideoPlayer';
+import { BookingDialog } from '@/components/BookingDialog';
 
 // Utility function to detect file type
 const getFileType = (filePath: string): 'pdf' | 'image' | 'video' => {
@@ -42,6 +43,7 @@ export function TutorProfile() {
   const navigate = useNavigate();
   const { data: tutor, isLoading, isError } = useAnnouncementById(parseInt(id));
   const [selectedPost, setSelectedPost] = useState<{ id: string | number; image: string; fileType: 'pdf' | 'image' | 'video'; isFile: boolean } | null>(null);
+  const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
 
   // Handle post click with mobile detection
   const handlePostClick = (post: { id: string | number; image: string; fileType: 'pdf' | 'image' | 'video'; isFile: boolean }) => {
@@ -98,7 +100,7 @@ export function TutorProfile() {
   };
 
   const handleBookLesson = () => {
-    alert(t('tutorProfile.booking.comingSoon'));
+    setIsBookingDialogOpen(true);
   };
 
   const handleBookSlot = (date: string, time: string) => {
@@ -452,6 +454,15 @@ export function TutorProfile() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Booking Dialog */}
+      {tutor && (
+        <BookingDialog
+          open={isBookingDialogOpen}
+          onOpenChange={setIsBookingDialogOpen}
+          tutor={tutor}
+        />
+      )}
     </>
   );
 }
