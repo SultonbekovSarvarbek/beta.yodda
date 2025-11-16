@@ -297,7 +297,7 @@ export function Register() {
 
               {/* Terms and Conditions */}
               <div className="space-y-2">
-                <div className="flex items-start space-x-3">
+                <div className="flex flex-wrap items-start gap-3">
                   <Checkbox
                     id="terms"
                     checked={agreedToTerms}
