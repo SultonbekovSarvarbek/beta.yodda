@@ -174,36 +174,23 @@ export function TutorProfile() {
 
                   {/* Instagram Stats */}
                   <div className="flex flex-wrap gap-3 md:gap-4">
-                    <div>
-                      <span className="font-semibold">{postsCount}</span>{' '}
-                      <span className="text-gray-600 text-sm md:text-base">{t('tutorProfile.posts')}</span>
-                    </div>
-                    <div>
-                      <span className="font-semibold">{followersCount}</span>{' '}
-                      <span className="text-gray-600 text-sm md:text-base">{t('tutorProfile.followers')}</span>
-                    </div>
-                    <div>
-                      <span className="font-semibold">{followingCount}</span>{' '}
-                      <span className="text-gray-600 text-sm md:text-base">{t('tutorProfile.following')}</span>
-                    </div>
-                    {/* Additional tutor info */}
                     <div className="text-sm md:text-base">
-                      <span className="font-semibold">{tutor.experience}</span>{' '}
+                      <span className="font-semibold">• {tutor.experience}</span>{' '}
                       <span className="text-gray-600">{t('tutorProfile.about.yearsTeaching')}</span>
                     </div>
                     <div className="text-sm md:text-base">
-                      <span className="font-semibold">{tutor.formatsData[0]?.duration}</span>{' '}
+                      <span className="font-semibold">• {tutor.formatsData[0]?.duration}</span>{' '}
                       <span className="text-gray-600">{t('pricingCard.minutes')}</span>
                     </div>
                     <div className="text-sm md:text-base">
-                      <span className="font-semibold">{tutor.formatsData[0]?.amount.toLocaleString()}</span>{' '}
+                      <span className="font-semibold text-green-600">• {tutor.formatsData[0]?.amount.toLocaleString()}</span>{' '}
                       <span className="text-gray-600">{t('pricingCard.sumPerLesson')}</span>
                     </div>
                     <div className="text-sm md:text-base">
-                      <span className="text-gray-600">{tutor.formatsData[0]?.name || t('tutorProfile.online', { defaultValue: 'Онлайн' })}</span>
+                      <span className="text-gray-600"><span className="font-semibold text-black">•</span> {tutor.formatsData[0]?.name || t('tutorProfile.online', { defaultValue: 'Онлайн' })}</span>
                     </div>
                     <div className="text-sm md:text-base">
-                      <span className="text-gray-600">{tutor.city.name}, {tutor.region.name}</span>
+                      <span className="text-gray-600"><span className="font-semibold text-black">•</span> {tutor.city.name}, {tutor.region.name}</span>
                     </div>
                   </div>
                 </div>
@@ -226,8 +213,8 @@ export function TutorProfile() {
           <div className="my-5 space-y-5">
             {/* Personal Information */}
             <div className="space-y-3">
-              <div>
-                <div className="flex items-center gap-1.5">
+              {/* <div>
+                <div className="flex items-center gap-1.5"> <div className="rounded-sm"></div> 
                   <MapPin className="h-4 w-4 shrink-0" />
                   <span>{tutor.city.name}, {tutor.region.name}</span>
                 </div>
@@ -245,7 +232,7 @@ export function TutorProfile() {
                     </div>
                   </>
                 )}
-              </div>
+              </div> */}
 
 {/* Subjects with Levels Section */}
 <div className="space-y-3">
@@ -292,44 +279,6 @@ export function TutorProfile() {
               <p className="text-sm text-gray-700 leading-relaxed">{tutor.description}</p>
             </div>
 
-            
-
-            {/* Lesson Details Card */}
-            <div>
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                {/* Format */}
-                <div className="space-y-1">
-                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t('tutorProfile.format', { defaultValue: 'Формат' })}
-                  </div>
-                  <Badge variant="outline" className="text-sm font-medium">
-                    {tutor.formatsData[0]?.name || t('tutorProfile.online', { defaultValue: 'Онлайн' })}
-                  </Badge>
-                </div>
-                {/* Duration */}
-                <div className="space-y-1">
-                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t('tutorProfile.lessonDuration', { defaultValue: 'Длительность' })}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-sm font-medium text-gray-900">
-                    <Clock className="h-4 w-4" />
-                    <span>{tutor.formatsData[0].duration} {t('pricingCard.minutes')}</span>
-                  </div>
-                </div>
-              </div>
-              {/* Price */}
-              <div className="pt-4 border-t border-gray-200">
-                <div className="flex items-end justify-between">
-                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t('tutorProfile.priceLabel', { defaultValue: 'Стоимость' })}
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-green-500">{tutor.formatsData[0]?.amount.toLocaleString()}</div>
-                    <div className="text-xs text-gray-500">{t('pricingCard.sumPerLesson')}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Instagram-Style Tabs */}
