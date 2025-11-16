@@ -4,7 +4,6 @@ import { TutorCard } from '@/components/TutorCard';
 import { StoriesContainer } from '@/components/StoriesContainer';
 import { TutorsFilters, type FilterValues } from '@/components/TutorsFilters';
 import { useAnnouncements, useSubjects, useRegions, useLanguages } from '@/hooks/api';
-import { stories } from '@/data/stories';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -131,6 +130,20 @@ export function Tutors() {
 
   const isLoadingFilters = isLoadingSubjects || isLoadingRegions || isLoadingLanguages;
   const maxPrice = 1200000; // Fixed max price
+
+  // Transform real tutor data to stories format (only tutors with images)
+  const stories = tutors
+    ?.filter((tutor) => tutor.image !== null)
+    .slice(0, 8)
+    .map((tutor, index) => ({
+      id: `story-${tutor.id}`,
+      tutorId: tutor.id.toString(),
+      tutorName: tutor.fullname,
+      tutorPhoto: tutor.image!.thumbnail,
+      image: tutor.image!.medium,
+      timestamp: Date.now() - (index * 3600000), // Stagger timestamps by 1 hour
+      viewed: false
+    })) || [];
 
   // Generate page numbers for pagination
   const getPageNumbers = () => {

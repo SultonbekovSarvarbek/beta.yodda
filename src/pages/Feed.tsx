@@ -1,6 +1,5 @@
 import { FeedContent } from '@/components/FeedContent';
 import { useAnnouncements } from '@/hooks/api';
-import { stories } from '@/data/stories';
 
 export function Feed() {
   const {
@@ -12,6 +11,20 @@ export function Feed() {
     goToPage,
     refetch,
   } = useAnnouncements();
+
+  // Transform real tutor data to stories format (only tutors with images)
+  const stories = announcements
+    ?.filter((tutor) => tutor.image !== null)
+    .slice(0, 8)
+    .map((tutor, index) => ({
+      id: `story-${tutor.id}`,
+      tutorId: tutor.id.toString(),
+      tutorName: tutor.fullname,
+      tutorPhoto: tutor.image!.thumbnail,
+      image: tutor.image!.medium,
+      timestamp: Date.now() - (index * 3600000), // Stagger timestamps by 1 hour
+      viewed: false
+    })) || [];
 
   return (
     <FeedContent
