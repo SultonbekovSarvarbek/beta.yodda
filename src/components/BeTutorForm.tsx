@@ -344,36 +344,32 @@ export function BeTutorForm() {
     isSubmittingRef[1](true);
 
     try {
-
-      // Only register and login if user is not already authenticated
-      if (!isAuthenticated) {
-        // Password is required for new registrations (validated by schema)
-        if (!data.password) {
-          throw new Error('Password is required for registration');
-        }
-
-        // Step 1: Register tutor
-        const registerPayload = {
-          name: data.fullName.trim(),
-          password: data.password,
-          gender: data.gender === 'male' ? 1 : 2,
-          phone: data.phoneNumber,
-          email: data.email,
-          age: data.age,
-          termsAccepted: true,
-          role_id: 1,
-        };
-
-        await registerTutor(registerPayload);
-
-        // Step 2: Login to get token via centralized auth service
-        await authService.login({
-          phone: data.phoneNumber,
-          password: data.password,
-        });
+      // Password is required for registration (validated by schema)
+      if (!data.password) {
+        throw new Error('Password is required for registration');
       }
 
-      // Step 3: Create announcement (always executed for both authenticated and new users)
+      // Step 1: Register tutor
+      const registerPayload = {
+        name: data.fullName.trim(),
+        password: data.password,
+        gender: data.gender === 'male' ? 1 : 2,
+        phone: data.phoneNumber,
+        email: data.email,
+        age: data.age,
+        termsAccepted: true,
+        role_id: 1,
+      };
+
+      await registerTutor(registerPayload);
+
+      // Step 2: Login to get token via centralized auth service
+      await authService.login({
+        phone: data.phoneNumber,
+        password: data.password,
+      });
+
+      // Step 3: Create announcement
       // Create FormData object
       const apiFormData = new FormData();
 
