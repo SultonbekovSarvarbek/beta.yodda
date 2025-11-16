@@ -619,7 +619,7 @@ export function BeTutorForm() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col md:grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="phoneNumber">{t('beTutorForm.phoneNumber')}</Label>
                     <Input
@@ -920,7 +920,7 @@ export function BeTutorForm() {
                   {errors.pricePerHour && <p className="text-sm text-red-500">{errors.pricePerHour.message}</p>}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col md:grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="teachingFormat">{t('beTutorForm.teachingFormat')}</Label>
                     <Controller

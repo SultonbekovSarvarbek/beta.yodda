@@ -98,7 +98,7 @@ export function ForParents() {
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-10 text-center">
           {t('forParents.howItWorks.title')}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-col md:grid md:grid-cols-2 gap-6">
           {howItWorksSteps.map((step) => (
             <Card key={step.number} className="relative hover:shadow-lg transition-shadow rounded-lg border">
               <CardHeader>
@@ -131,7 +131,7 @@ export function ForParents() {
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-10 text-center">
           {t('forParents.benefits.title')}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-col md:grid md:grid-cols-2 gap-6">
           {benefits.map((benefit, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow rounded-lg border">
               <CardHeader>

@@ -216,7 +216,7 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
       </TabsList>
 
       <TabsContent value="overview" className="space-y-4 md:space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-3 md:gap-4">
           <Card>
             <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">
@@ -481,7 +481,7 @@ function SeekerDashboard({ activeTab, onTabChange }: DashboardProps) {
       </TabsList>
 
       <TabsContent value="overview" className="space-y-4 md:space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+        <div className="flex flex-col md:grid md:grid-cols-2 gap-3 md:gap-4">
           <Card className="pa-0 border rounded-md">
             <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">
