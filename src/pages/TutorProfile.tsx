@@ -188,22 +188,22 @@ export function TutorProfile() {
                     </div>
                     {/* Additional tutor info */}
                     <div className="text-sm md:text-base">
-                      📘 <span className="font-semibold">{tutor.experience}</span>{' '}
+                      <span className="font-semibold">{tutor.experience}</span>{' '}
                       <span className="text-gray-600">{t('tutorProfile.about.yearsTeaching')}</span>
                     </div>
                     <div className="text-sm md:text-base">
-                      ⏱ <span className="font-semibold">{tutor.formatsData[0]?.duration}</span>{' '}
+                      <span className="font-semibold">{tutor.formatsData[0]?.duration}</span>{' '}
                       <span className="text-gray-600">{t('pricingCard.minutes')}</span>
                     </div>
                     <div className="text-sm md:text-base">
-                      💰 <span className="font-semibold">{tutor.formatsData[0]?.amount.toLocaleString()}</span>{' '}
+                      <span className="font-semibold">{tutor.formatsData[0]?.amount.toLocaleString()}</span>{' '}
                       <span className="text-gray-600">{t('pricingCard.sumPerLesson')}</span>
                     </div>
                     <div className="text-sm md:text-base">
-                      🌐 <span className="text-gray-600">{tutor.formatsData[0]?.name || t('tutorProfile.online', { defaultValue: 'Онлайн' })}</span>
+                      <span className="text-gray-600">{tutor.formatsData[0]?.name || t('tutorProfile.online', { defaultValue: 'Онлайн' })}</span>
                     </div>
                     <div className="text-sm md:text-base">
-                      📍 <span className="text-gray-600">{tutor.city.name}, {tutor.region.name}</span>
+                      <span className="text-gray-600">{tutor.city.name}, {tutor.region.name}</span>
                     </div>
                   </div>
                 </div>
@@ -226,7 +226,7 @@ export function TutorProfile() {
           <div className="my-5 space-y-5">
             {/* Personal Information */}
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-600">
+              <div>
                 <div className="flex items-center gap-1.5">
                   <MapPin className="h-4 w-4 shrink-0" />
                   <span>{tutor.city.name}, {tutor.region.name}</span>
@@ -295,7 +295,7 @@ export function TutorProfile() {
             
 
             {/* Lesson Details Card */}
-            <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-blue-50/50 to-white">
+            <div>
               <div className="grid grid-cols-2 gap-4 mb-4">
                 {/* Format */}
                 <div className="space-y-1">
