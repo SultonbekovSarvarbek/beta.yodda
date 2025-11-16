@@ -235,21 +235,25 @@ export function TutorProfile() {
               <h3 className="text-sm font-semibold text-gray-900">{t('tutorProfile.about.subjectsTeach')}</h3>
               {tutor.subjectLevels && tutor.subjectLevels.length > 0 ? (
                 <div className="space-y-3">
-                  {tutor.subjectLevels.map((subjectLevel) => {
-                    const subject = tutor.subjects.find(s => s.id === subjectLevel.subject_id);
+                  {tutor.subjectLevels.map((subjectLevel: any) => {
+                    // Handle both possible data structures
+                    const subject = subjectLevel.subject || tutor.subjects.find(s => s.id === subjectLevel.subject_id);
                     if (!subject) return null;
 
+                    const subjectId = subjectLevel.subject_id || subject.id;
+                    const levels = subjectLevel.levels || [];
+
                     return (
-                      <div key={subjectLevel.subject_id} className="space-y-1.5">
+                      <div key={subjectId} className="space-y-1.5">
                         <h4 className="text-sm font-medium text-gray-700">{subject.name}</h4>
                         <div className="flex flex-wrap gap-1.5">
-                          {subjectLevel.levels.map((level) => (
+                          {levels.map((level: any) => (
                             <Badge
-                              key={level.value}
+                              key={level.value || level.id}
                               variant="outline"
                               className="text-xs px-2.5 py-0.5 bg-gray-50 border-gray-300 text-gray-700 font-normal"
                             >
-                              {level.label}
+                              {level.label || level.name}
                             </Badge>
                           ))}
                         </div>
