@@ -75,7 +75,7 @@ export function ForParents() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Hero Section */}
-      <div className="text-center mb-16 bg-white rounded-lg p-8 md:p-12 box-shadow-none border">
+      <div className="text-center mb-6 bg-white rounded-lg p-8 md:p-12 box-shadow-none border">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
           {t('forParents.hero.title')}
         </h1>
@@ -91,10 +91,10 @@ export function ForParents() {
         </Button>
       </div>
 
-      <Separator className="my-12" />
+      <Separator className="my-6" />
 
       {/* How It Works Section */}
-      <div className="mb-16 bg-white rounded-lg p-8 md:p-12 border box-shadow-none">
+      <div className="mb-6 bg-white rounded-lg p-8 md:p-12 border box-shadow-none">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-10 text-center">
           {t('forParents.howItWorks.title')}
         </h2>
@@ -124,7 +124,7 @@ export function ForParents() {
         </div>
       </div>
 
-      <Separator className="my-12" />
+      <Separator className="my-6" />
 
       {/* Why Choose Yodda Section */}
       <div className="mb-16 bg-white rounded-lg p-8 md:p-12 box-shadow-none border">
