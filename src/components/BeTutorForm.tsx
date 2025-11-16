@@ -572,7 +572,7 @@ export function BeTutorForm() {
         <CardContent>
           {/* Tabs Navigation */}
           <div className="mb-6 sm:mb-8 -mx-2 sm:mx-0">
-            <div className="flex gap-2 overflow-x-auto px-2 sm:px-0 pb-2 sm:pb-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            <div className="flex gap-2 px-2 sm:px-0 pb-2 flex-wrap">
               {tabs.map((tab, index) => (
                 <button
                   key={index}
