@@ -43,7 +43,7 @@ export function TutorProfile() {
   const { t } = useTranslation();
   const { id } = useParams({ from: '/tutor/$id' });
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { data: tutor, isLoading, isError } = useAnnouncementById(parseInt(id));
   const [selectedPost, setSelectedPost] = useState<{ id: string | number; image: string; fileType: 'pdf' | 'image' | 'video'; isFile: boolean } | null>(null);
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
@@ -107,6 +107,12 @@ export function TutorProfile() {
     if (!isAuthenticated) {
       toast.warning(t('favorites.loginRequired', 'Вам нужно войти или зарегистрироваться'));
       navigate({ to: '/login' });
+      return;
+    }
+
+    // Check if user is a tutor (only seekers can book lessons)
+    if (user?.role === 'tutor') {
+      toast.error(t('tutorProfile.errors.tutorCannotBook', 'Вы репетитор. Только ученики могут записываться на уроки'));
       return;
     }
 
