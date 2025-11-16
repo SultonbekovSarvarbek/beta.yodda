@@ -34,8 +34,8 @@ type FormData = {
   telegramUsername?: string;
   email: string;
   gender: string;
-  password?: string;
-  repeatPassword?: string;
+  password: string;
+  repeatPassword: string;
   age: string;
   regionId: string;
   cityId: string;
@@ -488,9 +488,9 @@ export function BeTutorForm() {
   // Show loading state while checking for existing announcements
   if (loadingAnnouncements && isAuthenticated && isTutor) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-4 sm:p-6">
         <Card className="shadow-none border rounded-md">
-          <CardContent className="flex items-center justify-center py-12">
+          <CardContent className="flex items-center justify-center py-8 sm:py-12">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </CardContent>
         </Card>
@@ -501,33 +501,33 @@ export function BeTutorForm() {
   // If tutor already has an announcement, show message with redirect buttons
   if (hasExistingAnnouncement) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-4 sm:p-6">
         <Card className="shadow-none border rounded-md">
-          <CardContent className="py-12">
-            <div className="text-center space-y-6">
+          <CardContent className="py-8 sm:py-12 px-4 sm:px-6">
+            <div className="text-center space-y-4 sm:space-y-6">
               <div className="flex justify-center">
-                <CheckCircle2 className="h-16 w-16 text-green-500" />
+                <CheckCircle2 className="h-12 w-12 sm:h-16 sm:w-16 text-green-500" />
               </div>
               <div>
-                <h2 className="text-2xl font-semibold mb-2">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
                   {t('beTutorForm.alreadyCreated') || 'You have already created your tutor profile'}
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   {t('beTutorForm.alreadyCreatedDescription') || 'You can view or edit your profile from your account page.'}
                 </p>
               </div>
-              <div className="flex gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Button
                   onClick={() => navigate({ to: '/profile' })}
                   variant="default"
-                  className="cursor-pointer"
+                  className="cursor-pointer w-full sm:w-auto"
                 >
                   {t('beTutorForm.viewProfile') || 'View Profile'}
                 </Button>
                 <Button
                   onClick={() => navigate({ to: '/' })}
                   variant="outline"
-                  className="cursor-pointer"
+                  className="cursor-pointer w-full sm:w-auto"
                 >
                   {t('common.home') || 'Home'}
                 </Button>
@@ -540,13 +540,13 @@ export function BeTutorForm() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-4 sm:p-6">
       <Card className="shadow-none border rounded-md">
         <CardHeader>
-          <div className="flex items-start justify-between flex-wrap">
-            <div>
-              <CardTitle className="text-2xl">{t('beTutorForm.title')}</CardTitle>
-              <CardDescription>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex-1">
+              <CardTitle className="text-xl sm:text-2xl">{t('beTutorForm.title')}</CardTitle>
+              <CardDescription className="mt-1">
                 {tabs[currentTab]}
               </CardDescription>
             </div>
@@ -555,7 +555,7 @@ export function BeTutorForm() {
               form="tutor-form"
               disabled={isSubmitting || isSeeker}
               variant="success"
-              className="cursor-pointer"
+              className="cursor-pointer w-full sm:w-auto shrink-0"
               title={isSeeker ? (t('beTutorForm.seekerCannotSubmit') || 'Seekers cannot create tutor profiles') : ''}
             >
               {isSubmitting ? (
@@ -571,20 +571,25 @@ export function BeTutorForm() {
         </CardHeader>
         <CardContent>
           {/* Tabs Navigation */}
-          <div className="flex gap-2 mb-8 flex-wrap">
-            {tabs.map((tab, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentTab(index)}
-                className={`px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors cursor-pointer ${
-                  currentTab === index
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                }`}
-              >
-                {index + 1}. {tab}
-              </button>
-            ))}
+          <div className="mb-6 sm:mb-8 -mx-2 sm:mx-0">
+            <div className="flex gap-2 overflow-x-auto px-2 sm:px-0 pb-2 sm:pb-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+              {tabs.map((tab, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentTab(index)}
+                  className={`px-3 sm:px-4 py-2 rounded-lg whitespace-nowrap text-xs sm:text-sm font-medium transition-colors cursor-pointer shrink-0 ${
+                    currentTab === index
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  }`}
+                >
+                  <span className="hidden sm:inline">{index + 1}. </span>
+                  <span className="sm:hidden">{index + 1}</span>
+                  <span className="hidden sm:inline">{tab}</span>
+                  <span className="sm:hidden">{tab.split(' ')[0]}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           <form id="tutor-form" onSubmit={handleFormSubmit(onSubmit, onError)}>
@@ -696,7 +701,7 @@ export function BeTutorForm() {
                     />
                     {errors.repeatPassword && <p className="text-sm text-red-500">{errors.repeatPassword.message}</p>}
 
-                    <p className="text-sm text-yellow-600">
+                    <p className="text-xs sm:text-sm text-yellow-700 bg-yellow-50 p-2 rounded-md">
                       Ваш номер телефона и пароль будут использоваться для входа в личный кабинет.
                     </p>
                   </div>
@@ -1004,8 +1009,8 @@ export function BeTutorForm() {
                         const dayError = errors.timeSlots?.[day as keyof typeof errors.timeSlots];
                         return (
                           <div key={day} className="space-y-2">
-                            <h4 className="font-medium capitalize">{t(`days.${day}`)}</h4>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                            <h4 className="font-medium capitalize text-sm sm:text-base">{t(`days.${day}`)}</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                               {generateTimeSlots(parseInt(formData.lessonDuration)).map((slot) => {
                                 const isSelected = formData.timeSlots.some(
                                   (ts) => ts.day === day && ts.time === slot
@@ -1013,7 +1018,7 @@ export function BeTutorForm() {
                                 return (
                                   <div
                                     key={`${day}-${slot}`}
-                                    className="flex items-center space-x-2"
+                                    className="flex items-center space-x-1.5 sm:space-x-2"
                                   >
                                     <Checkbox
                                       id={`${day}-${slot}`}
@@ -1040,7 +1045,7 @@ export function BeTutorForm() {
                                     />
                                     <label
                                       htmlFor={`${day}-${slot}`}
-                                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                      className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                                     >
                                       {slot}
                                     </label>
@@ -1083,7 +1088,7 @@ export function BeTutorForm() {
                     id="bio"
                     placeholder="Пример: Я опытный преподаватель математики с индивидуальным подходом к каждому ученику. Помогаю достигать высоких результатов в короткие сроки."
                     {...register('bio')}
-                    className="w-full min-h-[120px] px-3 py-2 border rounded-md"
+                    className="w-full min-h-[120px] px-3 py-2 border rounded-md text-sm sm:text-base resize-y"
                   />
                   {errors.bio && <p className="text-sm text-red-500">{errors.bio.message}</p>}
                 </div>
@@ -1094,7 +1099,7 @@ export function BeTutorForm() {
                     id="additionalInfo"
                     placeholder="Пример: Помогаю улучшить грамматику и разговорную речь. Индивидуальный подход к каждому ученику."
                     {...register('additionalInfo')}
-                    className="w-full min-h-[100px] px-3 py-2 border rounded-md"
+                    className="w-full min-h-[100px] px-3 py-2 border rounded-md text-sm sm:text-base resize-y"
                   />
                   {errors.additionalInfo && <p className="text-sm text-red-500">{errors.additionalInfo.message}</p>}
                 </div>
@@ -1103,16 +1108,16 @@ export function BeTutorForm() {
 
             {/* Success/Error Messages */}
             {submitSuccess && (
-              <div className="rounded-md bg-green-50 p-4 mt-6">
-                <p className="text-sm font-medium text-green-800">
+              <div className="rounded-md bg-green-50 p-3 sm:p-4 mt-4 sm:mt-6">
+                <p className="text-xs sm:text-sm font-medium text-green-800">
                   {t('beTutorForm.submitSuccess')}
                 </p>
               </div>
             )}
 
             {submitError && (
-              <div className="rounded-md bg-red-50 p-4 mt-6">
-                <p className="text-sm font-medium text-red-800">
+              <div className="rounded-md bg-red-50 p-3 sm:p-4 mt-4 sm:mt-6">
+                <p className="text-xs sm:text-sm font-medium text-red-800">
                   {submitError}
                 </p>
               </div>
@@ -1120,18 +1125,18 @@ export function BeTutorForm() {
 
             {/* Seeker Warning Message */}
             {isSeeker && (
-              <div className="rounded-md bg-yellow-50 border border-yellow-200 p-4 mt-6">
-                <p className="text-sm font-medium text-yellow-800">
+              <div className="rounded-md bg-yellow-50 border border-yellow-200 p-3 sm:p-4 mt-4 sm:mt-6">
+                <p className="text-xs sm:text-sm font-medium text-yellow-800">
                   {t('beTutorForm.seekerWarning') || 'You are currently registered as a seeker. Only tutors can create tutor profiles. If you want to become a tutor, please create a new tutor account.'}
                 </p>
               </div>
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
+            <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-0 mt-6 sm:mt-8">
               <Button
                 type="button"
-                className="cursor-pointer"
+                className="cursor-pointer w-full sm:w-auto"
                 variant="outline"
                 onClick={handlePrevious}
                 disabled={currentTab === 0 || isSubmitting}
@@ -1140,7 +1145,7 @@ export function BeTutorForm() {
               </Button>
 
               {currentTab < tabs.length - 1 && (
-                <Button type="button" className="cursor-pointer" onClick={handleNext} disabled={isSubmitting}>
+                <Button type="button" className="cursor-pointer w-full sm:w-auto" onClick={handleNext} disabled={isSubmitting}>
                   {t('common.next')}
                 </Button>
               )}
