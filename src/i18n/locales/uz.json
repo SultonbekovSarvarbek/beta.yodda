@@ -12,7 +12,8 @@
     "forParents": "Ota-onalar uchun",
     "forTutors": "Repetitorlar uchun",
     "more": "Yana",
-    "cabinet": "Kabinet"
+    "cabinet": "Kabinet",
+    "support": "Qo'llab-quvvatlash"
   },
   "header": {
     "becomeTutor": "Repetitor bo'lish",
@@ -72,7 +73,9 @@
     "edit": "Tahrirlash",
     "loading": "Yuklanmoqda",
     "sumPerHour": "so'm/soat",
-    "tryAgain": "Qayta urinib ko'ring"
+    "tryAgain": "Qayta urinib ko'ring",
+    "home": "Bosh sahifa",
+    "search": "Qidiruv..."
   },
   "beTutorForm": {
     "title": "Repetitor ro'yxatdan o'tish",
@@ -133,6 +136,27 @@
     "bio": "O'zingiz haqingizda",
     "languages": "Tillar",
     "additionalInfo": "Qo'shimcha ma'lumot",
+    "certificates": "Sertifikatlar va yutuqlar",
+    "uploadCertificates": "Fayllarni yuklash",
+    "certificatesDescription": "Qo'llab-quvvatlanadigan formatlar: JPG, PNG, WEBP, HEIC, HEIF, PDF (maks. 10MB)",
+    "dragDropFiles": "Fayllarni bu yerga tashlang yoki tanlash uchun bosing",
+    "removeFile": "O'chirish",
+    "uploadedFiles": "Yuklangan fayllar: {{count}}",
+    "invalidFileType": "Fayl formati noto'g'ri. Faqat JPG, PNG, WEBP, HEIC, HEIF, PDF qo'llab-quvvatlanadi",
+    "fileTooLarge": "Fayl juda katta. Maksimal hajmi: 10MB",
+    "submitting": "Yuborilmoqda...",
+    "submitSuccess": "Anketa muvaffaqiyatli yaratildi! Sahifa 2 soniyadan keyin qayta yuklanadi.",
+    "submitError": "Formani yuborishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.",
+    "region": "Viloyat / Shahar",
+    "selectRegion": "Viloyatni tanlang",
+    "city": "Tuman",
+    "selectCity": "Tumanni tanlang",
+    "selectRegionFirst": "Avval viloyatni tanlang",
+    "selectFormat": "Formatni tanlang",
+    "fullName": "Ism va familiya",
+    "alreadyCreated": "Siz allaqachon repetitor anketasini yaratgansiz",
+    "alreadyCreatedDescription": "Akkaunt sahifasida profilingizni ko'rishingiz yoki tahrirlashingiz mumkin.",
+    "viewProfile": "Profilni ko'rish",
     "errors": {
       "required": "Bu maydon to'ldirilishi shart",
       "invalidEmail": "Noto'g'ri email manzil",
@@ -202,7 +226,20 @@
     "perHour": "soat",
     "viewProfile": "Profilni ko'rish",
     "bookLesson": "Yozilish",
-    "yearsExperience": "yillik tajriba"
+    "yearsExperience": "yillik tajriba",
+    "yearsExperience_one": "yil",
+    "yearsExperience_few": "yil",
+    "yearsExperience_many": "yil",
+    "subject": "Fan:",
+    "workExperience": "Ish tajribasi:",
+    "from": "dan",
+    "currency": "so'm"
+  },
+  "favorites": {
+    "addedSuccess": "Sevimlilar ro'yxatiga qo'shildi",
+    "removedSuccess": "Sevimlilar ro'yxatidan o'chirildi",
+    "error": "Sevimlilarni yangilashda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.",
+    "loginRequired": "Tizimga kirishingiz yoki ro'yxatdan o'tishingiz kerak"
   },
   "languages": {
     "russian": "Ruscha",
@@ -413,7 +450,8 @@
   },
   "pagination": {
     "previous": "Orqaga",
-    "next": "Keyingisi"
+    "next": "Keyingisi",
+    "pageOf": "{{current}}-sahifa, jami {{total}}"
   },
   "forParents": {
     "hero": {
