@@ -130,9 +130,20 @@ export interface ApiEducationLevelResponse {
   levels: ApiEducationLevel[];
 }
 
+// Subject level can come in two formats from the API
 export interface ApiSubjectLevel {
-  subject_id: number;
-  levels: ApiEducationLevel[];
+  subject_id?: number;
+  subject?: {
+    id: number;
+    name: string;
+  };
+  levels: (ApiEducationLevel | ApiLevelSimple)[];
+}
+
+// Simple level format (alternative structure)
+export interface ApiLevelSimple {
+  id: number;
+  name: string;
 }
 
 // Language from /api/languages
