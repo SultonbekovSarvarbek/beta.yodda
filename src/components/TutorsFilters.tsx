@@ -154,7 +154,7 @@ export function TutorsFilters({
       {/* Filters Content */}
       <div className={isExpanded ? 'block' : 'hidden lg:block'}>
         {/* Row 1: Subjects, Languages */}
-        <div className="flex flex-col md:grid md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           {/* Subjects Multi-Select */}
           <div className="space-y-2">
             <Label>{t('filters.subjects')}</Label>
@@ -181,7 +181,7 @@ export function TutorsFilters({
         </div>
 
         {/* Row 2: Region, City, Gender */}
-        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
           {/* Region Select */}
           <div className="space-y-2">
             <Label>{t('filters.region')}</Label>

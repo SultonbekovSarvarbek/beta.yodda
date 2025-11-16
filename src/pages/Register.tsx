@@ -149,7 +149,7 @@ export function Register() {
               </div>
 
               {/* Phone and Email Row */}
-              <div className="flex flex-col md:grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Phone Number Field */}
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="flex items-center gap-2">
