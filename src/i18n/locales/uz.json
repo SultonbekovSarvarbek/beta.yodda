@@ -157,6 +157,7 @@
     "alreadyCreated": "Siz allaqachon repetitor anketasini yaratgansiz",
     "alreadyCreatedDescription": "Akkaunt sahifasida profilingizni ko'rishingiz yoki tahrirlashingiz mumkin.",
     "viewProfile": "Profilni ko'rish",
+    "seekerWarning": "Siz hozirda o'quvchi sifatida ro'yxatdan o'tgansiz. Faqat repetitorlar repetitor profilini yaratishlari mumkin. Agar repetitor bo'lishni istasangiz, iltimos, yangi repetitor akkaunti yarating.",
     "errors": {
       "required": "Bu maydon to'ldirilishi shart",
       "invalidEmail": "Noto'g'ri email manzil",
