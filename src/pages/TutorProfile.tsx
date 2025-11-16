@@ -230,16 +230,42 @@ export function TutorProfile() {
               <p className="text-sm text-gray-700 leading-relaxed">{tutor.description}</p>
             </div>
 
-            {/* Subjects Section */}
-            <div className="space-y-2.5">
+            {/* Subjects with Levels Section */}
+            <div className="space-y-3">
               <h3 className="text-sm font-semibold text-gray-900">{t('tutorProfile.about.subjectsTeach')}</h3>
-              <div className="flex flex-wrap gap-2">
-                {tutor.subjects.map((subject) => (
-                  <Badge key={subject.id} variant="secondary" className="text-sm border border-blue-500">
-                    {subject.name}
-                  </Badge>
-                ))}
-              </div>
+              {tutor.subjectLevels && tutor.subjectLevels.length > 0 ? (
+                <div className="space-y-3">
+                  {tutor.subjectLevels.map((subjectLevel) => {
+                    const subject = tutor.subjects.find(s => s.id === subjectLevel.subject_id);
+                    if (!subject) return null;
+
+                    return (
+                      <div key={subjectLevel.subject_id} className="space-y-1.5">
+                        <h4 className="text-sm font-medium text-gray-700">{subject.name}</h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {subjectLevel.levels.map((level) => (
+                            <Badge
+                              key={level.value}
+                              variant="outline"
+                              className="text-xs px-2.5 py-0.5 bg-gray-50 border-gray-300 text-gray-700 font-normal"
+                            >
+                              {level.label}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {tutor.subjects.map((subject) => (
+                    <Badge key={subject.id} variant="secondary" className="text-sm border border-blue-500">
+                      {subject.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Lesson Details Card */}

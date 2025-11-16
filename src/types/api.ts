@@ -72,6 +72,7 @@ export interface ApiAnnouncement {
   region: ApiRegion;
   city: ApiCity;
   subjects: ApiSubject[];
+  subjectLevels?: ApiSubjectLevel[];
   min_price: number;
   max_price: number;
   formatsData: ApiFormatData[];
@@ -126,6 +127,11 @@ export interface ApiEducationLevel {
 export interface ApiEducationLevelResponse {
   subject_id: number;
   subject_name: string;
+  levels: ApiEducationLevel[];
+}
+
+export interface ApiSubjectLevel {
+  subject_id: number;
   levels: ApiEducationLevel[];
 }
 
