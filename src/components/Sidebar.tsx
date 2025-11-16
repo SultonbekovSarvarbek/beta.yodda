@@ -1,4 +1,4 @@
-import { Home, User, Users, LogIn, HelpCircle } from 'lucide-react';
+import { Home, User, Users, LogIn, HelpCircle, PlayCircle } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -35,6 +35,7 @@ export function Sidebar() {
     // { icon: <Heart className="w-6 h-6" />, labelKey: 'sidebar.notifications' },
     { icon: <User className="w-6 h-6" />, labelKey: 'sidebar.forParents', to: '/for-parents' },
     { icon: <User className="w-6 h-6" />, labelKey: 'sidebar.forTutors', to: '/be-tutor' },
+    { icon: <PlayCircle className="w-6 h-6" />, labelKey: 'sidebar.miniLessons', to: '/mini-lessons' },
     { icon: <HelpCircle className="w-6 h-6" />, labelKey: 'sidebar.support', to: '/support' },
   ];
 

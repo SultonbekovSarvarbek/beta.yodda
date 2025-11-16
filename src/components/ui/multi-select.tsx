@@ -68,9 +68,9 @@ export function MultiSelect({
             className
           )}
         >
-          <div className="flex gap-1 flex-wrap">
+          <div className="flex gap-1 flex-wrap flex-1 overflow-hidden">
             {selected.length === 0 && (
-              <span className="text-muted-foreground">{placeholder}</span>
+              <span className="text-muted-foreground truncate">{placeholder}</span>
             )}
             {selected.map((item) => {
               const option = options.find((opt) => opt.value === item);
@@ -108,7 +108,7 @@ export function MultiSelect({
               );
             })}
           </div>
-          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 ml-2" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">

@@ -880,6 +880,7 @@ export function BeTutorForm() {
 
                   <div className="space-y-2">
                     <Label htmlFor="teachingLanguages">{t('beTutorForm.teachingLanguages')}</Label>
+                    <p className="text-sm text-yellow-700">{t('beTutorForm.selectTeachingLanguages')}</p>
                     <Controller
                       name="teachingLanguages"
                       control={control}

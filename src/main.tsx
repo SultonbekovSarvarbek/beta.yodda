@@ -28,6 +28,7 @@ import { Feed } from './pages/Feed.tsx'
 const BeTutor = lazy(() => import('./pages/BeTutor.tsx').then(m => ({ default: m.BeTutor })))
 const ForParents = lazy(() => import('./pages/ForParents.tsx').then(m => ({ default: m.ForParents })))
 const Support = lazy(() => import('./pages/Support.tsx').then(m => ({ default: m.Support })))
+const MiniLessons = lazy(() => import('./pages/MiniLessons.tsx'))
 const Tutors = lazy(() => import('./pages/Tutors.tsx').then(m => ({ default: m.Tutors })))
 const TutorProfile = lazy(() => import('./pages/TutorProfile.tsx').then(m => ({ default: m.TutorProfile })))
 const PostView = lazy(() => import('./pages/PostView.tsx').then(m => ({ default: m.PostView })))
@@ -88,6 +89,18 @@ const supportRoute = createRoute({
     <AppLayout>
       <Suspense fallback={<PageSkeleton />}>
         <Support />
+      </Suspense>
+    </AppLayout>
+  ),
+})
+
+const miniLessonsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/mini-lessons',
+  component: () => (
+    <AppLayout>
+      <Suspense fallback={<PageSkeleton />}>
+        <MiniLessons />
       </Suspense>
     </AppLayout>
   ),
@@ -208,6 +221,7 @@ const routeTree = rootRoute.addChildren([
   beTutorRoute,
   forParentsRoute,
   supportRoute,
+  miniLessonsRoute,
   tutorsRoute,
   tutorProfileRoute,
   tutorPostRoute,
