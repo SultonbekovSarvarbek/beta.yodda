@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MapPin, Loader2 } from 'lucide-react';
+import { MapPin, Loader2, CheckCircle2 } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -20,9 +20,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { MultiSelect } from '@/components/ui/multi-select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useSubjects, useEducationLevels, useRegions, useLanguages, useFormats, useDays } from '@/hooks/api';
+import { useProfileAnnouncements } from '@/hooks/api/useProfileAnnouncements';
 import { registerTutor, createAnnouncement } from '@/services/api';
 import * as authService from '@/services/auth';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from '@tanstack/react-router';
 
 // Type definition for form data
 type FormData = {
@@ -82,12 +84,19 @@ const generateTimeSlots = (durationMinutes: number): string[] => {
 
 export function BeTutorForm() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { announcements, loading: loadingAnnouncements } = useProfileAnnouncements();
   const [currentTab, setCurrentTab] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [touchedDays, setTouchedDays] = useState<Set<string>>(new Set());
   const isSubmittingRef = useState(false);
+
+  // Check if user is a tutor who already has announcements
+  const isTutor = user?.role_id === 1;
+  const isSeeker = user?.role_id === 2;
+  const hasExistingAnnouncement = isTutor && announcements.length > 0;
 
   // Create Zod schema with translations
   const formSchema = useMemo(() => z.object({
@@ -476,6 +485,60 @@ export function BeTutorForm() {
     }
   };
 
+  // Show loading state while checking for existing announcements
+  if (loadingAnnouncements && isAuthenticated && isTutor) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Card className="shadow-none border rounded-md">
+          <CardContent className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If tutor already has an announcement, show message with redirect buttons
+  if (hasExistingAnnouncement) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Card className="shadow-none border rounded-md">
+          <CardContent className="py-12">
+            <div className="text-center space-y-6">
+              <div className="flex justify-center">
+                <CheckCircle2 className="h-16 w-16 text-green-500" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold mb-2">
+                  {t('beTutorForm.alreadyCreated') || 'You have already created your tutor profile'}
+                </h2>
+                <p className="text-muted-foreground">
+                  {t('beTutorForm.alreadyCreatedDescription') || 'You can view or edit your profile from your account page.'}
+                </p>
+              </div>
+              <div className="flex gap-4 justify-center">
+                <Button
+                  onClick={() => navigate({ to: '/profile' })}
+                  variant="default"
+                  className="cursor-pointer"
+                >
+                  {t('beTutorForm.viewProfile') || 'View Profile'}
+                </Button>
+                <Button
+                  onClick={() => navigate({ to: '/' })}
+                  variant="outline"
+                  className="cursor-pointer"
+                >
+                  {t('common.home') || 'Home'}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <Card className="shadow-none border rounded-md">
@@ -490,9 +553,10 @@ export function BeTutorForm() {
             <Button
               type="submit"
               form="tutor-form"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isSeeker}
               variant="success"
               className="cursor-pointer"
+              title={isSeeker ? (t('beTutorForm.seekerCannotSubmit') || 'Seekers cannot create tutor profiles') : ''}
             >
               {isSubmitting ? (
                 <>
@@ -1050,6 +1114,15 @@ export function BeTutorForm() {
               <div className="rounded-md bg-red-50 p-4 mt-6">
                 <p className="text-sm font-medium text-red-800">
                   {submitError}
+                </p>
+              </div>
+            )}
+
+            {/* Seeker Warning Message */}
+            {isSeeker && (
+              <div className="rounded-md bg-yellow-50 border border-yellow-200 p-4 mt-6">
+                <p className="text-sm font-medium text-yellow-800">
+                  {t('beTutorForm.seekerWarning') || 'You are currently registered as a seeker. Only tutors can create tutor profiles. If you want to become a tutor, please create a new tutor account.'}
                 </p>
               </div>
             )}
