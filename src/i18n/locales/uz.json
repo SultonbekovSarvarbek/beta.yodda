@@ -80,7 +80,10 @@
   },
   "beTutorForm": {
     "title": "Repetitor ro'yxatdan o'tish",
+    "editTitle": "Anketani tahrirlash",
     "createProfile": "Anketa yaratish",
+    "updateProfile": "Anketani yangilash",
+    "updateSuccess": "Anketa muvaffaqiyatli yangilandi!",
     "tab1": "Ro'yxatdan o'tish va Asosiy ma'lumot",
     "tab2": "Professional ma'lumot",
     "tab3": "Ish shartlari",
@@ -269,7 +272,8 @@
   "schedule": {
     "title": "Dars jadvali",
     "previousWeek": "Oldingi hafta",
-    "nextWeek": "Keyingi hafta"
+    "nextWeek": "Keyingi hafta",
+    "noSlots": "Mavjud slotlar yo'q"
   },
   "tutorProfile": {
     "bookLesson": "Darsga yozilish",

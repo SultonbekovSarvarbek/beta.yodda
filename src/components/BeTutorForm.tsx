@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Loader2, CheckCircle2 } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,10 +22,10 @@ import { MultiSelect } from '@/components/ui/multi-select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useSubjects, useEducationLevels, useRegions, useLanguages, useFormats, useDays } from '@/hooks/api';
 import { useProfileAnnouncements } from '@/hooks/api/useProfileAnnouncements';
-import { registerTutor, createAnnouncement } from '@/services/api';
+import { registerTutor, createAnnouncement, getAnnouncementById, updateAnnouncement } from '@/services/api';
 import * as authService from '@/services/auth';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useParams } from '@tanstack/react-router';
 
 // Type definition for form data
 type FormData = {
@@ -93,6 +94,27 @@ export function BeTutorForm() {
   const [touchedDays, setTouchedDays] = useState<Set<string>>(new Set());
   const isSubmittingRef = useState(false);
 
+  // File tracking state for edit mode (dual-tracking system)
+  const [existingImage, setExistingImage] = useState<any>(null);
+  const [deletedImageUid, setDeletedImageUid] = useState<string | null>(null);
+  const [existingFiles, setExistingFiles] = useState<any[]>([]);
+  const [deletedFileUids, setDeletedFileUids] = useState<string[]>([]);
+
+  // Track which announcement ID was last populated (prevents re-population and allows switching between edits)
+  const lastPopulatedId = useRef<string | null>(null);
+
+  // Edit mode detection
+  const params = useParams({ strict: false });
+  const announcementId = params && 'id' in params ? params.id : null;
+  const isEditMode = !!announcementId;
+
+  // Fetch existing announcement data if in edit mode
+  const { data: existingAnnouncement, isLoading: loadingAnnouncement } = useQuery({
+    queryKey: ['announcement', announcementId],
+    queryFn: () => getAnnouncementById(Number(announcementId)),
+    enabled: isEditMode && !!announcementId,
+  });
+
   // Check if user is a tutor who already has announcements
   const isTutor = user?.role_id === 1;
   const isSeeker = user?.role_id === 2;
@@ -106,8 +128,9 @@ export function BeTutorForm() {
     telegramUsername: z.string().optional(),
     email: z.string().min(1, t('beTutorForm.errors.emailRequired')).email(t('beTutorForm.errors.invalidEmail')),
     gender: z.string().min(1, t('beTutorForm.errors.genderRequired')),
-    password: z.string().min(6, t('beTutorForm.errors.passwordMinLength')),
-    repeatPassword: z.string().min(1, t('beTutorForm.errors.repeatPasswordRequired')),
+    // Password fields are optional in edit mode (changed in profile settings)
+    password: isEditMode ? z.string().optional() : z.string().min(6, t('beTutorForm.errors.passwordMinLength')),
+    repeatPassword: isEditMode ? z.string().optional() : z.string().min(1, t('beTutorForm.errors.repeatPasswordRequired')),
     age: z.string().min(1, t('beTutorForm.errors.ageRequired')),
     regionId: z.string().min(1, t('beTutorForm.errors.regionRequired')),
     cityId: z.string().min(1, t('beTutorForm.errors.cityRequired')),
@@ -141,7 +164,11 @@ export function BeTutorForm() {
     certificates: z.array(z.instanceof(File)).min(1, t('beTutorForm.errors.certificatesRequired')),
     additionalInfo: z.string().min(1, t('beTutorForm.errors.additionalInfoRequired')),
   })
-  .refine((data) => data.password === data.repeatPassword, {
+  .refine((data) => {
+    // Only validate password matching in create mode
+    if (isEditMode) return true;
+    return data.password === data.repeatPassword;
+  }, {
     message: t('beTutorForm.errors.passwordMismatch'),
     path: ['repeatPassword'],
   })
@@ -163,7 +190,7 @@ export function BeTutorForm() {
         }
       });
     }
-  }), [t, touchedDays, isSubmittingRef]);
+  }), [t, touchedDays, isSubmittingRef, isEditMode]);
 
   const {
     register,
@@ -205,13 +232,6 @@ export function BeTutorForm() {
 
   // Watch form values for dependent logic
   const formData = watch();
-
-  const tabs = [
-    t('beTutorForm.tab1'),
-    t('beTutorForm.tab2'),
-    t('beTutorForm.tab3'),
-    t('beTutorForm.tab4'),
-  ];
 
   // Fetch subjects using React Query
   const { data: subjects = [], isLoading: loadingSubjects } = useSubjects();
@@ -266,6 +286,154 @@ export function BeTutorForm() {
     }
     return acc;
   }, {} as { [key: string]: number });
+
+  // Populate form with existing announcement data in edit mode
+  useEffect(() => {
+    // Only run when entering edit mode OR when switching to a different announcement
+    if (isEditMode && existingAnnouncement && regions.length > 0 && lastPopulatedId.current !== announcementId) {
+      lastPopulatedId.current = announcementId;
+      const announcement = existingAnnouncement;
+
+      // Basic Info
+      setValue('fullName', announcement.fullname || '');
+      setValue('phoneNumber', announcement.phone || '');
+      setValue('email', announcement.email || '');
+      setValue('telegramUsername', announcement.telegramUsername || '');
+      setValue('age', announcement.age?.toString() || '');
+      // Convert gender number to string (1 = male, 2 = female)
+      setValue('gender', announcement.gender === 1 ? 'male' : announcement.gender === 2 ? 'female' : '');
+
+      // Location
+      setValue('regionId', announcement.region_id?.toString() || '');
+      // Note: cityId is set in a separate useEffect to ensure cities array is populated first
+
+      // Professional Info
+      setValue('experienceYears', announcement.experience?.toString() || '');
+      setValue('universityName', announcement.education || '');
+      setValue('mba', announcement.mba || '');
+
+      // Subjects and Levels
+      if (announcement.subjectLevels && announcement.subjectLevels.length > 0) {
+        const subjectIds = announcement.subjectLevels.map((sl: any) => sl.subject.id);
+        setValue('selectedSubjects', subjectIds);
+
+        // Map subjects with their levels
+        const subjectsWithLevels = announcement.subjectLevels.map((sl: any) => ({
+          subjectId: sl.subject.id,
+          selectedLevels: sl.levels?.map((l: any) => l.id) || []
+        }));
+        setValue('subjectsWithLevels', subjectsWithLevels);
+      }
+
+      // Teaching Languages
+      if (announcement.languages && announcement.languages.length > 0) {
+        setValue('teachingLanguages', announcement.languages.map((l: any) => l.id));
+      }
+
+      // Work Conditions
+      setValue('pricePerHour', announcement.amount?.toString() || '');
+      if (announcement.formatsData && announcement.formatsData.length > 0) {
+        setValue('lessonDuration', announcement.formatsData[0].duration?.toString() || '');
+      }
+
+      // Teaching Format
+      if (announcement.formats && announcement.formats.length > 0) {
+        setValue('teachingFormat', announcement.formats[0].id.toString());
+      }
+
+      // Available Days
+      if (announcement.days && announcement.days.length > 0) {
+        // Map day IDs to English keys (monday, tuesday, etc.)
+        const dayIdToKey: Record<number, string> = {
+          1: 'monday',
+          2: 'tuesday',
+          3: 'wednesday',
+          4: 'thursday',
+          5: 'friday',
+          6: 'saturday',
+          7: 'sunday'
+        };
+        const dayKeys = announcement.days.map((d: any) => dayIdToKey[d.id]).filter(Boolean);
+        setValue('availableDays', dayKeys);
+      }
+
+      // Time Slots
+      if (announcement.schedule && typeof announcement.schedule === 'object') {
+        // Map abbreviated days to full English keys
+        const abbrevToDayKey: Record<string, string> = {
+          mon: 'monday',
+          tue: 'tuesday',
+          wed: 'wednesday',
+          thu: 'thursday',
+          fri: 'friday',
+          sat: 'saturday',
+          sun: 'sunday'
+        };
+
+        const timeSlots: Array<{ day: string; time: string }> = [];
+        Object.entries(announcement.schedule).forEach(([dayAbbrev, times]: [string, any]) => {
+          const dayKey = abbrevToDayKey[dayAbbrev];
+          if (dayKey && Array.isArray(times)) {
+            times.forEach((time: string) => {
+              // Convert "12:30-13:15" to "12:30 - 13:15" (with spaces)
+              const formattedTime = time.replace('-', ' - ');
+              timeSlots.push({ day: dayKey, time: formattedTime });
+            });
+          }
+        });
+        setValue('timeSlots', timeSlots);
+      }
+
+      // Additional Info
+      setValue('bio', announcement.aboutme || '');
+      setValue('additionalInfo', announcement.description || '');
+
+      // Handle existing image
+      if (announcement.image) {
+        setExistingImage({
+          path: announcement.image.medium || announcement.image.thumbnail || announcement.image.large,
+          unique_id: announcement.image.unique_id,
+          isExisting: true
+        });
+      }
+
+      // Handle existing files/certificates
+      if (announcement.file && announcement.file.length > 0) {
+        const files = announcement.file.map((f: any) => ({
+          path: f.path,
+          unique_id: f.unique_id,
+          isExisting: true,
+          type: f.path.endsWith('.pdf') ? 'pdf' : 'image',
+          name: f.path.split('/').pop()
+        }));
+        setExistingFiles(files);
+      }
+    }
+
+    // Reset flag when leaving edit mode
+    if (!isEditMode) {
+      lastPopulatedId.current = null;
+    }
+  }, [isEditMode, existingAnnouncement?.id, regions.length, announcementId]);
+
+  // Separate useEffect to set cityId after regionId has updated in edit mode
+  // This ensures the cities array is populated before setting the city value
+  useEffect(() => {
+    if (isEditMode && existingAnnouncement && formData.regionId && !formData.cityId) {
+      // Only set cityId if region is set but city is not yet set
+      const announcement = existingAnnouncement;
+      if (announcement.city_id) {
+        setValue('cityId', announcement.city_id.toString());
+      }
+    }
+  }, [formData.regionId, isEditMode, existingAnnouncement?.id, formData.cityId, setValue]);
+
+  const tabs = [
+    t('beTutorForm.tab1'),
+    t('beTutorForm.tab2'),
+    t('beTutorForm.tab3'),
+    t('beTutorForm.tab4'),
+  ];
 
   // Initialize subjectsWithLevels when education levels data changes
   useEffect(() => {
@@ -353,32 +521,35 @@ export function BeTutorForm() {
     isSubmittingRef[1](true);
 
     try {
-      // Password is required for registration (validated by schema)
-      if (!data.password) {
-        throw new Error('Password is required for registration');
+      // Skip user registration in edit mode
+      if (!isEditMode) {
+        // Password is required for registration (validated by schema)
+        if (!data.password) {
+          throw new Error('Password is required for registration');
+        }
+
+        // Step 1: Register tutor
+        const registerPayload = {
+          name: data.fullName.trim(),
+          password: data.password,
+          gender: data.gender === 'male' ? 1 : 2,
+          phone: data.phoneNumber,
+          email: data.email,
+          age: data.age,
+          termsAccepted: true,
+          role_id: 1,
+        };
+
+        await registerTutor(registerPayload);
+
+        // Step 2: Login to get token via centralized auth service
+        await authService.login({
+          phone: data.phoneNumber,
+          password: data.password,
+        });
       }
 
-      // Step 1: Register tutor
-      const registerPayload = {
-        name: data.fullName.trim(),
-        password: data.password,
-        gender: data.gender === 'male' ? 1 : 2,
-        phone: data.phoneNumber,
-        email: data.email,
-        age: data.age,
-        termsAccepted: true,
-        role_id: 1,
-      };
-
-      await registerTutor(registerPayload);
-
-      // Step 2: Login to get token via centralized auth service
-      await authService.login({
-        phone: data.phoneNumber,
-        password: data.password,
-      });
-
-      // Step 3: Create announcement
+      // Step 3: Create or Update announcement
       // Create FormData object
       const apiFormData = new FormData();
 
@@ -466,16 +637,40 @@ export function BeTutorForm() {
         apiFormData.append('files[]', file);
       });
 
+      // Add deleted file tracking for edit mode
+      if (isEditMode) {
+        // Add deleted image UID if image was deleted
+        if (deletedImageUid) {
+          apiFormData.append('deleted_image_uid', deletedImageUid);
+        }
+
+        // Add deleted file UIDs if files were deleted
+        if (deletedFileUids.length > 0) {
+          deletedFileUids.forEach((uid) => {
+            apiFormData.append('deleted_file_uids[]', uid);
+          });
+          apiFormData.append('deleted_file_uids_count', deletedFileUids.length.toString());
+        }
+      }
+
       // Submit to API
-      await createAnnouncement(apiFormData);
+      if (isEditMode && announcementId) {
+        await updateAnnouncement(Number(announcementId), apiFormData);
+      } else {
+        await createAnnouncement(apiFormData);
+      }
 
       setSubmitSuccess(true);
       setSubmitError(null);
       isSubmittingRef[1](false);
 
-      // Reset form after successful submission
+      // Navigate after successful submission
       setTimeout(() => {
-        window.location.reload();
+        if (isEditMode) {
+          navigate({ to: '/profile' });
+        } else {
+          window.location.reload();
+        }
       }, 2000);
     } catch (error: any) {
       console.error('Form submission error:', error);
@@ -498,8 +693,8 @@ export function BeTutorForm() {
     );
   }
 
-  // If tutor already has an announcement, show message with redirect buttons
-  if (hasExistingAnnouncement) {
+  // If tutor already has an announcement and NOT in edit mode, show message with redirect buttons
+  if (hasExistingAnnouncement && !isEditMode) {
     return (
       <div className="max-w-4xl mx-auto p-4 sm:p-6">
         <Card className="shadow-none border rounded-md">
@@ -545,7 +740,9 @@ export function BeTutorForm() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex-1">
-              <CardTitle className="text-xl sm:text-2xl">{t('beTutorForm.title')}</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl">
+                {isEditMode ? t('beTutorForm.editTitle') : t('beTutorForm.title')}
+              </CardTitle>
               <CardDescription className="mt-1">
                 {tabs[currentTab]}
               </CardDescription>
@@ -564,7 +761,7 @@ export function BeTutorForm() {
                   {t('beTutorForm.submitting')}
                 </>
               ) : (
-                t('beTutorForm.createProfile')
+                isEditMode ? t('beTutorForm.updateProfile') : t('beTutorForm.createProfile')
               )}
             </Button>
           </div>
@@ -682,29 +879,34 @@ export function BeTutorForm() {
                     {errors.age && <p className="text-sm text-red-500">{errors.age.message}</p>}
                   </div>
 
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="password">{t('beTutorForm.password')}</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      {...register('password')}
-                    />
-                    {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
-                  </div>
+                  {/* Password fields - only shown in create mode */}
+                  {!isEditMode && (
+                    <>
+                      <div className="space-y-2 col-span-2">
+                        <Label htmlFor="password">{t('beTutorForm.password')}</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          {...register('password')}
+                        />
+                        {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+                      </div>
 
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="repeatPassword">{t('beTutorForm.repeatPassword')}</Label>
-                    <Input
-                      id="repeatPassword"
-                      type="password"
-                      {...register('repeatPassword')}
-                    />
-                    {errors.repeatPassword && <p className="text-sm text-red-500">{errors.repeatPassword.message}</p>}
+                      <div className="space-y-2 col-span-2">
+                        <Label htmlFor="repeatPassword">{t('beTutorForm.repeatPassword')}</Label>
+                        <Input
+                          id="repeatPassword"
+                          type="password"
+                          {...register('repeatPassword')}
+                        />
+                        {errors.repeatPassword && <p className="text-sm text-red-500">{errors.repeatPassword.message}</p>}
 
-                    <p className="text-xs sm:text-sm text-yellow-700 bg-yellow-50 p-2 rounded-md">
-                      Ваш номер телефона и пароль будут использоваться для входа в личный кабинет.
-                    </p>
-                  </div>
+                        <p className="text-xs sm:text-sm text-yellow-700 bg-yellow-50 p-2 rounded-md">
+                          Ваш номер телефона и пароль будут использоваться для входа в личный кабинет.
+                        </p>
+                      </div>
+                    </>
+                  )}
 
 
                   <div className="space-y-2">

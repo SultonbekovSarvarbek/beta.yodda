@@ -70,6 +70,18 @@ const beTutorRoute = createRoute({
   ),
 })
 
+const beTutorEditRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/be-tutor/$id',
+  component: () => (
+    <AppLayout>
+      <Suspense fallback={<FormSkeleton />}>
+        <BeTutor />
+      </Suspense>
+    </AppLayout>
+  ),
+})
+
 const forParentsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/for-parents',
@@ -219,6 +231,7 @@ const offerRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   beTutorRoute,
+  beTutorEditRoute,
   forParentsRoute,
   supportRoute,
   miniLessonsRoute,
@@ -256,6 +269,7 @@ const queryClient = new QueryClient({
       gcTime: 10 * 60 * 1000, // 10 minutes (garbage collection time)
       retry: 1,
       refetchOnWindowFocus: false,
+      structuralSharing: true, // Prevent unnecessary re-renders by comparing data deeply
     },
   },
 })

@@ -200,3 +200,13 @@ export async function deleteAnnouncement(id: number): Promise<{ message: string 
   const { data } = await apiClient.delete<{ message: string }>(`/announcements/${id}`);
   return data;
 }
+
+// Update existing announcement
+export async function updateAnnouncement(id: number, formData: FormData): Promise<ApiAnnouncement> {
+  const { data } = await apiClient.patch<ApiAnnouncement>(`/announcements/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+}

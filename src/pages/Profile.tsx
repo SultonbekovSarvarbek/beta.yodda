@@ -366,6 +366,15 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
                         {t('profile.view') || 'View'}
                       </Button>
                       <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate({ to: `/be-tutor/${announcement.id}` })}
+                        className="cursor-pointer"
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        {t('common.edit') || 'Edit'}
+                      </Button>
+                      <Button
                         variant="destructive"
                         size="sm"
                         onClick={() => handleDeleteAnnouncement(announcement.id)}

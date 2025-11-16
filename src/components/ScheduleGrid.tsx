@@ -70,17 +70,12 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
   // Day keys for schedule lookup
   const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
 
-  // Generate time slots (8:00 to 22:00) every 30 minutes
-  const generateTimeSlots = (): string[] => {
-    const slots: string[] = [];
-    for (let hour = 8; hour < 22; hour++) {
-      slots.push(`${hour.toString().padStart(2, '0')}:00`);
-      slots.push(`${hour.toString().padStart(2, '0')}:30`);
-    }
-    return slots;
+  // Get actual time slots for a specific day from the schedule
+  const getDayTimeSlots = (dayKey: string): string[] => {
+    const daySchedule = schedule[dayKey as keyof Schedule];
+    if (!daySchedule || daySchedule.length === 0) return [];
+    return daySchedule;
   };
-
-  const timeSlots = generateTimeSlots();
 
   // Format date as DD.MM.YYYY
   const formatDate = (date: Date): string => {
@@ -90,14 +85,6 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
     return `${day}.${month}.${year}`;
   };
 
-  // Format time range
-  const formatTimeRange = (startTime: string): string => {
-    const [hours, minutes] = startTime.split(':');
-    const startHour = parseInt(hours);
-    const endHour = startHour + Math.floor(durationMinutes / 60);
-    const endMinutes = (parseInt(minutes) + (durationMinutes % 60)) % 60;
-    return `${startTime}-${endHour.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
-  };
 
   // Normalize time format to HH:MM (with leading zeros)
   const normalizeTime = (time: string): string => {
@@ -116,28 +103,18 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
     );
   };
 
-  // Check if slot is available
-  const isSlotAvailable = (date: Date, dayKey: string, time: string): boolean => {
+  // Check if time slot is available (not in the past)
+  const isSlotAvailable = (date: Date, timeRange: string): boolean => {
     const now = new Date();
-    const slotDateTime = new Date(date.getTime()); // Use getTime() for clean copy
-    const [hours, minutes] = time.split(':');
+    const slotDateTime = new Date(date.getTime());
+
+    // Parse the start time from the range (e.g., "08:00" from "08:00-08:50")
+    const startTime = normalizeTime(timeRange.split('-')[0]);
+    const [hours, minutes] = startTime.split(':');
     slotDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
     // Check if slot is in the past
-    if (slotDateTime < now) return false;
-
-    // Check if slot is in tutor's schedule
-    const daySchedule = schedule[dayKey as keyof Schedule];
-    if (!daySchedule || daySchedule.length === 0) return false;
-
-    // Normalize the time for comparison
-    const normalizedTime = normalizeTime(time);
-
-    // Check if the time matches the start of any time range
-    return daySchedule.some(range => {
-      const startTime = normalizeTime(range.split('-')[0]);
-      return startTime === normalizedTime;
-    });
+    return slotDateTime >= now;
   };
 
   // Handle previous week
@@ -210,25 +187,37 @@ export function ScheduleGrid({ schedule, formatsData, onBookSlot }: ScheduleGrid
                 </div>
 
                 {/* Time Slots */}
-                <div className="py-3 px-2 space-y-1.5">
-                  {timeSlots.map((time) => {
-                    const available = isSlotAvailable(date, dayKey, time);
-                    const timeRange = formatTimeRange(time);
+                <div className="py-3 px-2 space-y-1.5 min-h-[100px]">
+                  {(() => {
+                    const dayTimeSlots = getDayTimeSlots(dayKey);
 
-                    return (
-                      <div
-                        key={time}
-                        onClick={() => available && handleSlotClick(date, time)}
-                        className={`text-center py-2.5 px-2 rounded-md transition-all duration-200 text-sm ${
-                          available
-                            ? 'text-gray-900 bg-blue-100 cursor-pointer hover:shadow-sm border-transparent hover:border-blue-200'
-                            : 'text-gray-400 line-through bg-gray-50/50'
-                        }`}
-                      >
-                        {timeRange}
-                      </div>
-                    );
-                  })}
+                    if (dayTimeSlots.length === 0) {
+                      return (
+                        <div className="text-center py-4 text-gray-400 text-sm">
+                          {t('schedule.noSlots')}
+                        </div>
+                      );
+                    }
+
+                    return dayTimeSlots.map((timeRange) => {
+                      const available = isSlotAvailable(date, timeRange);
+                      const startTime = timeRange.split('-')[0];
+
+                      return (
+                        <div
+                          key={timeRange}
+                          onClick={() => available && handleSlotClick(date, startTime)}
+                          className={`text-center py-2.5 px-2 rounded-md transition-all duration-200 text-sm ${
+                            available
+                              ? 'text-gray-900 bg-blue-100 cursor-pointer hover:shadow-sm border-transparent hover:border-blue-200'
+                              : 'text-gray-400 line-through bg-gray-50/50'
+                          }`}
+                        >
+                          {timeRange}
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
             );
