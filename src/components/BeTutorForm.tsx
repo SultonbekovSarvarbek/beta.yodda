@@ -584,7 +584,7 @@ export function BeTutorForm() {
                   }`}
                 >
                   <span className="hidden sm:inline">{index + 1}. </span>
-                  <span className="sm:hidden">{index + 1}</span>
+                  <span className="sm:hidden">{index + 1}. </span>
                   <span className="hidden sm:inline">{tab}</span>
                   <span className="sm:hidden">{tab.split(' ')[0]}</span>
                 </button>
