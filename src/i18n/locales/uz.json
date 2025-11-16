@@ -300,7 +300,8 @@
     },
     "errors": {
       "notFound": "Repetitor topilmadi",
-      "notFoundDesc": "Siz qidirayotgan repetitor mavjud emas yoki o'chirilgan."
+      "notFoundDesc": "Siz qidirayotgan repetitor mavjud emas yoki o'chirilgan.",
+      "tutorCannotBook": "Siz repetitorsiz. Faqat o'quvchilar darslarga yozilishlari mumkin"
     },
     "share": {
       "profileTitle": "Repetitor profili",
