@@ -186,7 +186,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
           {/* Price */}
           <div className="font-bold text-white">
             {tutor.min_price === tutor.max_price ? (
-              <span className="bg-green-500 p-1 px-2 d-block rounded-full">от {tutor.min_price.toLocaleString()} сум</span>
+              <span className="bg-green-500 p-1 px-2 d-block rounded-full">{tutor.min_price.toLocaleString()} сум</span>
             ) : (
               <span>
                 {tutor.min_price.toLocaleString()}-{tutor.max_price.toLocaleString()} сум
