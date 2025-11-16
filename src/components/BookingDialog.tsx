@@ -164,7 +164,7 @@ export function BookingDialog({ open, onOpenChange, tutor }: BookingDialogProps)
           {/* Action Button */}
           <Button
             onClick={() => onOpenChange(false)}
-            className="w-full bg-indigo-600 hover:bg-indigo-700"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
           >
             {t('bookingDialog.close')}
           </Button>
