@@ -631,7 +631,7 @@ export function BeTutorForm() {
                     {errors.phoneNumber && <p className="text-sm text-red-500">{errors.phoneNumber.message}</p>}
                   </div>
 
-                  <div className="space-y-2">
+                   <div className="space-y-2">
                     <Label htmlFor="telegramUsername">{t('beTutorForm.telegramUsername')}</Label>
                     <Input
                       id="telegramUsername"
