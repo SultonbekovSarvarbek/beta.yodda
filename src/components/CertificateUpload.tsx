@@ -9,16 +9,20 @@ interface CertificateUploadProps {
   files: File[];
   onChange: (files: File[]) => void;
   className?: string;
+  existingFiles?: Array<{ path: string; unique_id: string; type: string; name: string }>;
+  onDeleteExisting?: (uniqueId: string) => void;
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
-const ACCEPTED_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'application/pdf'];
-const ACCEPTED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif', '.pdf'];
+const ACCEPTED_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
+const ACCEPTED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.pdf'];
 
 export const CertificateUpload: React.FC<CertificateUploadProps> = ({
   files,
   onChange,
   className,
+  existingFiles = [],
+  onDeleteExisting,
 }) => {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,6 +68,10 @@ export const CertificateUpload: React.FC<CertificateUploadProps> = ({
     const updatedFiles = files.filter((_, i) => i !== index);
     onChange(updatedFiles);
     setError('');
+  };
+
+  const handleRemoveExistingFile = (uniqueId: string) => {
+    onDeleteExisting?.(uniqueId);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -145,10 +153,53 @@ export const CertificateUpload: React.FC<CertificateUploadProps> = ({
         </div>
       )}
 
-      {files.length > 0 && (
+      {(existingFiles.length > 0 || files.length > 0) && (
         <div className="space-y-2">
-          <Label>{t('beTutorForm.uploadedFiles', { count: files.length })}</Label>
+          <Label>{t('beTutorForm.uploadedFiles', { count: existingFiles.length + files.length })}</Label>
           <div className="grid gap-3">
+            {/* Existing files from server */}
+            {existingFiles.map((file) => {
+              const isPdf = file.type === 'pdf' || file.path.endsWith('.pdf');
+
+              return (
+                <div
+                  key={file.unique_id}
+                  className="flex items-center gap-3 rounded-lg border p-3 bg-card"
+                >
+                  <div className="flex-shrink-0">
+                    {!isPdf ? (
+                      <img
+                        src={file.path}
+                        alt={file.name}
+                        className="h-12 w-12 rounded object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-12 w-12 items-center justify-center rounded bg-red-100">
+                        <FileText className="h-6 w-6 text-red-600" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{file.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t('beTutorForm.existingFile') || 'Existing file'}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRemoveExistingFile(file.unique_id)}
+                    className="flex-shrink-0"
+                  >
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">{t('beTutorForm.removeFile')}</span>
+                  </Button>
+                </div>
+              );
+            })}
+
+            {/* New files being uploaded */}
             {files.map((file, index) => {
               const preview = getFilePreview(file);
               const isPdf = file.type === 'application/pdf';

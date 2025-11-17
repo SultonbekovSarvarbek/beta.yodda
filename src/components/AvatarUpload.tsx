@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,19 +8,30 @@ import { cn } from '@/lib/utils';
 interface AvatarUploadProps {
   value?: string;
   onChange?: (file: File | null) => void;
+  existingImage?: { path: string; unique_id: string } | null;
+  onDeleteExisting?: (uniqueId: string) => void;
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
-const ACCEPTED_FILE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/heic', 'image/heif'];
-const ACCEPTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.heic', '.heif'];
+const ACCEPTED_FILE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+const ACCEPTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp'];
 
-export function AvatarUpload({ value, onChange }: AvatarUploadProps) {
+export function AvatarUpload({ value, onChange, existingImage, onDeleteExisting }: AvatarUploadProps) {
   const { t } = useTranslation();
-  const [preview, setPreview] = useState<string | undefined>(value);
+  const [preview, setPreview] = useState<string | undefined>(value || existingImage?.path);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [error, setError] = useState<string>('');
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showingExisting, setShowingExisting] = useState<boolean>(!!existingImage && !value);
+
+  // Update preview when existingImage prop changes (for edit mode)
+  useEffect(() => {
+    if (existingImage && !currentFile && !value) {
+      setPreview(existingImage.path);
+      setShowingExisting(true);
+    }
+  }, [existingImage, currentFile, value]);
 
   const validateFile = (file: File): string | null => {
     if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
@@ -42,6 +53,7 @@ export function AvatarUpload({ value, onChange }: AvatarUploadProps) {
     }
 
     setError('');
+    setShowingExisting(false); // Clear existing image when new file is selected
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview(reader.result as string);
@@ -59,8 +71,14 @@ export function AvatarUpload({ value, onChange }: AvatarUploadProps) {
   };
 
   const handleRemove = () => {
+    // If showing existing image, call delete callback
+    if (showingExisting && existingImage) {
+      onDeleteExisting?.(existingImage.unique_id);
+    }
+
     setPreview(undefined);
     setCurrentFile(null);
+    setShowingExisting(false);
     setError('');
     onChange?.(null);
     if (fileInputRef.current) {
@@ -104,24 +122,33 @@ export function AvatarUpload({ value, onChange }: AvatarUploadProps) {
 
       {preview ? (
         <div className="space-y-3">
-          <div className="relative w-full aspect-video max-w-md mx-auto rounded-lg overflow-hidden border bg-card">
+          <div className="relative w-full max-w-md mx-auto rounded-lg overflow-hidden border bg-card" style={{ minHeight: '200px', maxHeight: '400px' }}>
             <img
               src={preview}
               alt="Avatar preview"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
-          {currentFile && (
+          {(currentFile || showingExisting) && (
             <div className="flex items-center justify-between p-3 rounded-lg border bg-card max-w-md mx-auto">
               <div className="flex items-center gap-3">
                 <div className="flex-shrink-0">
                   <ImageIcon className="h-8 w-8 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{currentFile.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatFileSize(currentFile.size)}
+                  <p className="text-sm font-medium truncate">
+                    {currentFile ? currentFile.name : (existingImage?.path.split('/').pop() || 'Existing image')}
                   </p>
+                  {currentFile && (
+                    <p className="text-xs text-muted-foreground">
+                      {formatFileSize(currentFile.size)}
+                    </p>
+                  )}
+                  {showingExisting && (
+                    <p className="text-xs text-muted-foreground">
+                      {t('beTutorForm.existingFile') || 'Existing file'}
+                    </p>
+                  )}
                 </div>
               </div>
               <Button

@@ -75,13 +75,21 @@ export interface ApiAnnouncement {
   subjectLevels?: ApiSubjectLevel[];
   min_price: number;
   max_price: number;
+  amount?: number;
   formatsData: ApiFormatData[];
   description: string;
+  aboutme?: string;
+  education?: string;
+  mba?: string;
+  telegramUsername?: string;
   schedule: ApiSchedule;
   file?: ApiFile[];
   phone?: string;
   email?: string;
   telegram?: string;
+  languages?: ApiLanguage[];
+  days?: ApiDay[];
+  formats?: ApiFormat[];
   created_at: string;
   updated_at: string;
 }

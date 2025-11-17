@@ -4,7 +4,7 @@ import { MapPin, Loader2, CheckCircle2 } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -86,6 +86,7 @@ const generateTimeSlots = (durationMinutes: number): string[] => {
 export function BeTutorForm() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, isAuthenticated } = useAuth();
   const { announcements, loading: loadingAnnouncements } = useProfileAnnouncements();
   const [currentTab, setCurrentTab] = useState(0);
@@ -113,6 +114,7 @@ export function BeTutorForm() {
     queryKey: ['announcement', announcementId],
     queryFn: () => getAnnouncementById(Number(announcementId)),
     enabled: isEditMode && !!announcementId,
+    structuralSharing: false, // Disable to ensure new object reference triggers effect on navigation
   });
 
   // Check if user is a tutor who already has announcements
@@ -161,7 +163,9 @@ export function BeTutorForm() {
     })),
     teachingFormat: z.string().min(1, t('beTutorForm.errors.formatRequired')),
     bio: z.string().min(1, t('beTutorForm.errors.bioRequired')),
-    certificates: z.array(z.instanceof(File)).min(1, t('beTutorForm.errors.certificatesRequired')),
+    certificates: isEditMode
+      ? z.array(z.instanceof(File))
+      : z.array(z.instanceof(File)).min(1, t('beTutorForm.errors.certificatesRequired')),
     additionalInfo: z.string().min(1, t('beTutorForm.errors.additionalInfoRequired')),
   })
   .refine((data) => {
@@ -198,6 +202,7 @@ export function BeTutorForm() {
     control,
     watch,
     setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -259,7 +264,7 @@ export function BeTutorForm() {
   const onlineFormats = formats.filter(format => format.value === 'online' || format.id === 8);
 
   // Fetch days using React Query
-  const { data: days = [] } = useDays();
+  const { data: days = [], isLoading: loadingDays } = useDays();
 
   // Map day IDs to English keys (for translation and storage)
   const dayIdToKey: Record<number, string> = {
@@ -287,10 +292,22 @@ export function BeTutorForm() {
     return acc;
   }, {} as { [key: string]: number });
 
+  // Reset lastPopulatedId when announcementId changes (before population effect runs)
+  // This ensures form repopulates correctly when navigating between different announcements
+  useEffect(() => {
+    if (announcementId && lastPopulatedId.current !== announcementId) {
+      lastPopulatedId.current = null;
+    }
+  }, [announcementId]);
+
   // Populate form with existing announcement data in edit mode
   useEffect(() => {
     // Only run when entering edit mode OR when switching to a different announcement
-    if (isEditMode && existingAnnouncement && regions.length > 0 && lastPopulatedId.current !== announcementId) {
+    // Wait for all critical option arrays to load before populating to prevent race conditions
+    const allOptionsLoaded = !loadingRegions && !loadingLanguages && !loadingFormats && !loadingDays &&
+                             regions.length > 0 && languages.length > 0 && formats.length > 0 && days.length > 0;
+
+    if (isEditMode && existingAnnouncement && allOptionsLoaded && lastPopulatedId.current !== announcementId) {
       lastPopulatedId.current = announcementId;
       const announcement = existingAnnouncement;
 
@@ -304,7 +321,7 @@ export function BeTutorForm() {
       setValue('gender', announcement.gender === 1 ? 'male' : announcement.gender === 2 ? 'female' : '');
 
       // Location
-      setValue('regionId', announcement.region_id?.toString() || '');
+      setValue('regionId', announcement.region?.id?.toString() || '');
       // Note: cityId is set in a separate useEffect to ensure cities array is populated first
 
       // Professional Info
@@ -395,6 +412,8 @@ export function BeTutorForm() {
           unique_id: announcement.image.unique_id,
           isExisting: true
         });
+      } else {
+        setExistingImage(null);
       }
 
       // Handle existing files/certificates
@@ -407,6 +426,8 @@ export function BeTutorForm() {
           name: f.path.split('/').pop()
         }));
         setExistingFiles(files);
+      } else {
+        setExistingFiles([]);
       }
     }
 
@@ -414,19 +435,33 @@ export function BeTutorForm() {
     if (!isEditMode) {
       lastPopulatedId.current = null;
     }
-  }, [isEditMode, existingAnnouncement?.id, regions.length, announcementId]);
+  }, [isEditMode, existingAnnouncement?.id, loadingRegions, loadingLanguages, loadingFormats, loadingDays,
+      regions.length, languages.length, formats.length, days.length, announcementId]);
+
+  // Reset lastPopulatedId ref on component unmount to ensure form repopulates when navigating back
+  // This fixes the issue where cached data doesn't trigger repopulation
+  useEffect(() => {
+    return () => {
+      lastPopulatedId.current = null;
+    };
+  }, []);
 
   // Separate useEffect to set cityId after regionId has updated in edit mode
   // This ensures the cities array is populated before setting the city value
   useEffect(() => {
-    if (isEditMode && existingAnnouncement && formData.regionId && !formData.cityId) {
+    if (isEditMode && existingAnnouncement) {
+      const currentRegionId = getValues('regionId');
+      const currentCityId = getValues('cityId');
+
       // Only set cityId if region is set but city is not yet set
-      const announcement = existingAnnouncement;
-      if (announcement.city_id) {
-        setValue('cityId', announcement.city_id.toString());
+      if (currentRegionId && !currentCityId) {
+        const announcement = existingAnnouncement;
+        if (announcement.city?.id) {
+          setValue('cityId', announcement.city.id.toString());
+        }
       }
     }
-  }, [formData.regionId, isEditMode, existingAnnouncement?.id, formData.cityId, setValue]);
+  }, [formData.regionId, isEditMode, existingAnnouncement?.id, getValues, setValue]);
 
   const tabs = [
     t('beTutorForm.tab1'),
@@ -656,6 +691,9 @@ export function BeTutorForm() {
       // Submit to API
       if (isEditMode && announcementId) {
         await updateAnnouncement(Number(announcementId), apiFormData);
+        // Invalidate queries to force refetch fresh data
+        queryClient.invalidateQueries({ queryKey: ['announcement', announcementId] });
+        queryClient.invalidateQueries({ queryKey: ['profile-announcements'] });
       } else {
         await createAnnouncement(apiFormData);
       }
@@ -682,6 +720,20 @@ export function BeTutorForm() {
 
   // Show loading state while checking for existing announcements
   if (loadingAnnouncements && isAuthenticated && isTutor) {
+    return (
+      <div className="max-w-4xl mx-auto p-4 sm:p-6">
+        <Card className="shadow-none border rounded-md">
+          <CardContent className="flex items-center justify-center py-8 sm:py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show loading state in edit mode while announcement or form options are loading
+  // This prevents showing partially populated UI with empty select fields
+  if (isEditMode && (loadingAnnouncement || loadingRegions || loadingLanguages || loadingFormats || loadingDays)) {
     return (
       <div className="max-w-4xl mx-auto p-4 sm:p-6">
         <Card className="shadow-none border rounded-md">
@@ -800,6 +852,11 @@ export function BeTutorForm() {
                     <AvatarUpload
                       value={field.value ? URL.createObjectURL(field.value) : undefined}
                       onChange={field.onChange}
+                      existingImage={existingImage}
+                      onDeleteExisting={(uniqueId) => {
+                        setDeletedImageUid(uniqueId);
+                        setExistingImage(null);
+                      }}
                     />
                   )}
                 />
@@ -908,25 +965,26 @@ export function BeTutorForm() {
                     </>
                   )}
 
-
                   <div className="space-y-2">
                     <Label htmlFor="regionId" className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
-                      {t('beTutorForm.region')}
+                      {t('beTutorForm.region') || 'Область'}
                     </Label>
                     <Controller
                       name="regionId"
                       control={control}
                       render={({ field }) => (
                         <Select
-                          value={field.value}
+                          value={field.value || undefined}
                           onValueChange={(value) => {
-                            field.onChange(value);
-                            setValue('cityId', '', { shouldValidate: false });
+                            if (value) {
+                              field.onChange(value);
+                              setValue('cityId', '', { shouldValidate: false });
+                            }
                           }}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder={loadingRegions ? t('common.loading') : t('beTutorForm.selectRegion')} />
+                            <SelectValue placeholder={loadingRegions ? t('common.loading') : t('beTutorForm.selectRegion') || 'Выберите регион'} />
                           </SelectTrigger>
                           <SelectContent>
                             {regions.map((region) => (
@@ -944,19 +1002,23 @@ export function BeTutorForm() {
                   <div className="space-y-2">
                     <Label htmlFor="cityId" className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
-                      {t('beTutorForm.city')}
+                      {t('beTutorForm.city') || 'Город'}
                     </Label>
                     <Controller
                       name="cityId"
                       control={control}
                       render={({ field }) => (
                         <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
+                          value={field.value || undefined}
+                          onValueChange={(value) => {
+                            if (value) {
+                              field.onChange(value);
+                            }
+                          }}
                           disabled={!formData.regionId || cities.length === 0}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder={!formData.regionId ? t('beTutorForm.selectRegionFirst') : t('beTutorForm.selectCity')} />
+                            <SelectValue placeholder={!formData.regionId ? t('beTutorForm.selectRegionFirst') || 'Сначала выберите регион' : t('beTutorForm.selectCity') || 'Выберите город'} />
                           </SelectTrigger>
                           <SelectContent>
                             {cities.map((city) => (
@@ -1280,6 +1342,11 @@ export function BeTutorForm() {
                     <CertificateUpload
                       files={field.value}
                       onChange={field.onChange}
+                      existingFiles={existingFiles}
+                      onDeleteExisting={(uniqueId) => {
+                        setDeletedFileUids([...deletedFileUids, uniqueId]);
+                        setExistingFiles(existingFiles.filter(f => f.unique_id !== uniqueId));
+                      }}
                     />
                   )}
                 />

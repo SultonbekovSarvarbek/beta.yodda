@@ -306,21 +306,10 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
         </Card>
 
         <Card>
-          <CardHeader className="p-4 md:p-6">
-            <CardTitle>{t('profile.aboutMe') || 'About Me'}</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 md:p-6 pt-0">
-            <p className="text-gray-600">
-              {t('profile.noDescription') || 'No description added yet. Click Edit Profile to add your bio.'}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="p-4 md:p-6">
+          <CardHeader className="p-4 md:p-6 md:pb-0">
             <CardTitle>{t('profile.myAnnouncements') || 'My Announcements'}</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 md:p-6 pt-0">
+          <CardContent className="p-4 md:p-6 md:pt-0">
             {announcementsLoading ? (
               <p className="text-gray-600">{t('common.loading') || 'Loading...'}</p>
             ) : announcements.length === 0 ? (
@@ -340,22 +329,19 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
                 {announcements.map((announcement) => (
                   <div
                     key={announcement.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex flex-wrap gap-4 justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex-1">
                       <h3 className="font-medium text-lg">{announcement.fullname}</h3>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {announcement.subjects.map((subject) => (
-                          <Badge key={subject.id} variant="secondary">
+                          <Badge key={subject.id} variant="secondary" className="border-indigo-500">
                             {subject.name}
                           </Badge>
                         ))}
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {t('profile.price')}: {announcement.min_price} - {announcement.max_price} {t('common.currency')}
-                      </p>
                     </div>
-                    <div className="flex gap-2 ml-4">
+                    <div className="flex flex-col gap-2">
                       <Button
                         variant="outline"
                         size="sm"
