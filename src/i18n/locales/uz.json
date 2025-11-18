@@ -67,6 +67,8 @@
     "next": "Keyingisi",
     "previous": "Orqaga",
     "submit": "Yuborish",
+    "cancel": "Bekor qilish",
+    "deleting": "O'chirilmoqda...",
     "male": "Erkak",
     "female": "Ayol",
     "other": "Boshqa",
@@ -287,7 +289,8 @@
       "about": "Haqida",
       "schedule": "Jadval",
       "pricing": "Narxlar",
-      "reviews": "Sharhlar"
+      "reviews": "Sharhlar",
+      "certificates": "Sertifikatlar va yutuqlar"
     },
     "about": {
       "aboutMe": "Men haqimda",
@@ -304,6 +307,14 @@
       "title": "Talabalar sharhlari",
       "noReviews": "Hali sharhlar yo'q",
       "firstReview": "Ushbu repetitor haqida birinchi bo'lib sharh qoldiring!"
+    },
+    "certificates": {
+      "title": "Sertifikatlar va yutuqlar",
+      "view": "Ko'rish",
+      "pdfDocument": "PDF Hujjat",
+      "videoFile": "Video fayl",
+      "imageFile": "Rasm fayl",
+      "noCertificates": "Sertifikatlar va yutuqlar hali yuklanmagan."
     },
     "errors": {
       "notFound": "Repetitor topilmadi",
@@ -381,6 +392,7 @@
     "myAnnouncements": "Mening e'lonlarim",
     "noAnnouncements": "Siz hali hech qanday e'lon yaratmadingiz.",
     "confirmDeleteAnnouncement": "Ushbu e'lonni o'chirishga ishonchingiz komilmi?",
+    "deleteAnnouncementWarning": "Bu amalni bekor qilib bo'lmaydi. E'lon butunlay o'chiriladi.",
     "announcementDeleted": "E'lon muvaffaqiyatli o'chirildi",
     "deleteAnnouncementError": "E'lonni o'chirib bo'lmadi",
     "price": "Narx",

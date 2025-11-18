@@ -1,8 +1,8 @@
-import { Home, User, Users, LogIn, HelpCircle, PlayCircle } from 'lucide-react';
+import { Home, User, Users, LogIn, HelpCircle, PlayCircle, Plus } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -10,11 +10,13 @@ interface NavItem {
   icon: React.ReactNode;
   labelKey: string;
   to?: string;
+  requiresAuth?: boolean;
 }
 
 export function Sidebar() {
   const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const getUserInitials = (name: string) => {
     if (!name) return '??';
@@ -33,11 +35,19 @@ export function Sidebar() {
     // { icon: <Film className="w-6 h-6" />, labelKey: 'sidebar.reels' },
     // { icon: <MessageCircle className="w-6 h-6" />, labelKey: 'sidebar.messages' },
     // { icon: <Heart className="w-6 h-6" />, labelKey: 'sidebar.notifications' },
+    { icon: <Plus className="w-6 h-6" />, labelKey: 'sidebar.create', to: '/be-tutor', requiresAuth: true },
     { icon: <User className="w-6 h-6" />, labelKey: 'sidebar.forParents', to: '/for-parents' },
     { icon: <User className="w-6 h-6" />, labelKey: 'sidebar.forTutors', to: '/be-tutor' },
     { icon: <PlayCircle className="w-6 h-6" />, labelKey: 'sidebar.miniLessons', to: '/mini-lessons' },
     { icon: <HelpCircle className="w-6 h-6" />, labelKey: 'sidebar.support', to: '/support' },
   ];
+
+  const handleNavClick = (item: NavItem, e: React.MouseEvent) => {
+    if (item.requiresAuth && !isAuthenticated) {
+      e.preventDefault();
+      navigate({ to: '/login' });
+    }
+  };
 
   return (
     <div className="fixed left-0 top-0 h-full w-64 border-r bg-white p-4 flex flex-col hidden lg:flex">
@@ -63,6 +73,7 @@ export function Sidebar() {
               key={item.labelKey}
               to={item.to}
               className="block cursor-pointer"
+              onClick={(e) => handleNavClick(item, e)}
             >
               {({ isActive }) => (
                 <Button

@@ -210,15 +210,15 @@ export function Register() {
                   }}
                 >
                   <SelectTrigger
-                     className={`w-full ${validationErrors.role ? 'border-red-500' : ''}`}
+                     className={`cursor-pointer w-full ${validationErrors.role ? 'border-red-500' : ''}`}
                   >
                     <SelectValue placeholder={t('auth.register.rolePlaceholder')} />
                   </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="seeker">
+                      <SelectItem className="cursor-pointer" value="seeker">
                         {t('auth.register.roleSeeker')}
                       </SelectItem>
-                      <SelectItem value="tutor">
+                      <SelectItem className="cursor-pointer" value="tutor">
                         {t('auth.register.roleTutor')}
                       </SelectItem>
                     </SelectContent>

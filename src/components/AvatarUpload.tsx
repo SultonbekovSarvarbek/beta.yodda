@@ -131,12 +131,12 @@ export function AvatarUpload({ value, onChange, existingImage, onDeleteExisting 
           </div>
           {(currentFile || showingExisting) && (
             <div className="flex items-center justify-between p-3 rounded-lg border bg-card max-w-md mx-auto">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div className="flex-shrink-0">
                   <ImageIcon className="h-8 w-8 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
+                  <p className="text-sm font-medium truncate" title={currentFile ? currentFile.name : (existingImage?.path.split('/').pop() || 'Existing image')}>
                     {currentFile ? currentFile.name : (existingImage?.path.split('/').pop() || 'Existing image')}
                   </p>
                   {currentFile && (

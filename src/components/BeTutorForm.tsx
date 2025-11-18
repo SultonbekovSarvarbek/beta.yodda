@@ -115,6 +115,7 @@ export function BeTutorForm() {
     queryFn: () => getAnnouncementById(Number(announcementId)),
     enabled: isEditMode && !!announcementId,
     structuralSharing: false, // Disable to ensure new object reference triggers effect on navigation
+    refetchOnMount: 'always', // Always fetch fresh data to prevent stale file list
   });
 
   // Check if user is a tutor who already has announcements
@@ -194,7 +195,21 @@ export function BeTutorForm() {
         }
       });
     }
-  }), [t, touchedDays, isSubmittingRef, isEditMode]);
+
+    // Validate certificates in edit mode - must have at least one (new or existing)
+    if (isEditMode) {
+      const hasNewCertificates = data.certificates.length > 0;
+      const hasExistingCertificates = existingFiles.length > 0;
+
+      if (!hasNewCertificates && !hasExistingCertificates) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('beTutorForm.errors.certificatesRequired'),
+          path: ['certificates'],
+        });
+      }
+    }
+  }), [t, touchedDays, isSubmittingRef, isEditMode, existingFiles]);
 
   const {
     register,
@@ -966,8 +981,7 @@ export function BeTutorForm() {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="regionId" className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
+                    <Label htmlFor="regionId">
                       {t('beTutorForm.region') || 'Область'}
                     </Label>
                     <Controller
@@ -1000,8 +1014,7 @@ export function BeTutorForm() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="cityId" className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
+                    <Label htmlFor="cityId">
                       {t('beTutorForm.city') || 'Город'}
                     </Label>
                     <Controller

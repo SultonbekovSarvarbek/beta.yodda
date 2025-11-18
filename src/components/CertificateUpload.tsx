@@ -164,7 +164,7 @@ export const CertificateUpload: React.FC<CertificateUploadProps> = ({
               return (
                 <div
                   key={file.unique_id}
-                  className="flex items-center gap-3 rounded-lg border p-3 bg-card"
+                  className="flex items-center gap-3 rounded-lg border p-3 bg-card overflow-hidden"
                 >
                   <div className="flex-shrink-0">
                     {!isPdf ? (
@@ -180,7 +180,7 @@ export const CertificateUpload: React.FC<CertificateUploadProps> = ({
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{file.name}</p>
+                    <p className="text-sm font-medium truncate" title={file.name}>{file.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {t('beTutorForm.existingFile') || 'Existing file'}
                     </p>
@@ -207,7 +207,7 @@ export const CertificateUpload: React.FC<CertificateUploadProps> = ({
               return (
                 <div
                   key={`${file.name}-${index}`}
-                  className="flex items-center gap-3 rounded-lg border p-3 bg-card"
+                  className="flex items-center gap-3 rounded-lg border p-3 bg-card overflow-hidden"
                 >
                   <div className="flex-shrink-0">
                     {preview ? (
@@ -227,7 +227,7 @@ export const CertificateUpload: React.FC<CertificateUploadProps> = ({
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{file.name}</p>
+                    <p className="text-sm font-medium truncate" title={file.name}>{file.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {formatFileSize(file.size)}
                     </p>

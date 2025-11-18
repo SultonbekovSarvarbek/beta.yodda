@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScheduleGrid } from '@/components/ScheduleGrid';
-import { Check, Share2, MapPin, Grid3x3, User, Calendar, Star, FileText, Play, Clock } from 'lucide-react';
+import { Check, Share2, Grid3x3, Calendar, Star, FileText, Play, Award } from 'lucide-react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { useAnnouncementById } from '@/hooks/api';
 import { Loader2 } from 'lucide-react';
@@ -123,18 +123,7 @@ export function TutorProfile() {
     alert(t('tutorProfile.booking.bookingFor', { date, time }));
   };
 
-  // Mock stats
-  const followersCount = Math.floor(Math.random() * 500) + 100;
-  const followingCount = Math.floor(Math.random() * 200) + 50;
-
-  // Combine tutor files with mock posts
-  const filePosts = (tutor.file || []).map((file) => ({
-    id: `file-${file.unique_id}`,
-    image: file.path,
-    fileType: getFileType(file.path),
-    isFile: true,
-  }));
-
+  // Mock posts only (files moved to Certificates tab)
   const mockPosts = [
     // Large test image (high resolution)
     {
@@ -159,8 +148,7 @@ export function TutorProfile() {
     }))
   ];
 
-  const allPosts = [...filePosts, ...mockPosts];
-  const postsCount = allPosts.length;
+  const allPosts = mockPosts;
 
   return (
     <>
@@ -267,7 +255,7 @@ export function TutorProfile() {
 
                     return (
                       <div key={subjectId} className="space-y-1.5">
-                        <h4 className="text-md font-semibold tracking-wide text-indigo-500">- {subject.name}</h4>
+                        <h4 className="text-md font-semibold tracking-wide text-indigo-500">• {subject.name}</h4>
                         <div className="flex flex-wrap gap-1.5">
                           {levels.map((level: any) => (
                             <Badge
@@ -330,6 +318,13 @@ export function TutorProfile() {
                 <Star className="h-4 w-4" />
                 <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.reviews')}</span>
               </TabsTrigger>
+              <TabsTrigger
+                value="certificates"
+                className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
+              >
+                <Award className="h-4 w-4" />
+                <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.certificates')}</span>
+              </TabsTrigger>
             </TabsList>
 
             {/* Posts Tab */}
@@ -342,12 +337,7 @@ export function TutorProfile() {
                       onClick={() => handlePostClick(post)}
                       className="aspect-[3/4] bg-gray-200 overflow-hidden cursor-pointer hover:opacity-75 transition-opacity min-w-[105px] sm:min-w-[140px] relative group"
                     >
-                      {post.fileType === 'pdf' ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100">
-                          <FileText className="h-12 w-12 text-gray-400 mb-2" />
-                          <span className="text-xs text-gray-500">PDF</span>
-                        </div>
-                      ) : post.fileType === 'video' ? (
+                      {post.fileType === 'video' ? (
                         <div className="relative w-full h-full">
                           <video
                             src={post.image}
@@ -406,6 +396,78 @@ export function TutorProfile() {
                   <p>{t('tutorProfile.reviews.noReviews')}</p>
                   <p className="text-sm mt-2">{t('tutorProfile.reviews.firstReview')}</p>
                 </div>
+              </div>
+            </TabsContent>
+
+            {/* Certificates Tab */}
+            <TabsContent value="certificates" className="mt-0">
+              <div className="bg-white border rounded-lg p-4 sm:p-6">
+                <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">{t('tutorProfile.certificates.title')}</h3>
+                {tutor.file && tutor.file.length > 0 ? (
+                  <div className="space-y-2 sm:space-y-3">
+                    {tutor.file.map((file) => {
+                      const fileType = getFileType(file.path);
+                      const fileName = file.path.split('/').pop() || 'Certificate';
+
+                      return (
+                        <div
+                          key={file.unique_id}
+                          className="flex items-center gap-2 sm:gap-4 p-3 sm:p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          {/* File Icon/Preview */}
+                          <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center bg-gray-100 rounded-lg shrink-0">
+                            {fileType === 'pdf' ? (
+                              <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />
+                            ) : fileType === 'video' ? (
+                              <div className="relative w-full h-full">
+                                <video
+                                  src={file.path}
+                                  className="w-full h-full object-cover rounded-lg"
+                                  preload="metadata"
+                                  muted
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <Play className="h-4 w-4 sm:h-6 sm:w-6 text-white fill-white drop-shadow-lg" />
+                                </div>
+                              </div>
+                            ) : (
+                              <img
+                                src={file.path}
+                                alt={fileName}
+                                className="w-full h-full object-cover rounded-lg"
+                              />
+                            )}
+                          </div>
+
+                          {/* File Info */}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-xs sm:text-sm truncate">{fileName}</p>
+                            <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
+                              {fileType === 'pdf' ? t('tutorProfile.certificates.pdfDocument') :
+                               fileType === 'video' ? t('tutorProfile.certificates.videoFile') :
+                               t('tutorProfile.certificates.imageFile')}
+                            </p>
+                          </div>
+
+                          {/* View Button */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="shrink-0 cursor-pointer text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
+                            onClick={() => window.open(file.path, '_blank')}
+                          >
+                            {t('tutorProfile.certificates.view')}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 sm:py-12 text-gray-500">
+                    <Award className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-3 text-gray-300" />
+                    <p className="text-sm sm:text-base">{t('tutorProfile.certificates.noCertificates')}</p>
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>

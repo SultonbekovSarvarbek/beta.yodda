@@ -67,6 +67,8 @@
     "next": "Далее",
     "previous": "Назад",
     "submit": "Отправить",
+    "cancel": "Отмена",
+    "deleting": "Удаление...",
     "male": "Мужской",
     "female": "Женский",
     "other": "Другое",
@@ -287,7 +289,8 @@
       "about": "О себе",
       "schedule": "Расписание",
       "pricing": "Цены",
-      "reviews": "Отзывы"
+      "reviews": "Отзывы",
+      "certificates": "Сертификаты и достижения"
     },
     "about": {
       "aboutMe": "Обо мне",
@@ -304,6 +307,14 @@
       "title": "Отзывы студентов",
       "noReviews": "Пока нет отзывов",
       "firstReview": "Станьте первым, кто оставит отзыв об этом репетиторе!"
+    },
+    "certificates": {
+      "title": "Сертификаты и достижения",
+      "view": "Смотреть",
+      "pdfDocument": "PDF Документ",
+      "videoFile": "Видео файл",
+      "imageFile": "Изображение",
+      "noCertificates": "Сертификаты и достижения пока не загружены."
     },
     "errors": {
       "notFound": "Репетитор не найден",
@@ -381,6 +392,7 @@
     "myAnnouncements": "Мои объявления",
     "noAnnouncements": "Вы еще не создали ни одного объявления.",
     "confirmDeleteAnnouncement": "Вы уверены, что хотите удалить это объявление?",
+    "deleteAnnouncementWarning": "Это действие нельзя отменить. Объявление будет удалено безвозвратно.",
     "announcementDeleted": "Объявление успешно удалено",
     "deleteAnnouncementError": "Не удалось удалить объявление",
     "price": "Цена",

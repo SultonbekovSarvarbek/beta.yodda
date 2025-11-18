@@ -15,6 +15,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { ProfileEditForm } from '@/components/ProfileEditForm';
 import { PasswordChangeForm } from '@/components/PasswordChangeForm';
 import { useFavorites } from '@/hooks/api/useFavorites';
@@ -156,6 +164,8 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
   const { user } = useAuth();
   const { setUser } = useAuthStore();
   const [isUpdatingLanguage, setIsUpdatingLanguage] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [announcementToDelete, setAnnouncementToDelete] = useState<number | null>(null);
   const navigate = useNavigate();
   const { announcements, loading: announcementsLoading, deleteAnnouncement, isDeleting } = useProfileAnnouncements();
 
@@ -182,16 +192,28 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
     }
   };
 
-  const handleDeleteAnnouncement = async (announcementId: number) => {
-    if (confirm(t('profile.confirmDeleteAnnouncement') || 'Are you sure you want to delete this announcement?')) {
-      try {
-        await deleteAnnouncement(announcementId);
-        toast.success(t('profile.announcementDeleted') || 'Announcement deleted successfully');
-      } catch (error) {
-        console.error('Failed to delete announcement:', error);
-        toast.error(t('profile.deleteAnnouncementError') || 'Failed to delete announcement');
-      }
+  const handleDeleteAnnouncement = (announcementId: number) => {
+    setAnnouncementToDelete(announcementId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteAnnouncement = async () => {
+    if (announcementToDelete === null) return;
+
+    try {
+      await deleteAnnouncement(announcementToDelete);
+      toast.success(t('profile.announcementDeleted') || 'Announcement deleted successfully');
+      setDeleteDialogOpen(false);
+      setAnnouncementToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete announcement:', error);
+      toast.error(t('profile.deleteAnnouncementError') || 'Failed to delete announcement');
     }
+  };
+
+  const cancelDeleteAnnouncement = () => {
+    setDeleteDialogOpen(false);
+    setAnnouncementToDelete(null);
   };
 
   const handleViewAnnouncement = (announcementId: number) => {
@@ -400,6 +422,44 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
         <ProfileEditForm />
         <PasswordChangeForm />
       </TabsContent>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="[&>button]:cursor-pointer">
+          <DialogHeader>
+            <DialogTitle>
+              {t('profile.confirmDeleteAnnouncement') || 'Delete Announcement'}
+            </DialogTitle>
+            <DialogDescription>
+              {t('profile.deleteAnnouncementWarning') || 'This action cannot be undone. The announcement will be permanently deleted.'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={cancelDeleteAnnouncement}
+              disabled={isDeleting}
+              className="cursor-pointer"
+            >
+              {t('common.cancel') || 'Cancel'}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteAnnouncement}
+              disabled={isDeleting}
+              className="cursor-pointer"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {t('common.deleting') || 'Deleting...'}
+                </>
+              ) : (
+                t('profile.delete') || 'Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Tabs>
   );
 }
