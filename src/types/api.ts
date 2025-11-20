@@ -201,23 +201,38 @@ export type ApiFavoritesResponse = ApiAnnouncement[];
 // Mini Lesson from /api/mini-lessons
 export interface MiniLessonMedia {
   original: string;
-  thumbnail?: string;
+  versions: {
+    '1080p': string;
+    '720p': string;
+    '480p': string;
+  };
+  thumbnail: string;
+  duration: number;
+  resolution: string;
+  aspect_ratio: string;
+  unique_id: string;
 }
 
 export interface MiniLessonTutor {
   id: number;
+  profile_id: number;
   fullname: string;
   phone?: string;
   email?: string;
+  telegram_username?: string | null;
   image?: ApiImage | null;
 }
 
 export interface MiniLesson {
   id: number;
+  announcement_id: number;
+  user_id: number;
   title: string;
   description: string;
-  media: string | MiniLessonMedia;
+  media: string | MiniLessonMedia; // String URL in list, Object in detail
   media_type: 'photo' | 'video';
+  processing_status?: string;
+  processed_at?: string;
   subject?: ApiSubject;
   tutor: MiniLessonTutor;
   views_count: number;

@@ -285,48 +285,6 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
           </Card>
         </div>
 
-        <Card className="border rounded-md">
-          <CardHeader className="pb-2">
-            <CardTitle>{t('profile.personalInfo')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 md:space-y-4 pa-4 pt-0">
-            <div className="space-y-2">
-              <Label htmlFor="role">{t('profile.yourRole')}</Label>
-              <Input
-                id="role"
-                value={t('auth.register.roleTutor')}
-                disabled
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="gender">{t('profile.gender')}</Label>
-              <Input
-                id="gender"
-                value={user?.gender || ''}
-                disabled
-                className="bg-gray-50"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="language">{t('profile.language')}</Label>
-              <Select
-                value={user?.lang || 'ru'}
-                onValueChange={handleLanguageChange}
-                disabled={isUpdatingLanguage}
-              >
-                <SelectTrigger id="language" className="w-full">
-                  <SelectValue placeholder={t('profile.selectLanguage')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="uz">{t('profile.languageUzbek')}</SelectItem>
-                  <SelectItem value="ru">{t('profile.languageRussian')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
         <Card>
           <CardHeader className="p-4 md:p-6 md:pb-0">
             <CardTitle>{t('profile.myAnnouncements') || 'My Announcements'}</CardTitle>
@@ -401,6 +359,48 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        <Card className="border rounded-md">
+          <CardHeader className="pb-2">
+            <CardTitle>{t('profile.personalInfo')}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 md:space-y-4 pa-4 pt-0">
+            <div className="space-y-2">
+              <Label htmlFor="role">{t('profile.yourRole')}</Label>
+              <Input
+                id="role"
+                value={t('auth.register.roleTutor')}
+                disabled
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gender">{t('profile.gender')}</Label>
+              <Input
+                id="gender"
+                value={user?.gender || ''}
+                disabled
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="language">{t('profile.language')}</Label>
+              <Select
+                value={user?.lang || 'ru'}
+                onValueChange={handleLanguageChange}
+                disabled={isUpdatingLanguage}
+              >
+                <SelectTrigger id="language" className="w-full">
+                  <SelectValue placeholder={t('profile.selectLanguage')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="uz">{t('profile.languageUzbek')}</SelectItem>
+                  <SelectItem value="ru">{t('profile.languageRussian')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardContent>
         </Card>
       </TabsContent>

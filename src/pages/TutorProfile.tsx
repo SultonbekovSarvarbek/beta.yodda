@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
-import { getMiniLessonsByAnnouncement } from '@/services/api';
+import { getMiniLessonsByAnnouncement, getMiniLessonById } from '@/services/api';
 import type { MiniLesson } from '@/types/api';
 import {
   Dialog,
@@ -42,13 +42,6 @@ const getFileType = (filePath: string): 'pdf' | 'image' | 'video' => {
   return 'image';
 };
 
-// Helper function to detect actual media type from URL
-const getActualMediaType = (mediaUrl: string): 'video' | 'photo' => {
-  const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.m4v'];
-  const url = mediaUrl.toLowerCase();
-  return videoExtensions.some(ext => url.includes(ext)) ? 'video' : 'photo';
-};
-
 export function TutorProfile() {
   const { t } = useTranslation();
   const { id } = useParams({ from: '/tutor/$id' });
@@ -57,7 +50,7 @@ export function TutorProfile() {
   const { data: tutor, isLoading, isError } = useAnnouncementById(parseInt(id));
   const [selectedPost, setSelectedPost] = useState<{ id: string | number; image: string; fileType: 'pdf' | 'image' | 'video'; isFile: boolean } | null>(null);
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
-  const [selectedMiniLesson, setSelectedMiniLesson] = useState<MiniLesson | null>(null);
+  const [selectedMiniLessonId, setSelectedMiniLessonId] = useState<number | null>(null);
 
   // Fetch mini lessons for this tutor
   const { data: miniLessonsData, isLoading: loadingMiniLessons } = useQuery({
@@ -66,13 +59,21 @@ export function TutorProfile() {
     enabled: !!id,
   });
 
+  // Fetch full lesson details when selected
+  const { data: selectedMiniLessonData, isLoading: isLoadingMiniLesson } = useQuery({
+    queryKey: ['mini-lesson', selectedMiniLessonId],
+    queryFn: () => getMiniLessonById(selectedMiniLessonId!),
+    enabled: !!selectedMiniLessonId,
+  });
+
   const miniLessons = miniLessonsData?.data || [];
+  const selectedMiniLesson = selectedMiniLessonData?.data || null;
 
   // Handle post click with mobile detection
   const handlePostClick = (post: { id: string | number; image: string; fileType: 'pdf' | 'image' | 'video'; isFile: boolean; lesson?: MiniLesson }) => {
     // If this is a mini lesson post, open the mini lesson dialog
     if (post.lesson) {
-      setSelectedMiniLesson(post.lesson);
+      setSelectedMiniLessonId(post.lesson.id);
       return;
     }
 
@@ -166,8 +167,10 @@ export function TutorProfile() {
 
   const miniLessonPosts = miniLessons
     ? miniLessons.map((lesson) => {
-      const mediaUrl = typeof lesson.media === 'string' ? lesson.media : lesson.media.original;
-      const actualType = getActualMediaType(mediaUrl);
+      // In list endpoint, media is a string URL (thumbnail)
+      // In detail endpoint, media is an object with versions
+      const mediaUrl = typeof lesson.media === 'string' ? lesson.media : lesson.media.thumbnail;
+      const actualType = lesson.media_type === 'video' ? 'video' : 'photo';
       return {
         id: `lesson-${lesson.id}`,
         image: mediaUrl,
@@ -190,7 +193,7 @@ export function TutorProfile() {
             {/* Avatar */}
             <Avatar className="h-[77px] w-[77px] md:h-30 md:w-30 lg:h-[150px] lg:w-[150px] shrink-0">
               <AvatarImage
-                src={tutor.image?.medium || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&h=300&fit=crop'}
+                src={tutor.image?.medium}
                 alt={tutor.fullname}
               />
               <AvatarFallback>{tutor.fullname.charAt(0)}</AvatarFallback>
@@ -529,25 +532,25 @@ export function TutorProfile() {
               ) : miniLessons && miniLessons.length > 0 ? (
                 <div className="space-y-2 sm:space-y-3">
                   {miniLessons.map((lesson) => {
-                    const mediaUrl = typeof lesson.media === 'string' ? lesson.media : lesson.media.original;
-                    const thumbnailUrl = typeof lesson.media === 'object' ? lesson.media.thumbnail : undefined;
-                    const actualMediaType = getActualMediaType(mediaUrl);
+                    // In list endpoint, media is a string URL (thumbnail)
+                    // In detail endpoint, media is an object with versions
+                    const thumbnailUrl = typeof lesson.media === 'string' ? lesson.media : lesson.media.thumbnail;
+                    const actualMediaType = lesson.media_type;
 
                     return (
                       <div
                         key={lesson.id}
-                        onClick={() => setSelectedMiniLesson(lesson)}
+                        onClick={() => setSelectedMiniLessonId(lesson.id)}
                         className="flex items-center gap-2 sm:gap-4 p-3 sm:p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                       >
                         {/* Media Thumbnail */}
                         <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center bg-gray-100 rounded-lg shrink-0 overflow-hidden">
                           {actualMediaType === 'video' ? (
                             <div className="relative w-full h-full">
-                              <video
-                                src={mediaUrl}
+                              <img
+                                src={thumbnailUrl}
+                                alt={lesson.title}
                                 className="w-full h-full object-cover"
-                                preload="metadata"
-                                muted
                               />
                               <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                                 <Play className="h-6 w-6 sm:h-8 sm:w-8 text-white fill-white drop-shadow-lg" />
@@ -555,7 +558,7 @@ export function TutorProfile() {
                             </div>
                           ) : (
                             <img
-                              src={thumbnailUrl || mediaUrl}
+                              src={thumbnailUrl}
                               alt={lesson.title}
                               className="w-full h-full object-cover"
                             />
@@ -668,27 +671,36 @@ export function TutorProfile() {
       </Dialog>
 
       {/* Mini Lesson Preview Modal */}
-      <Dialog open={selectedMiniLesson !== null} onOpenChange={(open) => !open && setSelectedMiniLesson(null)}>
+      <Dialog open={selectedMiniLessonId !== null} onOpenChange={(open) => !open && setSelectedMiniLessonId(null)}>
         <DialogContent className="!max-w-[95vw] md:!max-w-[85vw] lg:!max-w-[80vw] !w-full lg:!w-[80vw] h-[90vh] p-0 overflow-hidden border-none bg-transparent shadow-2xl">
-          <div className="flex flex-col lg:flex-row h-full w-full bg-white rounded-lg overflow-hidden">
-            {/* Left side - Video/Photo Preview */}
-            <div className="flex-1 bg-black flex items-center justify-center relative min-h-0 min-w-0">
-              {selectedMiniLesson && getActualMediaType(typeof selectedMiniLesson.media === 'string' ? selectedMiniLesson.media : selectedMiniLesson.media.original) === 'video' ? (
-                <InstagramVideoPlayer
-                  src={typeof selectedMiniLesson.media === 'string' ? selectedMiniLesson.media : selectedMiniLesson.media.original}
-                  className="w-full h-full object-contain bg-black"
-                />
-              ) : (
-                <img
-                  src={typeof selectedMiniLesson?.media === 'string' ? selectedMiniLesson.media : selectedMiniLesson?.media.original}
-                  alt={selectedMiniLesson?.title}
-                  className="w-full h-full object-contain"
-                />
-              )}
+          {/* Loading state */}
+          {isLoadingMiniLesson ? (
+            <div className="flex items-center justify-center h-full bg-white rounded-lg">
+              <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
             </div>
+          ) : (
+            <div className="flex flex-col lg:flex-row h-full w-full bg-white rounded-lg overflow-hidden">
+              {/* Left side - Video/Photo Preview */}
+              <div className="flex-1 bg-black flex items-center justify-center relative min-h-0 min-w-0">
+                {selectedMiniLesson && selectedMiniLesson.media_type === 'video' ? (
+                  <InstagramVideoPlayer
+                    media={typeof selectedMiniLesson.media === 'string' ? undefined : selectedMiniLesson.media}
+                    src={typeof selectedMiniLesson.media === 'string' ? selectedMiniLesson.media : undefined}
+                    className="w-full h-full object-contain bg-black"
+                  />
+                ) : (
+                  <img
+                    src={typeof selectedMiniLesson?.media === 'string'
+                      ? selectedMiniLesson.media
+                      : (selectedMiniLesson?.media?.thumbnail || selectedMiniLesson?.media?.original || '')}
+                    alt={selectedMiniLesson?.title}
+                    className="w-full h-full object-contain"
+                  />
+                )}
+              </div>
 
-            {/* Right side - Lesson Information */}
-            <div className="w-full lg:w-[400px] lg:min-w-[400px] lg:flex-none bg-white border-t lg:border-t-0 lg:border-l flex flex-col h-[40%] lg:h-full">
+              {/* Right side - Lesson Information */}
+              <div className="w-full lg:w-[400px] lg:min-w-[400px] lg:flex-none bg-white border-t lg:border-t-0 lg:border-l flex flex-col h-[40%] lg:h-full">
               <DialogHeader className="p-4 border-b flex-shrink-0">
                 <DialogTitle className="text-base sm:text-lg line-clamp-1">{selectedMiniLesson?.title}</DialogTitle>
               </DialogHeader>
@@ -712,32 +724,35 @@ export function TutorProfile() {
 
 
 
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">{t('tutorProfile.miniLessons.tutor')}</h4>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
-                        <AvatarImage
-                          src={selectedMiniLesson?.tutor?.image?.small}
-                          alt={selectedMiniLesson?.tutor?.fullname}
-                        />
-                        <AvatarFallback>
-                          {selectedMiniLesson?.tutor?.fullname?.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-xs sm:text-sm font-medium">{selectedMiniLesson?.tutor?.fullname}</span>
+                  {tutor && (
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">{t('tutorProfile.miniLessons.tutor')}</h4>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                          <AvatarImage
+                            src={tutor.image?.small}
+                            alt={tutor.fullname}
+                          />
+                          <AvatarFallback>
+                            {tutor.fullname?.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs sm:text-sm font-medium">{tutor.fullname}</span>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  {selectedMiniLesson?.tutor?.phone && (
+                  {tutor?.phone && (
                     <div>
                       <h4 className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">{t('tutorProfile.miniLessons.contact')}</h4>
-                      <p className="text-xs sm:text-sm">{selectedMiniLesson.tutor.phone}</p>
+                      <p className="text-xs sm:text-sm">{tutor.phone}</p>
                     </div>
                   )}
                 </div>
               </div>
             </div>
           </div>
+          )}
         </DialogContent>
       </Dialog>
 

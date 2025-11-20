@@ -66,6 +66,11 @@ export function MiniLessonsUpload() {
     mediaType: z.enum(['photo', 'video']),
   }), [t]);
 
+  // Get mode from search params
+  const searchParams = new URLSearchParams(window.location.search);
+  const mode = searchParams.get('mode');
+  const isPostMode = mode === 'post';
+
   const {
     register,
     handleSubmit: handleFormSubmit,
@@ -78,7 +83,7 @@ export function MiniLessonsUpload() {
       description: '',
       subjectId: '',
       media: null,
-      mediaType: 'photo',
+      mediaType: isPostMode ? 'photo' : 'video',
     },
   });
 
@@ -232,10 +237,12 @@ export function MiniLessonsUpload() {
             </Button>
             <div>
               <CardTitle className="text-xl sm:text-2xl">
-                {t('miniLessons.create.title')}
+                {isPostMode ? t('miniLessons.create.postTitle') : t('miniLessons.create.title')}
               </CardTitle>
               <CardDescription className="mt-1">
-                {t('miniLessons.create.description') || 'Create a new mini lesson to share with students'}
+                {isPostMode
+                  ? t('miniLessons.menu.postDescription')
+                  : (t('miniLessons.create.description') || 'Create a new mini lesson to share with students')}
               </CardDescription>
             </div>
           </div>
@@ -296,7 +303,7 @@ export function MiniLessonsUpload() {
               render={({ field }) => (
                 <MediaUpload
                   value={field.value ? URL.createObjectURL(field.value) : undefined}
-                  onChange={(file, type) => {
+                  onChange={(file, _type) => {
                     field.onChange(file);
                     // Update media type through setValue if needed
                     if (file) {

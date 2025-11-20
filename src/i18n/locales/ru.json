@@ -625,10 +625,13 @@
       "createAnnouncement": "Создать анкету",
       "announcementDescription": "Создайте вашу анкету репетитора",
       "createLesson": "Создать мини урок",
-      "lessonDescription": "Загрузите видео или фото урок"
+      "lessonDescription": "Загрузите видео или фото урок",
+      "createPost": "Создать пост",
+      "postDescription": "Загрузите фото, добавьте описание и выберите предмет"
     },
     "create": {
       "title": "Создать мини урок",
+      "postTitle": "Создать пост",
       "description": "Создайте новый мини урок для учеников",
       "lessonTitle": "Название урока",
       "titlePlaceholder": "Введите название урока...",

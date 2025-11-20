@@ -4,14 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PlayCircle, Loader2, Play, ChevronUp, ChevronDown, Eye } from 'lucide-react';
-import { getMiniLessons } from '@/services/api';
+import { getMiniLessons, getMiniLessonById } from '@/services/api';
 import type { MiniLesson } from '@/types/api';
-import { useSubjects } from '@/hooks/api';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog';
 import { InstagramVideoPlayer } from '@/components/InstagramVideoPlayer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,79 +17,38 @@ import { useNavigate } from '@tanstack/react-router';
 export default function MiniLessons() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [selectedSubject, setSelectedSubject] = useState<number | null>(null);
-  const [selectedLesson, setSelectedLesson] = useState<MiniLesson | null>(null);
+  const [selectedLessonId, setSelectedLessonId] = useState<number | null>(null);
   const [isOverlayExpanded, setIsOverlayExpanded] = useState(false);
 
   // Fetch all mini lessons
   const { data: miniLessonsData, isLoading } = useQuery({
-    queryKey: ['all-mini-lessons', selectedSubject],
-    queryFn: () => getMiniLessons({ subject_id: selectedSubject || undefined }),
+    queryKey: ['all-mini-lessons'],
+    queryFn: () => getMiniLessons({}),
   });
 
-  // Fetch subjects for filtering
-  const { data: subjects = [] } = useSubjects();
+  // Fetch full lesson details when selected
+  const { data: selectedLessonData, isLoading: isLoadingLesson } = useQuery({
+    queryKey: ['mini-lesson', selectedLessonId],
+    queryFn: () => getMiniLessonById(selectedLessonId!),
+    enabled: !!selectedLessonId,
+  });
 
   const miniLessons = miniLessonsData?.data || [];
-
-  // Helper function to detect actual media type from URL
-  const getActualMediaType = (mediaUrl: string): 'video' | 'photo' => {
-    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.m4v'];
-    const url = mediaUrl.toLowerCase();
-    return videoExtensions.some(ext => url.includes(ext)) ? 'video' : 'photo';
-  };
+  const selectedLesson = selectedLessonData?.data || null;
 
   const handleTutorClick = (tutorId: number) => {
-    // Navigate to tutor profile - we need to find the announcement ID
-    // For now, we'll just navigate to the tutors page
-    // In a real app, you'd need to fetch the tutor's announcement ID
-    navigate({ to: '/tutors' });
+    navigate({
+      to: '/tutor/$id',
+      params: { id: tutorId.toString() }
+    });
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Hero Section */}
-      <div className="mb-12">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-4">
-          {t('miniLessons.page.title') || 'Мини-уроки от репетиторов'}
-        </h1>
-        <div className="prose prose-lg max-w-none text-muted-foreground space-y-4">
-          <p>
-            {t('miniLessons.page.description') || 'Короткие образовательные видео, где репетиторы объясняют одну маленькую тему простым языком. Это быстрые, понятные и полезные мини-разборы длительностью 30–60 секунд — ровно столько, сколько нужно, чтобы уловить суть.'}
-          </p>
-        </div>
-      </div>
-
-      {/* Subject Filter */}
-      {subjects.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{t('miniLessons.page.filterBySubject') || 'Фильтр по предметам'}</h2>
-          <div className="flex flex-wrap gap-2">
-            <Badge
-              variant={selectedSubject === null ? 'default' : 'outline'}
-              className="cursor-pointer px-3 py-1.5"
-              onClick={() => setSelectedSubject(null)}
-            >
-              {t('miniLessons.page.allSubjects') || 'Все предметы'}
-            </Badge>
-            {subjects.map((subject) => (
-              <Badge
-                key={subject.id}
-                variant={selectedSubject === subject.id ? 'default' : 'outline'}
-                className="cursor-pointer px-3 py-1.5"
-                onClick={() => setSelectedSubject(subject.id)}
-              >
-                {subject.name}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Mini Lessons Grid */}
       <section>
         <h2 className="text-2xl font-semibold mb-6">
-          {selectedSubject ? t('miniLessons.page.lessonsInSubject') : t('miniLessons.page.allLessons') || 'Все мини-уроки'}
+          {t('miniLessons.page.title') || 'Мини-уроки от репетиторов'}
         </h2>
 
         {isLoading ? (
@@ -102,80 +58,73 @@ export default function MiniLessons() {
         ) : miniLessons.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {miniLessons.map((lesson) => {
-              const mediaUrl = typeof lesson.media === 'string' ? lesson.media : lesson.media.original;
-              const thumbnailUrl = typeof lesson.media === 'object' ? lesson.media.thumbnail : undefined;
-              const actualMediaType = getActualMediaType(mediaUrl);
+              // In list endpoint, media is a string URL (thumbnail)
+              // In detail endpoint, media is an object with versions
+              const thumbnailUrl = typeof lesson.media === 'string' ? lesson.media : lesson.media.thumbnail;
+              const isVideo = lesson.media_type === 'video';
 
               return (
                 <Card
                   key={lesson.id}
-                  className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => setSelectedLesson(lesson)}
+                  className="group overflow-hidden border bg-transparent shadow-none cursor-pointer rounded-2xl p-1.5"
+                  onClick={() => setSelectedLessonId(lesson.id)}
                 >
                   {/* Thumbnail */}
-                  <div className="aspect-video bg-muted relative overflow-hidden">
-                    {actualMediaType === 'video' ? (
-                      <>
-                        <video
-                          src={mediaUrl}
-                          className="w-full h-full object-cover"
-                          preload="metadata"
-                          muted
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                          <div className="bg-white/90 rounded-full p-3 shadow-lg">
-                            <Play className="h-8 w-8 text-gray-900 fill-gray-900" />
-                          </div>
+                  <div className="aspect-[9/16] bg-muted relative overflow-hidden rounded-xl">
+                    <img
+                      src={thumbnailUrl}
+                      alt={lesson.title}
+                      className="w-full h-full object-cover"
+                    />
+                    {isVideo && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <div className="bg-white/90 rounded-full p-3 shadow-lg">
+                          <Play className="h-8 w-8 text-gray-900 fill-gray-900" />
                         </div>
-                      </>
-                    ) : (
-                      <img
-                        src={thumbnailUrl || mediaUrl}
-                        alt={lesson.title}
-                        className="w-full h-full object-cover"
-                      />
+                      </div>
                     )}
                   </div>
 
                   {/* Content */}
-                  <div className="p-4">
-                    <h3 className="font-semibold mb-2 line-clamp-2">{lesson.title}</h3>
+                  <div className="p-3 space-y-2">
+                    <h3 className="font-semibold text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors min-h-[2.5rem]">
+                      {lesson.title}
+                    </h3>
 
-                    {/* Tutor Info - Only show if available */}
-                    {lesson.tutor && (
-                      <div
-                        className="flex items-center gap-2 mb-3"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTutorClick(lesson.tutor.id);
-                        }}
-                      >
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage
-                            src={lesson.tutor.image?.small}
-                            alt={lesson.tutor.fullname}
-                          />
-                          <AvatarFallback className="text-xs">
-                            {lesson.tutor.fullname.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <p className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                          {lesson.tutor.fullname}
-                        </p>
-                      </div>
-                    )}
+                    {/* Tutor Info */}
+                    <div
+                      className="flex items-center gap-2 cursor-pointer group/tutor"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTutorClick(lesson.tutor.id);
+                      }}
+                    >
+                      <Avatar className="h-6 w-6 border border-gray-200">
+                        <AvatarImage
+                          src={lesson.tutor.image?.small}
+                          alt={lesson.tutor.fullname}
+                        />
+                        <AvatarFallback className="text-xs bg-gradient-to-br from-primary/10 to-primary/5">
+                          {lesson.tutor.fullname.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="text-xs font-medium text-gray-700 group-hover/tutor:text-primary transition-colors truncate">
+                        {lesson.tutor.fullname}
+                      </p>
+                    </div>
 
                     {/* Subject & Views */}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      {lesson.subject ? (
-                        <Badge variant="outline" className="text-xs">
+                    <div className="flex items-center gap-2 text-xs">
+                      {lesson.subject && (
+                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 font-normal border-indigo-500">
                           {lesson.subject.name}
                         </Badge>
-                      ) : (
-                        <span></span>
                       )}
-                      {lesson.views_count > 0 && (
-                        <span>{lesson.views_count} {t('tutorProfile.miniLessons.views')}</span>
+                      {lesson.views_count !== undefined && lesson.views_count > 0 && (
+                        <span className="flex items-center gap-1 text-muted-foreground">
+                          <Eye className="h-3 w-3" />
+                          <span className="font-medium">{lesson.views_count}</span>
+                        </span>
                       )}
                     </div>
                   </div>
@@ -189,47 +138,55 @@ export default function MiniLessons() {
             <p className="text-xl text-muted-foreground">
               {t('miniLessons.page.noLessons') || 'Мини-уроки пока не загружены'}
             </p>
-            {selectedSubject && (
-              <p className="text-sm text-muted-foreground mt-2">
-                {t('miniLessons.page.tryAnotherSubject') || 'Попробуйте выбрать другой предмет'}
-              </p>
-            )}
+
           </div>
         )}
       </section>
 
       {/* Mini Lesson Preview Modal - Instagram Style */}
       <Dialog
-        open={selectedLesson !== null}
+        open={selectedLessonId !== null}
         onOpenChange={(open) => {
           if (!open) {
-            setSelectedLesson(null);
+            setSelectedLessonId(null);
             setIsOverlayExpanded(false);
           }
         }}
       >
         <DialogContent className="!max-w-[95vw] sm:!max-w-[600px] md:!max-w-[700px] lg:!max-w-[800px] !w-[95vw] sm:!w-[600px] md:!w-[700px] lg:!w-[800px] h-[95vh] p-0 overflow-hidden">
           <div className="relative w-full h-full bg-black">
-            {/* Video/Photo Full Size */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              {selectedLesson && getActualMediaType(typeof selectedLesson.media === 'string' ? selectedLesson.media : selectedLesson.media.original) === 'video' ? (
-                <InstagramVideoPlayer
-                  src={typeof selectedLesson.media === 'string' ? selectedLesson.media : selectedLesson.media.original}
-                />
-              ) : (
-                <img
-                  src={typeof selectedLesson?.media === 'string' ? selectedLesson.media : selectedLesson?.media.original}
-                  alt={selectedLesson?.title}
-                  className="max-w-full max-h-full object-contain"
-                />
-              )}
-            </div>
+            {/* Loading state */}
+            {isLoadingLesson ? (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Loader2 className="h-12 w-12 animate-spin text-white" />
+              </div>
+            ) : (
+              <>
+                {/* Video/Photo Full Size */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {selectedLesson && selectedLesson.media_type === 'video' ? (
+                    <InstagramVideoPlayer
+                      media={typeof selectedLesson.media === 'string' ? undefined : selectedLesson.media}
+                      src={typeof selectedLesson.media === 'string' ? selectedLesson.media : undefined}
+                    />
+                  ) : (
+                    <img
+                      src={typeof selectedLesson?.media === 'string'
+                        ? selectedLesson.media
+                        : (selectedLesson?.media?.thumbnail || selectedLesson?.media?.original || '')}
+                      alt={selectedLesson?.title}
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  )}
+                </div>
+              </>
+            )}
 
-            {/* Bottom Overlay - Instagram Style */}
+            {/* Bottom Overlay - Instagram Style - Only show when loaded */}
+            {!isLoadingLesson && selectedLesson && (
             <div
-              className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/80 to-transparent text-white transition-all duration-300 ease-in-out cursor-pointer ${
-                isOverlayExpanded ? 'max-h-[70vh] overflow-y-auto' : 'max-h-[180px]'
-              }`}
+              className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/80 to-transparent text-white transition-all duration-300 ease-in-out cursor-pointer ${isOverlayExpanded ? 'max-h-[70vh] overflow-y-auto' : 'max-h-[180px]'
+                }`}
               onClick={() => setIsOverlayExpanded(!isOverlayExpanded)}
             >
               <div className="p-4 sm:p-6">
@@ -246,50 +203,42 @@ export default function MiniLessons() {
                 <div className="space-y-3">
                   <h3 className="font-bold text-lg sm:text-xl">{selectedLesson?.title}</h3>
 
-                  {/* Tutor Info - Only show if tutor data is available */}
-                  {selectedLesson?.tutor ? (
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10 border-2 border-white/50">
-                        <AvatarImage
-                          src={selectedLesson.tutor.image?.small}
-                          alt={selectedLesson.tutor.fullname}
-                        />
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          {selectedLesson.tutor.fullname.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-semibold">{selectedLesson.tutor.fullname}</p>
-                        <div className="flex items-center gap-3 text-sm text-white/80">
-                          {selectedLesson?.subject && (
-                            <Badge variant="secondary" className="text-xs">
-                              {selectedLesson.subject.name}
-                            </Badge>
-                          )}
-                          {selectedLesson?.views_count > 0 && (
-                            <span className="flex items-center gap-1">
-                              <Eye className="h-3 w-3" />
-                              {selectedLesson.views_count}
-                            </span>
-                          )}
-                        </div>
+                  {/* Tutor Info */}
+                  <div
+                    className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (selectedLesson) {
+                        handleTutorClick(selectedLesson.tutor.id);
+                      }
+                    }}
+                  >
+                    <Avatar className="h-10 w-10 border-2 border-white/50">
+                      <AvatarImage
+                        src={selectedLesson?.tutor.image?.small}
+                        alt={selectedLesson?.tutor.fullname}
+                      />
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {selectedLesson?.tutor.fullname.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-semibold">{selectedLesson?.tutor.fullname}</p>
+                      <div className="flex items-center gap-3 text-sm text-white/80">
+                        {selectedLesson?.subject && (
+                          <Badge variant="secondary" className="text-xs">
+                            {selectedLesson.subject.name}
+                          </Badge>
+                        )}
+                        {selectedLesson?.views_count !== undefined && selectedLesson.views_count > 0 && (
+                          <span className="flex items-center gap-1">
+                            <Eye className="h-3 w-3" />
+                            {selectedLesson.views_count}
+                          </span>
+                        )}
                       </div>
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-3 text-sm text-white/80">
-                      {selectedLesson?.subject && (
-                        <Badge variant="secondary" className="text-xs">
-                          {selectedLesson.subject.name}
-                        </Badge>
-                      )}
-                      {selectedLesson?.views_count > 0 && (
-                        <span className="flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          {selectedLesson.views_count}
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  </div>
 
                   {/* Expanded Content */}
                   {isOverlayExpanded && (
@@ -330,6 +279,7 @@ export default function MiniLessons() {
                 </div>
               </div>
             </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
