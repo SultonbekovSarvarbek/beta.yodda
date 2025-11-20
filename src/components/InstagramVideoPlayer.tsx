@@ -67,6 +67,15 @@ export function InstagramVideoPlayer({ media, src, className = '' }: InstagramVi
         console.log('Autoplay prevented:', error);
       });
     }
+
+    // Cleanup: pause video when component unmounts
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.src = '';
+        videoRef.current.load();
+      }
+    };
   }, [currentSrc]);
 
   const togglePlayPause = () => {

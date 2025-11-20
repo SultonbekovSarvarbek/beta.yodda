@@ -19,6 +19,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { InstagramVideoPlayer } from '@/components/InstagramVideoPlayer';
 import { BookingDialog } from '@/components/BookingDialog';
@@ -378,27 +379,19 @@ export function TutorProfile() {
                       onClick={() => handlePostClick(post)}
                       className="aspect-[3/4] bg-gray-200 overflow-hidden cursor-pointer hover:opacity-75 transition-opacity min-w-[105px] sm:min-w-[140px] relative group"
                     >
-                      {post.fileType === 'video' ? (
-                        <div className="relative w-full h-full">
-                          <video
-                            src={post.image}
-                            className="w-full h-full object-cover"
-                            preload="metadata"
-                            muted
-                            playsInline
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-opacity group-hover:bg-black/20">
-                            <div className="bg-white/90 rounded-full p-2 sm:p-3 shadow-lg">
-                              <Play className="h-6 w-6 sm:h-8 sm:w-8 text-gray-900 fill-gray-900" />
-                            </div>
+                      {/* Always use img tag - post.image is thumbnail URL */}
+                      <img
+                        src={post.image}
+                        alt={`Post ${post.id}`}
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Show play button overlay for videos */}
+                      {post.fileType === 'video' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-opacity group-hover:bg-black/20">
+                          <div className="bg-white/90 rounded-full p-2 sm:p-3 shadow-lg">
+                            <Play className="h-6 w-6 sm:h-8 sm:w-8 text-gray-900 fill-gray-900" />
                           </div>
                         </div>
-                      ) : (
-                        <img
-                          src={post.image}
-                          alt={`Post ${post.id}`}
-                          className="w-full h-full object-cover"
-                        />
                       )}
                     </div>
                   ))}
@@ -611,6 +604,11 @@ export function TutorProfile() {
       {/* Image/File Preview Modal - Desktop Only */}
       <Dialog open={selectedPost !== null} onOpenChange={(open) => !open && setSelectedPost(null)}>
         <DialogContent className="hidden lg:block !max-w-[80vw] !w-[80vw] h-[90vh] p-0 overflow-hidden border-none bg-transparent shadow-2xl">
+          <DialogTitle className="sr-only">File Preview</DialogTitle>
+          <DialogDescription className="sr-only">
+            {selectedPost?.fileType === 'pdf' ? 'PDF Document preview' :
+              selectedPost?.fileType === 'video' ? 'Video preview' : 'Image preview'}
+          </DialogDescription>
           <div className="flex h-full w-full bg-white rounded-lg overflow-hidden">
             {/* Left side - Image/File/Video Preview */}
             <div className="flex-1 bg-black flex items-center justify-center relative min-h-0 min-w-0">
@@ -640,7 +638,7 @@ export function TutorProfile() {
             {/* Right side - File Information */}
             <div className="w-[400px] min-w-[400px] flex-none bg-white border-l flex flex-col h-full">
               <DialogHeader className="p-4 border-b">
-                <DialogTitle>File Information</DialogTitle>
+                <div className="font-semibold text-lg">File Information</div>
               </DialogHeader>
               <div className="p-4 overflow-y-auto flex-1">
                 <div className="space-y-4">
@@ -673,6 +671,10 @@ export function TutorProfile() {
       {/* Mini Lesson Preview Modal */}
       <Dialog open={selectedMiniLessonId !== null} onOpenChange={(open) => !open && setSelectedMiniLessonId(null)}>
         <DialogContent className="!max-w-[95vw] md:!max-w-[85vw] lg:!max-w-[80vw] !w-full lg:!w-[80vw] h-[90vh] p-0 overflow-hidden border-none bg-transparent shadow-2xl">
+          <DialogTitle className="sr-only">{selectedMiniLesson?.title || 'Mini Lesson'}</DialogTitle>
+          <DialogDescription className="sr-only">
+            {selectedMiniLesson?.description || 'Mini lesson video or photo'}
+          </DialogDescription>
           {/* Loading state */}
           {isLoadingMiniLesson ? (
             <div className="flex items-center justify-center h-full bg-white rounded-lg">
@@ -688,21 +690,21 @@ export function TutorProfile() {
                     src={typeof selectedMiniLesson.media === 'string' ? selectedMiniLesson.media : undefined}
                     className="w-full h-full object-contain bg-black"
                   />
-                ) : (
+                ) : selectedMiniLesson?.media ? (
                   <img
-                    src={typeof selectedMiniLesson?.media === 'string'
+                    src={typeof selectedMiniLesson.media === 'string'
                       ? selectedMiniLesson.media
-                      : (selectedMiniLesson?.media?.thumbnail || selectedMiniLesson?.media?.original || '')}
+                      : (selectedMiniLesson.media.thumbnail || selectedMiniLesson.media.original)}
                     alt={selectedMiniLesson?.title}
                     className="w-full h-full object-contain"
                   />
-                )}
+                ) : null}
               </div>
 
               {/* Right side - Lesson Information */}
               <div className="w-full lg:w-[400px] lg:min-w-[400px] lg:flex-none bg-white border-t lg:border-t-0 lg:border-l flex flex-col h-[40%] lg:h-full">
               <DialogHeader className="p-4 border-b flex-shrink-0">
-                <DialogTitle className="text-base sm:text-lg line-clamp-1">{selectedMiniLesson?.title}</DialogTitle>
+                <div className="text-base sm:text-lg line-clamp-1 font-semibold">{selectedMiniLesson?.title}</div>
               </DialogHeader>
               <div className="p-4 overflow-y-auto flex-1">
                 <div className="space-y-4">
@@ -739,13 +741,6 @@ export function TutorProfile() {
                         </Avatar>
                         <span className="text-xs sm:text-sm font-medium">{tutor.fullname}</span>
                       </div>
-                    </div>
-                  )}
-
-                  {tutor?.phone && (
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">{t('tutorProfile.miniLessons.contact')}</h4>
-                      <p className="text-xs sm:text-sm">{tutor.phone}</p>
                     </div>
                   )}
                 </div>

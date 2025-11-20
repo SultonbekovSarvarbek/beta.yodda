@@ -9,6 +9,8 @@ import type { MiniLesson } from '@/types/api';
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { InstagramVideoPlayer } from '@/components/InstagramVideoPlayer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -154,6 +156,12 @@ export default function MiniLessons() {
         }}
       >
         <DialogContent className="!max-w-[95vw] sm:!max-w-[600px] md:!max-w-[700px] lg:!max-w-[800px] !w-[95vw] sm:!w-[600px] md:!w-[700px] lg:!w-[800px] h-[95vh] p-0 overflow-hidden">
+          <DialogTitle className="sr-only">
+            {selectedLesson?.title || 'Mini Lesson'}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            {selectedLesson?.description || 'Mini lesson video or photo'}
+          </DialogDescription>
           <div className="relative w-full h-full bg-black">
             {/* Loading state */}
             {isLoadingLesson ? (
@@ -169,15 +177,15 @@ export default function MiniLessons() {
                       media={typeof selectedLesson.media === 'string' ? undefined : selectedLesson.media}
                       src={typeof selectedLesson.media === 'string' ? selectedLesson.media : undefined}
                     />
-                  ) : (
+                  ) : selectedLesson?.media ? (
                     <img
-                      src={typeof selectedLesson?.media === 'string'
+                      src={typeof selectedLesson.media === 'string'
                         ? selectedLesson.media
-                        : (selectedLesson?.media?.thumbnail || selectedLesson?.media?.original || '')}
+                        : (selectedLesson.media.thumbnail || selectedLesson.media.original)}
                       alt={selectedLesson?.title}
                       className="max-w-full max-h-full object-contain"
                     />
-                  )}
+                  ) : null}
                 </div>
               </>
             )}
