@@ -41,14 +41,14 @@ export function PostView() {
   if (isError || !tutor) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-4">
-        <p className="text-lg mb-4">Post not found</p>
+        <p className="text-lg mb-4">{t('postView.notFound')}</p>
         <Button
           variant="outline"
           onClick={() => navigate({ to: '/tutor/$id', params: { id: tutorId } })}
           className="bg-white text-black hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Profile
+          {t('postView.backToProfile')}
         </Button>
       </div>
     );
@@ -85,14 +85,14 @@ export function PostView() {
   if (!post) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-4">
-        <p className="text-lg mb-4">Post not found</p>
+        <p className="text-lg mb-4">{t('postView.notFound')}</p>
         <Button
           variant="outline"
           onClick={() => navigate({ to: '/tutor/$id', params: { id: tutorId } })}
           className="bg-white text-black hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Profile
+          {t('postView.backToProfile')}
         </Button>
       </div>
     );
@@ -122,13 +122,13 @@ export function PostView() {
           {post.fileType === 'pdf' ? (
             <div className="flex flex-col items-center gap-6 py-12">
               <FileText className="h-32 w-32 text-white" />
-              <span className="text-white text-xl font-medium">PDF Document</span>
+              <span className="text-white text-xl font-medium">{t('postView.pdfDocument')}</span>
               <Button
                 onClick={() => window.open(post.image, '_blank')}
                 variant="outline"
                 className="bg-white text-black hover:bg-gray-100"
               >
-                Open PDF in New Tab
+                {t('postView.openPdf')}
               </Button>
             </div>
           ) : post.fileType === 'video' ? (
@@ -162,8 +162,8 @@ export function PostView() {
             </div>
             <div>
               <p className="text-white/80 text-sm">
-                <span className="text-white/60 font-medium">Subject:</span>{' '}
-                {tutor.subjects?.map(s => s.name).join(', ') || 'Not specified'}
+                <span className="text-white/60 font-medium">{t('postView.subject')}</span>{' '}
+                {tutor.subjects?.map(s => s.name).join(', ') || t('postView.notSpecified')}
               </p>
             </div>
           </div>

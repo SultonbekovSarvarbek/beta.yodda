@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
+import { CreateMenuDialog } from './CreateMenuDialog';
+import { useState } from 'react';
 
 interface NavItem {
   icon: React.ReactNode;
@@ -17,6 +19,7 @@ export function Sidebar() {
   const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const getUserInitials = (name: string) => {
     if (!name) return '??';
@@ -35,7 +38,6 @@ export function Sidebar() {
     // { icon: <Film className="w-6 h-6" />, labelKey: 'sidebar.reels' },
     // { icon: <MessageCircle className="w-6 h-6" />, labelKey: 'sidebar.messages' },
     // { icon: <Heart className="w-6 h-6" />, labelKey: 'sidebar.notifications' },
-    { icon: <Plus className="w-6 h-6" />, labelKey: 'sidebar.create', to: '/be-tutor', requiresAuth: true },
     { icon: <User className="w-6 h-6" />, labelKey: 'sidebar.forParents', to: '/for-parents' },
     { icon: <User className="w-6 h-6" />, labelKey: 'sidebar.forTutors', to: '/be-tutor' },
     { icon: <PlayCircle className="w-6 h-6" />, labelKey: 'sidebar.miniLessons', to: '/mini-lessons' },
@@ -43,9 +45,14 @@ export function Sidebar() {
   ];
 
   const handleNavClick = (item: NavItem, e: React.MouseEvent) => {
-    if (item.requiresAuth && !isAuthenticated) {
-      e.preventDefault();
+    // This is kept for future use but currently not needed
+  };
+
+  const handleCreateClick = () => {
+    if (!isAuthenticated) {
       navigate({ to: '/login' });
+    } else {
+      setIsCreateDialogOpen(true);
     }
   };
 
@@ -97,6 +104,16 @@ export function Sidebar() {
             </Button>
           );
         })}
+
+        {/* Create Button - Opens Dialog */}
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100 cursor-pointer"
+          onClick={handleCreateClick}
+        >
+          <Plus className="w-6 h-6" />
+          <span>{t('sidebar.create')}</span>
+        </Button>
 
         {/* Authentication Section */}
         {isAuthenticated && user ? (
@@ -170,6 +187,12 @@ export function Sidebar() {
           )}
         </Link>
       )}
+
+      {/* Create Menu Dialog */}
+      <CreateMenuDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+      />
     </div>
   );
 }

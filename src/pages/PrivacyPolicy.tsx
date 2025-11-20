@@ -1,110 +1,86 @@
+import { useTranslation } from 'react-i18next';
+
 export function PrivacyPolicy() {
+  const { t } = useTranslation();
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="prose prose-neutral dark:prose-invert max-w-none">
-        <h1 className="text-3xl font-bold mb-2">Политика конфиденциальности</h1>
-        <p className="text-muted-foreground mb-8">Редакция от 10 сентября 2025 года</p>
+        <h1 className="text-3xl font-bold mb-2">{t('privacyPolicy.title')}</h1>
+        <p className="text-muted-foreground mb-8">{t('privacyPolicy.lastUpdated')}</p>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">1. Общие положения</h2>
+          <h2 className="text-2xl font-semibold mb-4">{t('privacyPolicy.sections.general.title')}</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              Настоящая Политика разработана в соответствии с Законом Республики Узбекистан 'О персональных
-              данных' от 2 июля 2019 года и устанавливает порядок сбора, обработки, хранения и защиты
-              персональных данных пользователей Платформы Yodda Online, предназначенной для поиска
-              репетиторов и образовательных курсов.
+              {t('privacyPolicy.sections.general.content')}
             </li>
           </ul>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">2. Персональные данные, которые мы собираем</h2>
+          <h2 className="text-2xl font-semibold mb-4">{t('privacyPolicy.sections.dataCollection.title')}</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              Мы собираем только те персональные данные, которые необходимы для предоставления услуг и
-              выполнения наших обязательств перед пользователями.
-            </li>
-            <li>
-              Информация о поисковых запросах и просматриваемых курсах или репетиторах.
-            </li>
-            <li>
-              Техническая информация: IP-адрес, данные о браузере, тип устройства.
-            </li>
-            <li>
-              Мы используем cookie-файлы для анализа работы Платформы, хранения пользовательских
-              предпочтений и улучшения пользовательского опыта. Вся информация, собранная через cookie,
-              используется в соответствии с настоящей Политикой.
+              {t('privacyPolicy.sections.dataCollection.content')}
             </li>
           </ul>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">3. Цели сбора данных</h2>
+          <h2 className="text-2xl font-semibold mb-4">{t('privacyPolicy.sections.dataUsage.title')}</h2>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Для регистрации и идентификации пользователей на Платформе.</li>
-            <li>Для предоставления доступа к услугам (поиск репетиторов, размещение анкет и т.д.).</li>
-            <li>Для персонализации контента и улучшения качества сервиса.</li>
-            <li>Для связи с пользователями (уведомления, новости, подтверждения).</li>
+            <li>{t('privacyPolicy.sections.dataUsage.items.registration')}</li>
+            <li>{t('privacyPolicy.sections.dataUsage.items.services')}</li>
+            <li>{t('privacyPolicy.sections.dataUsage.items.personalization')}</li>
+            <li>{t('privacyPolicy.sections.dataUsage.items.communication')}</li>
           </ul>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">4. Передача данных третьим лицам</h2>
+          <h2 className="text-2xl font-semibold mb-4">{t('privacyPolicy.sections.dataSharing.title')}</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              Мы не продаём, не передаём и не раскрываем ваши персональные данные третьим лицам, за
-              исключением следующих случаев:
+              {t('privacyPolicy.sections.dataSharing.content')}
             </li>
-            <li>Выполнение требований законодательства.</li>
-            <li>Для выполнения платежных операций (передача данных платежным системам).</li>
-            <li>С согласия пользователя.</li>
+            <li>{t('privacyPolicy.sections.dataSharing.items.legal')}</li>
+            <li>{t('privacyPolicy.sections.dataSharing.items.payment')}</li>
+            <li>{t('privacyPolicy.sections.dataSharing.items.consent')}</li>
           </ul>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">5. Защита данных</h2>
+          <h2 className="text-2xl font-semibold mb-4">{t('privacyPolicy.sections.security.title')}</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              Мы применяем современные методы защиты персональных данных, включая шифрование, ограничение
-              доступа, регулярные проверки безопасности.
+              {t('privacyPolicy.sections.security.content')}
             </li>
           </ul>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">6. Срок хранения данных</h2>
+          <h2 className="text-2xl font-semibold mb-4">{t('privacyPolicy.sections.storage.title')}</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              Персональные данные хранятся в течение срока, необходимого для достижения целей их обработки,
-              либо до момента отзыва согласия пользователя. Исключением являются случаи, когда их
-              дальнейшее хранение требуется законодательством.
+              {t('privacyPolicy.sections.storage.content')}
             </li>
           </ul>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">7. Пользователи имеют право:</h2>
+          <h2 className="text-2xl font-semibold mb-4">{t('privacyPolicy.sections.rights.title')}</h2>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Запросить доступ к своим данным.</li>
-            <li>
-              Изменить или удалить свои данные, отправив запрос на{' '}
-              <a href="mailto:help@yodda.online" className="text-primary hover:underline">
-                help@yodda.online
-              </a>{' '}
-              или воспользовавшись настройками аккаунта.
-            </li>
-            <li>Отказаться от обработки данных.</li>
+            <li>{t('privacyPolicy.sections.rights.items.access')}</li>
+            <li>{t('privacyPolicy.sections.rights.items.correction')}</li>
+            <li>{t('privacyPolicy.sections.rights.items.deletion')}</li>
+            <li>{t('privacyPolicy.sections.rights.items.objection')}</li>
           </ul>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">8. Контакты</h2>
+          <h2 className="text-2xl font-semibold mb-4">{t('privacyPolicy.sections.contacts.title')}</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              Если у вас есть вопросы по обработке персональных данных, свяжитесь с нами:{' '}
-              <a href="mailto:info@yodda.online" className="text-primary hover:underline">
-                info@yodda.online
-              </a>
+              {t('privacyPolicy.sections.contacts.content')}
             </li>
           </ul>
         </section>

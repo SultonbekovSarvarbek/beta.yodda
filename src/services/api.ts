@@ -7,7 +7,9 @@ import type {
   ApiLanguage,
   ApiFormat,
   ApiDay,
-  ApiFavoritesResponse
+  ApiFavoritesResponse,
+  MiniLessonsResponse,
+  MiniLessonDetailResponse
 } from '@/types/api';
 import apiClient from '@/lib/axios';
 import type { AxiosRequestConfig } from 'axios';
@@ -208,5 +210,71 @@ export async function updateAnnouncement(id: number, formData: FormData): Promis
       'Content-Type': 'multipart/form-data',
     },
   });
+  return data;
+}
+
+// ==================== MINI LESSONS API ====================
+
+// Create a new mini lesson (tutor only)
+export async function createMiniLesson(formData: FormData): Promise<MiniLessonDetailResponse> {
+  const { data } = await apiClient.post<MiniLessonDetailResponse>('/mini-lessons', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+}
+
+// Get all mini lessons with filters
+export async function getMiniLessons(filters?: {
+  page?: number;
+  per_page?: number;
+  announcement_id?: number;
+  subject_id?: number;
+  user_id?: number;
+  media_type?: 'photo' | 'video';
+}): Promise<MiniLessonsResponse> {
+  const { data } = await apiClient.get<MiniLessonsResponse>('/mini-lessons', {
+    params: filters,
+  });
+  return data;
+}
+
+// Get single mini lesson details
+export async function getMiniLessonById(id: number): Promise<MiniLessonDetailResponse> {
+  const { data } = await apiClient.get<MiniLessonDetailResponse>(`/mini-lessons/${id}`);
+  return data;
+}
+
+// Get mini lessons by announcement ID
+export async function getMiniLessonsByAnnouncement(announcementId: number): Promise<MiniLessonsResponse> {
+  const { data } = await apiClient.get<MiniLessonsResponse>(`/announcements/${announcementId}/mini-lessons`);
+  return data;
+}
+
+// Get current authenticated tutor's mini lessons
+export async function getProfileMiniLessons(filters?: {
+  page?: number;
+  per_page?: number;
+}): Promise<MiniLessonsResponse> {
+  const { data } = await apiClient.get<MiniLessonsResponse>('/profile/mini-lessons', {
+    params: filters,
+  });
+  return data;
+}
+
+// Update an existing mini lesson (owner only)
+export async function updateMiniLesson(id: number, formData: FormData): Promise<MiniLessonDetailResponse> {
+  const { data } = await apiClient.patch<MiniLessonDetailResponse>(`/mini-lessons/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+}
+
+// Delete a mini lesson (owner only)
+export async function deleteMiniLesson(id: number): Promise<{ status: string; message: string }> {
+  const { data } = await apiClient.delete<{ status: string; message: string }>(`/mini-lessons/${id}`);
   return data;
 }

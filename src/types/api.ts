@@ -197,3 +197,49 @@ export interface ApiFavorite {
 
 // API /favorites returns array of announcements directly (with is_favorite: true)
 export type ApiFavoritesResponse = ApiAnnouncement[];
+
+// Mini Lesson from /api/mini-lessons
+export interface MiniLessonMedia {
+  original: string;
+  thumbnail?: string;
+}
+
+export interface MiniLessonTutor {
+  id: number;
+  fullname: string;
+  phone?: string;
+  email?: string;
+  image?: ApiImage | null;
+}
+
+export interface MiniLesson {
+  id: number;
+  title: string;
+  description: string;
+  media: string | MiniLessonMedia;
+  media_type: 'photo' | 'video';
+  subject?: ApiSubject;
+  tutor: MiniLessonTutor;
+  views_count: number;
+  is_active?: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface MiniLessonsPagination {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+}
+
+export interface MiniLessonsResponse {
+  status: string;
+  data: MiniLesson[];
+  pagination?: MiniLessonsPagination;
+}
+
+export interface MiniLessonDetailResponse {
+  status: string;
+  data: MiniLesson;
+}

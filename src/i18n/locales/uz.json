@@ -75,6 +75,7 @@
     "noResults": "Natijalar topilmadi",
     "edit": "Tahrirlash",
     "loading": "Yuklanmoqda",
+    "optional": "(ixtiyoriy)",
     "sumPerHour": "so'm/soat",
     "tryAgain": "Qayta urinib ko'ring",
     "home": "Bosh sahifa",
@@ -290,7 +291,8 @@
       "schedule": "Jadval",
       "pricing": "Narxlar",
       "reviews": "Sharhlar",
-      "certificates": "Sertifikatlar va yutuqlar"
+      "certificates": "Sertifikatlar",
+      "miniLessons": "Mini darslar"
     },
     "about": {
       "aboutMe": "Men haqimda",
@@ -329,6 +331,16 @@
     "booking": {
       "comingSoon": "Bronlash funksiyasi tez orada paydo bo'ladi!",
       "bookingFor": "{{date}}da {{time}}ga dars bronlash. Tez orada paydo bo'ladi!"
+    },
+    "miniLessons": {
+      "noLessons": "Mini darslar hali yuklanmagan.",
+      "views": "ko'rishlar",
+      "viewsCount": "ko'rishlar",
+      "description": "Tavsif",
+      "subject": "Fan",
+      "mediaType": "Media turi",
+      "tutor": "Repetitor",
+      "contact": "Aloqa"
     }
   },
   "bookingDialog": {
@@ -605,5 +617,132 @@
       "confirmPasswordRequired": "Yangi parolni tasdiqlang",
       "passwordMismatch": "Parollar mos kelmaydi"
     }
+  },
+  "miniLessons": {
+    "menu": {
+      "title": "Yaratish",
+      "description": "Nima yaratmoqchisiz tanlang",
+      "createAnnouncement": "Anketa yaratish",
+      "announcementDescription": "Repetitor anketangizni yarating",
+      "createLesson": "Mini dars yaratish",
+      "lessonDescription": "Video yoki foto dars yuklang"
+    },
+    "create": {
+      "title": "Mini dars yaratish",
+      "description": "O'quvchilar uchun yangi mini dars yarating",
+      "lessonTitle": "Dars nomi",
+      "titlePlaceholder": "Dars nomini kiriting...",
+      "descriptionPlaceholder": "O'quvchilar nimani o'rganishlarini tavsiflab bering...",
+      "subject": "Fan",
+      "selectSubject": "Fanni tanlang",
+      "noSubject": "Fansiz",
+      "uploadMedia": "Media fayl yuklash",
+      "mediaDescription": "Foto (max. 2MB) yoki video (max. 50MB) yuklang. Qo'llab-quvvatlanadigan formatlar: JPG, PNG, WEBP, MP4, WebM, MOV.",
+      "dragDropMedia": "Foto yoki videoni bu yerga torting",
+      "orClickToSelect": "yoki fayl tanlash uchun bosing",
+      "changeMedia": "O'zgartirish",
+      "photo": "Foto",
+      "video": "Video",
+      "submit": "Dars yaratish",
+      "submitting": "Yaratilmoqda...",
+      "success": "Mini dars muvaffaqiyatli yaratildi!",
+      "submitError": "Mini dars yaratishda xatolik",
+      "loginRequired": "Mini darslar yaratish uchun tizimga kiring",
+      "tutorOnly": "Faqat repetitorlar mini darslar yarata oladi",
+      "tutorOnlyDescription": "Mini darslar yaratish uchun repetitor sifatida ro'yxatdan o'tishingiz kerak.",
+      "createAnnouncementFirst": "Mini darslar yaratishdan oldin repetitor anketangizni yarating.",
+      "errors": {
+        "titleRequired": "Nom majburiy",
+        "titleTooLong": "Nom juda uzun (max. 255 belgi)",
+        "descriptionRequired": "Tavsif majburiy",
+        "subjectRequired": "Fanni tanlang",
+        "mediaRequired": "Fayl yuklang",
+        "noAnnouncement": "Sizda repetitor anketasi yo'q",
+        "invalidFileType": "Qo'llab-quvvatlanmaydigan fayl turi. Foto (JPG, PNG, WEBP) yoki video (MP4, WebM, MOV) yuklang.",
+        "photoTooLarge": "Foto juda katta. Maksimal hajmi 2MB.",
+        "videoTooLarge": "Video juda katta. Maksimal hajmi 50MB."
+      }
+    },
+    "page": {
+      "title": "Repetitorlardan mini darslar",
+      "description": "Repetitorlar bitta kichik mavzuni oddiy tilda tushuntiradigan qisqa ta'limiy videolar. Bu 30-60 soniya davom etadigan tez, tushunarli va foydali mini-tahlillar - mohiyatni tushunish uchun zarur bo'lgan vaqt.",
+      "filterBySubject": "Fanlar bo'yicha filtr",
+      "allSubjects": "Barcha fanlar",
+      "allLessons": "Barcha mini darslar",
+      "lessonsInSubject": "Fan bo'yicha mini darslar",
+      "noLessons": "Mini darslar hali yuklanmagan",
+      "tryAnotherSubject": "Boshqa fanni tanlang",
+      "tapForDetails": "Tafsilotlar uchun bosing",
+      "tapToCollapse": "Yig'ish uchun bosing"
+    }
+  },
+  "privacyPolicy": {
+    "title": "Maxfiylik siyosati",
+    "lastUpdated": "2025 yil 10 sentyabr tahriri",
+    "sections": {
+      "general": {
+        "title": "1. Umumiy qoidalar",
+        "content": "Ushbu Maxfiylik siyosati YODDAGRAM platformasidan foydalanishda ma'lumotlaringizni qanday to'plashimiz, ishlatishimiz va himoya qilishimizni tavsiflaydi."
+      },
+      "dataCollection": {
+        "title": "2. Biz to'playdigan shaxsiy ma'lumotlar",
+        "content": "Biz quyidagi ma'lumotlarni to'plashimiz mumkin: ism, telefon raqami, elektron pochta manzili, joylashuv ma'lumotlari, shuningdek profilni to'ldirishda taqdim etgan ma'lumotlaringiz."
+      },
+      "dataUsage": {
+        "title": "3. Ma'lumotlarni to'plash maqsadlari",
+        "items": {
+          "registration": "Platformada foydalanuvchilarni ro'yxatdan o'tkazish va identifikatsiya qilish uchun.",
+          "services": "Xizmatlardan foydalanish imkoniyatini taqdim etish uchun (repetitorlarni qidirish, anketalarni joylashtirish va h.k.).",
+          "personalization": "Kontentni shaxsiylashtirish va xizmat sifatini yaxshilash uchun.",
+          "communication": "Foydalanuvchilar bilan bog'lanish uchun (bildirishnomalar, yangiliklar, tasdiqlashlar)."
+        }
+      },
+      "dataSharing": {
+        "title": "4. Ma'lumotlarni uchinchi shaxslarga berish",
+        "content": "Biz sizning shaxsiy ma'lumotlaringizni uchinchi shaxslarga bermaymiz, quyidagi hollar bundan mustasno:",
+        "items": {
+          "legal": "Qonunchilik talablarini bajarish.",
+          "payment": "To'lov operatsiyalarini amalga oshirish uchun (to'lov tizimlariga ma'lumotlarni uzatish).",
+          "consent": "Foydalanuvchi roziligi bilan."
+        }
+      },
+      "security": {
+        "title": "5. Ma'lumotlarni himoya qilish",
+        "content": "Biz ma'lumotlaringizni ruxsatsiz kirish, o'zgartirish yoki yo'q qilishdan himoya qilish uchun barcha zarur texnik va tashkiliy choralarni ko'ramiz."
+      },
+      "storage": {
+        "title": "6. Ma'lumotlarni saqlash muddati",
+        "content": "Biz ma'lumotlaringizni ushbu Siyosatda ko'rsatilgan maqsadlarni amalga oshirish uchun zarur bo'lgan vaqtgacha yoki akkauntingiz o'chirilguniga qadar saqlaymiz."
+      },
+      "rights": {
+        "title": "7. Foydalanuvchilar quyidagi huquqlarga ega:",
+        "items": {
+          "access": "O'z ma'lumotlariga kirishni so'rash.",
+          "correction": "Noto'g'ri ma'lumotlarni tuzatishni talab qilish.",
+          "deletion": "O'z ma'lumotlarini o'chirishni talab qilish.",
+          "objection": "Ma'lumotlarni qayta ishlashni rad etish."
+        }
+      },
+      "contacts": {
+        "title": "8. Bog'lanish",
+        "content": "Agar sizda Maxfiylik siyosati bo'yicha savollar bo'lsa, qo'llab-quvvatlash xizmati orqali biz bilan bog'laning."
+      }
+    }
+  },
+  "postView": {
+    "notFound": "Post topilmadi",
+    "pdfDocument": "PDF Hujjat",
+    "subject": "Fan:",
+    "backToProfile": "Profilga qaytish",
+    "openPdf": "PDF ni yangi oynada ochish",
+    "notSpecified": "Ko'rsatilmagan"
+  },
+  "fileInfo": {
+    "title": "Fayl ma'lumotlari",
+    "type": "Fayl turi",
+    "id": "Fayl ID",
+    "source": "Manba",
+    "description": "Tavsif",
+    "mockDescription": "Fayl ma'lumotlari va metama'lumotlar kelgusi yangilanishlarda mavjud bo'ladi."
   }
 }

@@ -55,7 +55,7 @@ export function InstagramVideoPlayer({ src, className = '' }: InstagramVideoPlay
       {/* Mute/Unmute Button */}
       <button
         onClick={toggleMute}
-        className="absolute bottom-4 right-4 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-all duration-200 cursor-pointer"
+        className="absolute bottom-4 right-4 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-all duration-200 cursor-pointer z-50"
         aria-label={isMuted ? 'Unmute' : 'Mute'}
       >
         {isMuted ? (
