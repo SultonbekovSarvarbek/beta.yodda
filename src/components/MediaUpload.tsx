@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Upload, X, Image as ImageIcon, Video } from 'lucide-react';
+import { Upload, X, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
@@ -8,20 +7,22 @@ import { cn } from '@/lib/utils';
 interface MediaUploadProps {
   value?: string;
   onChange?: (file: File | null, mediaType: 'photo' | 'video') => void;
+  allowedTypes?: ('photo' | 'video')[];
 }
 
-const MAX_PHOTO_SIZE = 2 * 1024 * 1024; // 2MB in bytes
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB in bytes
-const ACCEPTED_PHOTO_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
-const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/mov', 'video/quicktime'];
-const ACCEPTED_PHOTO_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp'];
-const ACCEPTED_VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov'];
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export function MediaUpload({ value, onChange }: MediaUploadProps) {
-  const { t } = useTranslation();
+const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/mov', 'video/quicktime'];
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
+
+const ACCEPTED_VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov'];
+const ACCEPTED_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.heic'];
+
+export function MediaUpload({ value, onChange, allowedTypes = ['video'] }: MediaUploadProps) {
   const [preview, setPreview] = useState<string | undefined>(value);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
-  const [mediaType, setMediaType] = useState<'photo' | 'video' | null>(null);
+  const [mediaType, setMediaType] = useState<'video' | 'photo' | null>(null);
   const [error, setError] = useState<string>('');
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -32,9 +33,9 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
     }
   }, [value]);
 
-  const getMediaType = (file: File): 'photo' | 'video' | null => {
-    if (ACCEPTED_PHOTO_TYPES.includes(file.type)) return 'photo';
+  const getMediaType = (file: File): 'video' | 'photo' | null => {
     if (ACCEPTED_VIDEO_TYPES.includes(file.type)) return 'video';
+    if (ACCEPTED_IMAGE_TYPES.includes(file.type)) return 'photo';
     return null;
   };
 
@@ -42,18 +43,42 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
     const type = getMediaType(file);
 
     if (!type) {
-      return t('miniLessons.create.errors.invalidFileType') || 'Unsupported file type. Please upload a photo (JPG, PNG, WEBP) or video (MP4, WebM, MOV).';
+      return 'Неподдерживаемый формат файла.';
     }
 
-    if (type === 'photo' && file.size > MAX_PHOTO_SIZE) {
-      return t('miniLessons.create.errors.photoTooLarge') || 'Photo is too large. Maximum size is 2MB.';
+    if (type === 'video' && !allowedTypes.includes('video')) {
+      return 'Пожалуйста, загрузите фото.';
+    }
+
+    if (type === 'photo' && !allowedTypes.includes('photo')) {
+      return 'Пожалуйста, загрузите видео.';
     }
 
     if (type === 'video' && file.size > MAX_VIDEO_SIZE) {
-      return t('miniLessons.create.errors.videoTooLarge') || 'Video is too large. Maximum size is 50MB.';
+      return 'Видео слишком большое. Максимальный размер 100MB.';
+    }
+
+    if (type === 'photo' && file.size > MAX_IMAGE_SIZE) {
+      return 'Фото слишком большое. Максимальный размер 10MB.';
     }
 
     return null;
+  };
+
+  // ... (handleFileChange and other handlers remain mostly the same but need to use the new validation)
+
+  const getAcceptedExtensions = () => {
+    const extensions = [];
+    if (allowedTypes.includes('video')) extensions.push(...ACCEPTED_VIDEO_EXTENSIONS);
+    if (allowedTypes.includes('photo')) extensions.push(...ACCEPTED_IMAGE_EXTENSIONS);
+    return extensions.join(',');
+  };
+
+  const getHelperText = () => {
+    const parts = [];
+    if (allowedTypes.includes('video')) parts.push('Видео (макс. 100MB)');
+    if (allowedTypes.includes('photo')) parts.push('Фото (макс. 10MB)');
+    return `Загрузите ${parts.join(' или ')}.`;
   };
 
   const handleFileChange = (file: File | null) => {
@@ -92,7 +117,7 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
     setCurrentFile(null);
     setMediaType(null);
     setError('');
-    onChange?.(null, 'photo');
+    onChange?.(null, 'video'); // Default to video or whatever, doesn't matter since file is null
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -126,9 +151,9 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>{t('miniLessons.create.uploadMedia')}</Label>
+        <Label>Загрузить медиа файл</Label>
         <p className="text-sm text-muted-foreground">
-          {t('miniLessons.create.mediaDescription') || 'Upload a photo (max 2MB) or video (max 50MB). Supported formats: JPG, PNG, WEBP, MP4, WebM, MOV.'}
+          {getHelperText()}
         </p>
       </div>
 
@@ -144,7 +169,7 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
             ) : (
               <img
                 src={preview}
-                alt="Media preview"
+                alt="Preview"
                 className="w-full h-full object-contain"
               />
             )}
@@ -156,7 +181,7 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
                   {mediaType === 'video' ? (
                     <Video className="h-8 w-8 text-primary" />
                   ) : (
-                    <ImageIcon className="h-8 w-8 text-primary" />
+                    <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center text-primary font-bold">IMG</div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -164,7 +189,7 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
                     {currentFile.name}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {formatFileSize(currentFile.size)} • {mediaType === 'video' ? t('miniLessons.create.video') : t('miniLessons.create.photo')}
+                    {formatFileSize(currentFile.size)} • {mediaType === 'video' ? 'Видео' : 'Фото'}
                   </p>
                 </div>
               </div>
@@ -176,7 +201,7 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
                 className="flex-shrink-0 cursor-pointer"
               >
                 <X className="h-4 w-4" />
-                <span className="sr-only">{t('common.cancel')}</span>
+                <span className="sr-only">Отменить</span>
               </Button>
             </div>
           )}
@@ -187,7 +212,7 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
               onClick={() => fileInputRef.current?.click()}
               className="cursor-pointer"
             >
-              {t('miniLessons.create.changeMedia') || 'Change'}
+              Изменить
             </Button>
             <Button
               type="button"
@@ -195,7 +220,7 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
               onClick={handleRemove}
               className="cursor-pointer"
             >
-              {t('common.cancel')}
+              Удалить
             </Button>
           </div>
         </div>
@@ -216,12 +241,12 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
               <Upload className="h-8 w-8 text-primary" />
             </div>
             <div className="space-y-2">
-              <p className="text-sm font-medium">{t('miniLessons.create.dragDropMedia') || 'Drag and drop your photo or video here'}</p>
+              <p className="text-sm font-medium">Перетащите файл сюда</p>
               <p className="text-xs text-muted-foreground">
-                {t('miniLessons.create.orClickToSelect') || 'or click to select a file'}
+                или нажмите для выбора файла
               </p>
               <p className="text-xs text-muted-foreground">
-                Photo: max 2MB • Video: max 50MB
+                {getHelperText()}
               </p>
             </div>
           </div>
@@ -231,7 +256,7 @@ export function MediaUpload({ value, onChange }: MediaUploadProps) {
       <input
         ref={fileInputRef}
         type="file"
-        accept={[...ACCEPTED_PHOTO_EXTENSIONS, ...ACCEPTED_VIDEO_EXTENSIONS].join(',')}
+        accept={getAcceptedExtensions()}
         className="hidden"
         onChange={handleInputChange}
       />

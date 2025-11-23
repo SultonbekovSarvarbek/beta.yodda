@@ -16,6 +16,7 @@ export function InstagramVideoPlayer({ media, src, className = '' }: InstagramVi
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [currentQuality, setCurrentQuality] = useState<VideoQuality>('720p');
   const videoRef = useRef<HTMLVideoElement>(null);
+  const hasInitialPlayed = useRef(false);
 
   // If simple src is provided (not a media object), use it directly
   const isSimpleVideo = !media && !!src;
@@ -50,22 +51,20 @@ export function InstagramVideoPlayer({ media, src, className = '' }: InstagramVi
       // Load new source
       videoRef.current.load();
 
-      // Restore playback position
+      // Restore playback position and handle playback
       videoRef.current.addEventListener('loadedmetadata', () => {
         if (videoRef.current) {
           videoRef.current.currentTime = currentTime;
-          if (!wasPaused) {
+
+          // Play if: (1) video was playing before quality change, OR (2) initial mount
+          if (!wasPaused || !hasInitialPlayed.current) {
+            hasInitialPlayed.current = true;
             videoRef.current.play().catch((error) => {
               console.log('Autoplay prevented:', error);
             });
           }
         }
       }, { once: true });
-
-      // Auto-play on initial mount
-      videoRef.current.play().catch((error) => {
-        console.log('Autoplay prevented:', error);
-      });
     }
 
     // Cleanup: pause video when component unmounts
@@ -102,23 +101,8 @@ export function InstagramVideoPlayer({ media, src, className = '' }: InstagramVi
 
   const changeQuality = (quality: VideoQuality, e: React.MouseEvent) => {
     e.stopPropagation();
-
-    // Store current playback position
-    const currentTime = videoRef.current?.currentTime || 0;
-    const wasPaused = videoRef.current?.paused || false;
-
     setCurrentQuality(quality);
     setShowQualityMenu(false);
-
-    // Restore playback state after quality change
-    setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.currentTime = currentTime;
-        if (!wasPaused) {
-          videoRef.current.play();
-        }
-      }
-    }, 100);
   };
 
   const qualities = availableQualities();

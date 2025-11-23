@@ -27,7 +27,7 @@ export function FavoriteItem({ announcement, onDelete, isDeleting }: FavoriteIte
           >
             <Avatar className="w-14 h-14 sm:w-16 sm:h-16">
               <AvatarImage
-                src={announcement.image?.thumbnail || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}
+                src={announcement.image?.thumbnail}
                 alt={announcement.fullname}
               />
               <AvatarFallback className="text-base sm:text-lg font-semibold bg-gradient-to-br from-purple-500 to-pink-500 text-white">

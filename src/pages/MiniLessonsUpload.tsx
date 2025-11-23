@@ -75,6 +75,7 @@ export function MiniLessonsUpload() {
     register,
     handleSubmit: handleFormSubmit,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -303,11 +304,11 @@ export function MiniLessonsUpload() {
               render={({ field }) => (
                 <MediaUpload
                   value={field.value ? URL.createObjectURL(field.value) : undefined}
-                  onChange={(file, _type) => {
+                  allowedTypes={isPostMode ? ['photo'] : ['video']}
+                  onChange={(file, type) => {
                     field.onChange(file);
-                    // Update media type through setValue if needed
-                    if (file) {
-                      // mediaType will be set automatically by MediaUpload
+                    if (file && type) {
+                      setValue('mediaType', type);
                     }
                   }}
                 />
@@ -345,6 +346,7 @@ export function MiniLessonsUpload() {
               </Button>
               <Button
                 type="submit"
+                variant="success"
                 disabled={isSubmitting}
                 className="cursor-pointer"
               >

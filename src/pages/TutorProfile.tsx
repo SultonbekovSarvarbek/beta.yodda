@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScheduleGrid } from '@/components/ScheduleGrid';
-import { Check, Share2, Grid3x3, Calendar, Star, FileText, Play, Award, PlayCircle } from 'lucide-react';
+import { Check, Share2, Grid3x3, Calendar, Star, FileText, Play, Award, PlayCircle, Trash2 } from 'lucide-react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { useAnnouncementById } from '@/hooks/api';
 import { Loader2 } from 'lucide-react';
@@ -11,8 +11,8 @@ import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { useQuery } from '@tanstack/react-query';
-import { getMiniLessonsByAnnouncement, getMiniLessonById } from '@/services/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getMiniLessonsByAnnouncement, getMiniLessonById, deleteMiniLesson } from '@/services/api';
 import type { MiniLesson } from '@/types/api';
 import {
   Dialog,
@@ -52,6 +52,8 @@ export function TutorProfile() {
   const [selectedPost, setSelectedPost] = useState<{ id: string | number; image: string; fileType: 'pdf' | 'image' | 'video'; isFile: boolean } | null>(null);
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
   const [selectedMiniLessonId, setSelectedMiniLessonId] = useState<number | null>(null);
+  const [deleteMiniLessonDialogOpen, setDeleteMiniLessonDialogOpen] = useState(false);
+  const [miniLessonToDelete, setMiniLessonToDelete] = useState<number | null>(null);
 
   // Fetch mini lessons for this tutor
   const { data: miniLessonsData, isLoading: loadingMiniLessons } = useQuery({
@@ -69,6 +71,46 @@ export function TutorProfile() {
 
   const miniLessons = miniLessonsData?.data || [];
   const selectedMiniLesson = selectedMiniLessonData?.data || null;
+
+  // Delete mini lesson mutation
+  const queryClient = useQueryClient();
+  const deleteMiniLessonMutation = useMutation({
+    mutationFn: deleteMiniLesson,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mini-lessons', id] });
+      toast.success('Мини-урок успешно удален');
+      setDeleteMiniLessonDialogOpen(false);
+      setMiniLessonToDelete(null);
+    },
+    onError: (error) => {
+      toast.error('Ошибка при удалении мини-урока');
+      console.error('Failed to delete mini lesson:', error);
+    },
+  });
+
+  // Helper function to check if user owns the mini lesson
+  const isOwner = () => {
+    if (!isAuthenticated || !user || user.role !== 'tutor' || !tutor) return false;
+
+    // Compare announcement's profile_id with authenticated user's id
+    // user.id is from /api/getprofileuser
+    // tutor.profile_id is from /api/announcements/{id}
+    // If viewing your own announcement (profile_id matches your user id), you can delete mini lessons
+    return user.id === (tutor as any).profile_id;
+  };
+
+  // Handle delete mini lesson
+  const handleDeleteMiniLesson = (lessonId: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent opening the lesson modal
+    setMiniLessonToDelete(lessonId);
+    setDeleteMiniLessonDialogOpen(true);
+  };
+
+  // Confirm delete mini lesson
+  const confirmDeleteMiniLesson = async () => {
+    if (miniLessonToDelete === null) return;
+    await deleteMiniLessonMutation.mutateAsync(miniLessonToDelete);
+  };
 
   // Handle post click with mobile detection
   const handlePostClick = (post: { id: string | number; image: string; fileType: 'pdf' | 'image' | 'video'; isFile: boolean; lesson?: MiniLesson }) => {
@@ -167,19 +209,21 @@ export function TutorProfile() {
     : [];
 
   const miniLessonPosts = miniLessons
-    ? miniLessons.map((lesson) => {
-      // In list endpoint, media is a string URL (thumbnail)
-      // In detail endpoint, media is an object with versions
-      const mediaUrl = typeof lesson.media === 'string' ? lesson.media : lesson.media.thumbnail;
-      const actualType = lesson.media_type === 'video' ? 'video' : 'photo';
-      return {
-        id: `lesson-${lesson.id}`,
-        image: mediaUrl,
-        fileType: actualType === 'video' ? ('video' as const) : ('image' as const),
-        isFile: false,
-        lesson: lesson, // Keep reference to full lesson data
-      };
-    })
+    ? miniLessons
+      .filter((lesson) => lesson.media !== null) // Filter out lessons with null media
+      .map((lesson) => {
+        // In list endpoint, media is a string URL (thumbnail)
+        // In detail endpoint, media is an object with versions
+        const mediaUrl = typeof lesson.media === 'string' ? lesson.media : lesson.media.thumbnail;
+        const actualType = lesson.media_type === 'video' ? 'video' : 'photo';
+        return {
+          id: `lesson-${lesson.id}`,
+          image: mediaUrl,
+          fileType: actualType === 'video' ? ('video' as const) : ('image' as const),
+          isFile: false,
+          lesson: lesson, // Keep reference to full lesson data
+        };
+      })
     : [];
 
   const allPosts = [...imagePosts, ...miniLessonPosts];
@@ -494,8 +538,8 @@ export function TutorProfile() {
 
                         {/* View Button */}
                         <Button
-                          variant="outline"
                           size="sm"
+                          variant="success"
                           className="shrink-0 cursor-pointer text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
                           onClick={() => window.open(file.path, '_blank')}
                         >
@@ -527,35 +571,44 @@ export function TutorProfile() {
                   {miniLessons.map((lesson) => {
                     // In list endpoint, media is a string URL (thumbnail)
                     // In detail endpoint, media is an object with versions
-                    const thumbnailUrl = typeof lesson.media === 'string' ? lesson.media : lesson.media.thumbnail;
+                    const thumbnailUrl = lesson.media
+                      ? (typeof lesson.media === 'string' ? lesson.media : lesson.media.thumbnail)
+                      : null;
                     const actualMediaType = lesson.media_type;
+                    const isProcessing = lesson.processing_status === 'processing';
 
                     return (
                       <div
                         key={lesson.id}
-                        onClick={() => setSelectedMiniLessonId(lesson.id)}
-                        className="flex items-center gap-2 sm:gap-4 p-3 sm:p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() => !isProcessing && setSelectedMiniLessonId(lesson.id)}
+                        className={`flex items-center gap-2 sm:gap-4 p-3 sm:p-4 border rounded-lg hover:bg-gray-50 transition-colors relative ${isProcessing ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
                       >
                         {/* Media Thumbnail */}
                         <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center bg-gray-100 rounded-lg shrink-0 overflow-hidden">
-                          {actualMediaType === 'video' ? (
-                            <div className="relative w-full h-full">
+                          {isProcessing ? (
+                            <div className="relative w-full h-full flex items-center justify-center bg-gray-200">
+                              <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
+                            </div>
+                          ) : thumbnailUrl ? (
+                            actualMediaType === 'video' ? (
+                              <div className="relative w-full h-full">
+                                <img
+                                  src={thumbnailUrl}
+                                  alt={lesson.title}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                  <Play className="h-6 w-6 sm:h-8 sm:w-8 text-white fill-white drop-shadow-lg" />
+                                </div>
+                              </div>
+                            ) : (
                               <img
                                 src={thumbnailUrl}
                                 alt={lesson.title}
                                 className="w-full h-full object-cover"
                               />
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                <Play className="h-6 w-6 sm:h-8 sm:w-8 text-white fill-white drop-shadow-lg" />
-                              </div>
-                            </div>
-                          ) : (
-                            <img
-                              src={thumbnailUrl}
-                              alt={lesson.title}
-                              className="w-full h-full object-cover"
-                            />
-                          )}
+                            )
+                          ) : null}
                         </div>
 
                         {/* Lesson Info */}
@@ -565,25 +618,50 @@ export function TutorProfile() {
                             {lesson.description}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
-                            {lesson.subject && (
-                              <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0">
-                                {lesson.subject.name}
+                            {isProcessing ? (
+                              <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 bg-yellow-100 text-yellow-800">
+                                Обработка...
                               </Badge>
-                            )}
-                            {lesson.views_count > 0 && (
-                              <span className="text-[10px] sm:text-xs text-gray-400">
-                                {lesson.views_count} {t('tutorProfile.miniLessons.views')}
-                              </span>
+                            ) : (
+                              <>
+                                {lesson.subject && (
+                                  <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0">
+                                    {lesson.subject.name}
+                                  </Badge>
+                                )}
+                                {lesson.views_count > 0 && (
+                                  <span className="text-[10px] sm:text-xs text-gray-400">
+                                    {lesson.views_count} {t('tutorProfile.miniLessons.views')}
+                                  </span>
+                                )}
+                              </>
                             )}
                           </div>
                         </div>
 
-                        {/* Media Type Badge */}
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                          {actualMediaType === 'video' ? (
-                            <Play className="h-4 w-4" />
-                          ) : (
-                            <FileText className="h-4 w-4" />
+
+                        {/* Icons: Media Type & Delete Button */}
+                        <div className="flex items-center gap-2">
+                          {/* Media Type Badge */}
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                            {actualMediaType === 'video' ? (
+                              <Play className="bg-green-100 rounded p-2 h-8 w-8" />
+                            ) : (
+                              <FileText className="h-4 w-4" />
+                            )}
+                          </div>
+
+                          {/* Delete Button - Only for Owner */}
+                          {isOwner() && (
+                            <Button
+                              onClick={(e) => handleDeleteMiniLesson(lesson.id, e)}
+                              disabled={deleteMiniLessonMutation.isPending}
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-200 bg-red-100 cursor-pointer"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           )}
                         </div>
                       </div>
@@ -593,7 +671,15 @@ export function TutorProfile() {
               ) : (
                 <div className="text-center py-8 sm:py-12 text-gray-500">
                   <PlayCircle className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-3 text-gray-300" />
-                  <p className="text-sm sm:text-base">{t('tutorProfile.miniLessons.noLessons')}</p>
+                  <p className="text-sm sm:text-base mb-4">{t('tutorProfile.miniLessons.noLessons')}</p>
+                  {isOwner() && (
+                    <Button
+                      onClick={() => navigate({ to: '/mini-lessons/upload' })}
+                      className="bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+                    >
+                      Загрузить мини-урок
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
@@ -718,7 +804,7 @@ export function TutorProfile() {
                   {selectedMiniLesson?.subject && (
                     <div>
                       <h4 className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">{t('tutorProfile.miniLessons.subject')}</h4>
-                      <Badge variant="outline" className="text-xs sm:text-sm">
+                      <Badge variant="outline" className="text-xs sm:text-sm border-indigo-500">
                         {selectedMiniLesson.subject.name}
                       </Badge>
                     </div>
@@ -748,6 +834,42 @@ export function TutorProfile() {
             </div>
           </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Mini Lesson Confirmation Dialog */}
+      <Dialog open={deleteMiniLessonDialogOpen} onOpenChange={setDeleteMiniLessonDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Удалить мини-урок</DialogTitle>
+            <DialogDescription>
+              Вы уверены, что хотите удалить этот мини-урок? Это действие нельзя отменить.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 justify-end mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteMiniLessonDialogOpen(false)}
+              disabled={deleteMiniLessonMutation.isPending}
+            >
+              Отмена
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteMiniLesson}
+              disabled={deleteMiniLessonMutation.isPending}
+              className="cursor-pointer"
+            >
+              {deleteMiniLessonMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Удаление...
+                </>
+              ) : (
+                'Удалить'
+              )}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 

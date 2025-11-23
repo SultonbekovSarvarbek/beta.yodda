@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { PlayCircle, Loader2, Play, ChevronUp, ChevronDown, Eye } from 'lucide-react';
+import { PlayCircle, Loader2, Play, ChevronUp, ChevronDown, Eye, Clock } from 'lucide-react';
 import { getMiniLessons, getMiniLessonById } from '@/services/api';
 import type { MiniLesson } from '@/types/api';
 import {
@@ -62,23 +62,38 @@ export default function MiniLessons() {
             {miniLessons.map((lesson) => {
               // In list endpoint, media is a string URL (thumbnail)
               // In detail endpoint, media is an object with versions
-              const thumbnailUrl = typeof lesson.media === 'string' ? lesson.media : lesson.media.thumbnail;
+              const thumbnailUrl = lesson.media
+                ? (typeof lesson.media === 'string' ? lesson.media : lesson.media.thumbnail)
+                : null;
               const isVideo = lesson.media_type === 'video';
+              const isProcessing = lesson.processing_status === 'processing';
 
               return (
                 <Card
                   key={lesson.id}
-                  className="group overflow-hidden border bg-transparent shadow-none cursor-pointer rounded-2xl p-1.5"
-                  onClick={() => setSelectedLessonId(lesson.id)}
+                  className={`group overflow-hidden border bg-transparent shadow-none rounded-2xl p-1.5 ${isProcessing ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
+                  onClick={() => !isProcessing && setSelectedLessonId(lesson.id)}
                 >
                   {/* Thumbnail */}
                   <div className="aspect-[9/16] bg-muted relative overflow-hidden rounded-xl">
-                    <img
-                      src={thumbnailUrl}
-                      alt={lesson.title}
-                      className="w-full h-full object-cover"
-                    />
-                    {isVideo && (
+                    {thumbnailUrl && (
+                      <img
+                        src={thumbnailUrl}
+                        alt={lesson.title}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    {isProcessing ? (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+                        <Loader2 className="h-10 w-10 text-white animate-spin mb-3" />
+                        <div className="bg-white/95 rounded-full px-4 py-2 shadow-lg">
+                          <p className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            Обработка...
+                          </p>
+                        </div>
+                      </div>
+                    ) : isVideo && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                         <div className="bg-white/90 rounded-full p-3 shadow-lg">
                           <Play className="h-8 w-8 text-gray-900 fill-gray-900" />
@@ -101,7 +116,7 @@ export default function MiniLessons() {
                         handleTutorClick(lesson.tutor.id);
                       }}
                     >
-                      <Avatar className="h-6 w-6 border border-gray-200">
+                      <Avatar className="h-6 w-6 border border-indigo-400">
                         <AvatarImage
                           src={lesson.tutor.image?.small}
                           alt={lesson.tutor.fullname}
@@ -260,16 +275,6 @@ export default function MiniLessons() {
                           {selectedLesson?.description}
                         </p>
                       </div>
-
-                      {/* Contact Info */}
-                      {selectedLesson?.tutor?.phone && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-white/90 mb-2">
-                            {t('tutorProfile.miniLessons.contact')}
-                          </h4>
-                          <p className="text-sm text-white/80">{selectedLesson.tutor.phone}</p>
-                        </div>
-                      )}
 
                       {/* Tap to collapse hint */}
                       <p className="text-xs text-white/50 text-center pt-2">
