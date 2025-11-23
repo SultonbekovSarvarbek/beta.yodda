@@ -71,7 +71,7 @@ export default function MiniLessons() {
               return (
                 <Card
                   key={lesson.id}
-                  className={`group overflow-hidden border bg-transparent shadow-none rounded-2xl p-1.5 ${isProcessing ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
+                  className={`group overflow-hidden border gap-0 bg-transparent shadow-none rounded-2xl p-1.5 ${isProcessing ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
                   onClick={() => !isProcessing && setSelectedLessonId(lesson.id)}
                 >
                   {/* Thumbnail */}

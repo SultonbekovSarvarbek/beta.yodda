@@ -43,37 +43,50 @@ export function InstagramVideoPlayer({ media, src, className = '' }: InstagramVi
   const currentSrc = getVideoUrl(currentQuality);
 
   useEffect(() => {
-    // Attempt to play the video when component mounts or source changes
-    if (videoRef.current) {
-      const currentTime = videoRef.current.currentTime;
-      const wasPaused = videoRef.current.paused;
-
-      // Load new source
-      videoRef.current.load();
-
-      // Restore playback position and handle playback
-      videoRef.current.addEventListener('loadedmetadata', () => {
-        if (videoRef.current) {
-          videoRef.current.currentTime = currentTime;
-
-          // Play if: (1) video was playing before quality change, OR (2) initial mount
-          if (!wasPaused || !hasInitialPlayed.current) {
-            hasInitialPlayed.current = true;
-            videoRef.current.play().catch((error) => {
-              console.log('Autoplay prevented:', error);
-            });
-          }
-        }
-      }, { once: true });
-    }
+    // Reset initial play flag when component mounts
+    hasInitialPlayed.current = false;
 
     // Cleanup: pause video when component unmounts
     return () => {
       if (videoRef.current) {
         videoRef.current.pause();
-        videoRef.current.src = '';
-        videoRef.current.load();
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    // Attempt to play the video when component mounts or source changes
+    if (!videoRef.current || !currentSrc) return;
+
+    const video = videoRef.current;
+    const savedTime = video.currentTime || 0;
+    const wasPlaying = !video.paused;
+
+    const handleCanPlay = () => {
+      if (!videoRef.current) return;
+
+      // Restore playback position for quality changes
+      if (savedTime > 0) {
+        videoRef.current.currentTime = savedTime;
+      }
+
+      // Play if: (1) was playing before quality change, OR (2) first time loading
+      if (wasPlaying || !hasInitialPlayed.current) {
+        hasInitialPlayed.current = true;
+        videoRef.current.play().catch((error) => {
+          console.log('Autoplay prevented:', error);
+          setIsPlaying(false);
+        });
+      }
+    };
+
+    video.addEventListener('canplay', handleCanPlay, { once: true });
+
+    // Trigger load
+    video.load();
+
+    return () => {
+      video.removeEventListener('canplay', handleCanPlay);
     };
   }, [currentSrc]);
 
