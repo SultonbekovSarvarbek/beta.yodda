@@ -620,6 +620,7 @@
     }
   },
   "miniLessons": {
+    "processing": "Qayta ishlanmoqda...",
     "menu": {
       "title": "Yaratish",
       "description": "Nima yaratmoqchisiz tanlang",

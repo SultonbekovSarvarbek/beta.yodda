@@ -620,6 +620,7 @@
     }
   },
   "miniLessons": {
+    "processing": "Обработка...",
     "menu": {
       "title": "Создать",
       "description": "Выберите, что вы хотите создать",
