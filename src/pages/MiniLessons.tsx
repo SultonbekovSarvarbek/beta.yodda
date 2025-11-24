@@ -47,10 +47,10 @@ export default function MiniLessons() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
       {/* Mini Lessons Grid */}
       <section>
-        <h2 className="text-2xl font-semibold mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
           {t('miniLessons.page.title') || 'Мини-уроки от репетиторов'}
         </h2>
 
@@ -59,7 +59,7 @@ export default function MiniLessons() {
             <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
           </div>
         ) : miniLessons.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
             {miniLessons.map((lesson) => {
               // In list endpoint, media is a string URL (thumbnail)
               // In detail endpoint, media is an object with versions
@@ -72,11 +72,11 @@ export default function MiniLessons() {
               return (
                 <Card
                   key={lesson.id}
-                  className={`group overflow-hidden border gap-0 bg-transparent shadow-none rounded-2xl p-1.5 ${isProcessing ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
+                  className={`group overflow-hidden border gap-0 bg-transparent shadow-none rounded-xl sm:rounded-2xl p-1 sm:p-1.5 ${isProcessing ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
                   onClick={() => !isProcessing && setSelectedLessonId(lesson.id)}
                 >
                   {/* Thumbnail */}
-                  <div className="aspect-[9/16] bg-muted relative overflow-hidden rounded-xl">
+                  <div className="aspect-[3/4] sm:aspect-[9/16] bg-muted relative overflow-hidden rounded-lg sm:rounded-xl">
                     {thumbnailUrl && (
                       <img
                         src={thumbnailUrl}
@@ -96,51 +96,51 @@ export default function MiniLessons() {
                       </div>
                     ) : isVideo && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                        <div className="bg-white/90 rounded-full p-3 shadow-lg">
-                          <Play className="h-8 w-8 text-gray-900 fill-gray-900" />
+                        <div className="bg-white/90 rounded-full p-2 sm:p-3 shadow-lg">
+                          <Play className="h-5 w-5 sm:h-8 sm:w-8 text-gray-900 fill-gray-900" />
                         </div>
                       </div>
                     )}
                   </div>
 
                   {/* Content */}
-                  <div className="p-3 space-y-2">
-                    <h3 className="font-semibold text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors min-h-[2.5rem]">
+                  <div className="p-2 sm:p-3 space-y-1.5 sm:space-y-2">
+                    <h3 className="font-semibold text-xs sm:text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                       {lesson.title}
                     </h3>
 
                     {/* Tutor Info */}
                     <div
-                      className="flex items-center gap-2 cursor-pointer group/tutor"
+                      className="flex items-center gap-1.5 sm:gap-2 cursor-pointer group/tutor"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleTutorClick(lesson.tutor.id);
                       }}
                     >
-                      <Avatar className="h-6 w-6 border border-indigo-400">
+                      <Avatar className="h-5 w-5 sm:h-6 sm:w-6 border border-indigo-400">
                         <AvatarImage
                           src={typeof lesson.tutor.image === 'string' ? lesson.tutor.image : lesson.tutor.image?.small}
                           alt={lesson.tutor.fullname}
                         />
-                        <AvatarFallback className="text-xs bg-gradient-to-br from-primary/10 to-primary/5">
+                        <AvatarFallback className="text-[10px] sm:text-xs bg-gradient-to-br from-primary/10 to-primary/5">
                           {lesson.tutor.fullname.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      <p className="text-xs font-medium text-gray-700 group-hover/tutor:text-primary transition-colors truncate">
+                      <p className="text-[10px] sm:text-xs font-medium text-gray-700 group-hover/tutor:text-primary transition-colors truncate">
                         {lesson.tutor.fullname}
                       </p>
                     </div>
 
                     {/* Subject & Views */}
-                    <div className="flex items-center gap-2 text-xs">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs">
                       {lesson.subject && (
-                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 font-normal border-indigo-500">
+                        <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 sm:py-0.5 font-normal border-indigo-500">
                           {lesson.subject.name}
                         </Badge>
                       )}
                       {lesson.views_count !== undefined && lesson.views_count > 0 && (
-                        <span className="flex items-center gap-1 text-muted-foreground">
-                          <Eye className="h-3 w-3" />
+                        <span className="flex items-center gap-0.5 sm:gap-1 text-muted-foreground text-[10px] sm:text-xs">
+                          <Eye className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                           <span className="font-medium">{lesson.views_count}</span>
                         </span>
                       )}
