@@ -9,7 +9,9 @@ import type {
   ApiDay,
   ApiFavoritesResponse,
   MiniLessonsResponse,
-  MiniLessonDetailResponse
+  MiniLessonDetailResponse,
+  ApiFeedbackResponse,
+  ApiFeedbacksListResponse
 } from '@/types/api';
 import apiClient from '@/lib/axios';
 import type { AxiosRequestConfig } from 'axios';
@@ -276,5 +278,29 @@ export async function updateMiniLesson(id: number, formData: FormData): Promise<
 // Delete a mini lesson (owner only)
 export async function deleteMiniLesson(id: number): Promise<{ status: string; message: string }> {
   const { data } = await apiClient.delete<{ status: string; message: string }>(`/mini-lessons/${id}`);
+  return data;
+}
+
+// ===== Feedback Management API =====
+
+// Create feedback (tutor only)
+export async function createFeedback(formData: FormData): Promise<ApiFeedbackResponse> {
+  const { data } = await apiClient.post<ApiFeedbackResponse>('/feedbacks', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+}
+
+// Get feedbacks for a specific profile (public)
+export async function getProfileFeedbacks(userId: number): Promise<ApiFeedbacksListResponse> {
+  const { data } = await apiClient.get<ApiFeedbacksListResponse>(`/profile/${userId}/feedbacks`);
+  return data;
+}
+
+// Delete feedback (owner only)
+export async function deleteFeedback(id: number): Promise<{ message: string }> {
+  const { data } = await apiClient.delete<{ message: string }>(`/feedbacks/${id}`);
   return data;
 }

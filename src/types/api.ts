@@ -68,6 +68,8 @@ export interface ApiAnnouncement {
   rate: number;
   gender: number;
   is_favorite: boolean;
+  profile_id?: number; // User's profile ID who created this announcement
+  user_id?: number; // Alternative field name for profile_id
   image: ApiImage | null;
   region: ApiRegion;
   city: ApiCity;
@@ -257,4 +259,23 @@ export interface MiniLessonsResponse {
 export interface MiniLessonDetailResponse {
   status: string;
   data: MiniLesson;
+}
+
+// Feedback from /api/feedbacks
+export interface ApiFeedback {
+  id: number;
+  profile_id: number;
+  images: ApiImage[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiFeedbackResponse {
+  message: string;
+  data: ApiFeedback;
+}
+
+export interface ApiFeedbacksListResponse {
+  data: ApiFeedback[];
 }

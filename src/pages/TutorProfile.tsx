@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScheduleGrid } from '@/components/ScheduleGrid';
-import { Check, Share2, Grid3x3, Calendar, Star, FileText, Play, Award, PlayCircle, Trash2, X } from 'lucide-react';
+import { Check, Share2, Grid3x3, Calendar, Star, FileText, Play, Award, PlayCircle, Trash2, X, Upload, Plus } from 'lucide-react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { useAnnouncementById } from '@/hooks/api';
 import { Loader2 } from 'lucide-react';
@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMiniLessonsByAnnouncement, getMiniLessonById, deleteMiniLesson } from '@/services/api';
+import { getMiniLessonsByAnnouncement, getMiniLessonById, deleteMiniLesson, getProfileFeedbacks, createFeedback, deleteFeedback } from '@/services/api';
 import type { MiniLesson } from '@/types/api';
 import {
   Dialog,
@@ -54,12 +54,23 @@ export function TutorProfile() {
   const [selectedMiniLessonId, setSelectedMiniLessonId] = useState<number | null>(null);
   const [deleteMiniLessonDialogOpen, setDeleteMiniLessonDialogOpen] = useState(false);
   const [miniLessonToDelete, setMiniLessonToDelete] = useState<number | null>(null);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [reviewFiles, setReviewFiles] = useState<File[]>([]);
+  const [deleteFeedbackDialogOpen, setDeleteFeedbackDialogOpen] = useState(false);
+  const [feedbackToDelete, setFeedbackToDelete] = useState<number | null>(null);
 
   // Fetch mini lessons for this tutor
   const { data: miniLessonsData, isLoading: loadingMiniLessons } = useQuery({
     queryKey: ['mini-lessons', id],
     queryFn: () => getMiniLessonsByAnnouncement(parseInt(id)),
     enabled: !!id,
+  });
+
+  // Fetch feedbacks for this tutor's profile
+  const { data: feedbacksData, isLoading: loadingFeedbacks } = useQuery({
+    queryKey: ['feedbacks', tutor?.profile_id || tutor?.user_id],
+    queryFn: () => getProfileFeedbacks(tutor?.profile_id || tutor?.user_id || parseInt(id)),
+    enabled: !!tutor && !!(tutor.profile_id || tutor.user_id || id),
   });
 
   // Fetch full lesson details when selected
@@ -71,6 +82,7 @@ export function TutorProfile() {
 
   const miniLessons = miniLessonsData?.data || [];
   const selectedMiniLesson = selectedMiniLessonData?.data || null;
+  const feedbacks = feedbacksData?.data || [];
 
   // Delete mini lesson mutation
   const queryClient = useQueryClient();
@@ -88,15 +100,45 @@ export function TutorProfile() {
     },
   });
 
-  // Helper function to check if user owns the mini lesson
+  // Create feedback mutation
+  const createFeedbackMutation = useMutation({
+    mutationFn: createFeedback,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feedbacks', tutor?.profile_id || tutor?.user_id] });
+      toast.success('Отзывы успешно загружены');
+      setReviewDialogOpen(false);
+      setReviewFiles([]);
+    },
+    onError: (error) => {
+      toast.error('Ошибка при загрузке отзывов');
+      console.error('Failed to create feedback:', error);
+    },
+  });
+
+  // Delete feedback mutation
+  const deleteFeedbackMutation = useMutation({
+    mutationFn: deleteFeedback,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feedbacks', tutor?.profile_id || tutor?.user_id] });
+      toast.success('Отзыв успешно удален');
+      setDeleteFeedbackDialogOpen(false);
+      setFeedbackToDelete(null);
+    },
+    onError: (error) => {
+      toast.error('Ошибка при удалении отзыва');
+      console.error('Failed to delete feedback:', error);
+    },
+  });
+
+  // Helper function to check if user owns the announcement
   const isOwner = () => {
     if (!isAuthenticated || !user || user.role !== 'tutor' || !tutor) return false;
 
-    // Compare announcement's profile_id with authenticated user's id
+    // Compare announcement's profile_id/user_id with authenticated user's id
     // user.id is from /api/getprofileuser
-    // tutor.profile_id is from /api/announcements/{id}
-    // If viewing your own announcement (profile_id matches your user id), you can delete mini lessons
-    return user.id === (tutor as any).profile_id;
+    // tutor.profile_id or tutor.user_id is from /api/announcements/{id}
+    // If viewing your own announcement (profile_id matches your user id), you can manage content
+    return user.id === tutor.profile_id || user.id === tutor.user_id;
   };
 
   // Handle delete mini lesson
@@ -110,6 +152,53 @@ export function TutorProfile() {
   const confirmDeleteMiniLesson = async () => {
     if (miniLessonToDelete === null) return;
     await deleteMiniLessonMutation.mutateAsync(miniLessonToDelete);
+  };
+
+  // Handle review file change
+  const handleReviewFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const newFiles = Array.from(files);
+      setReviewFiles(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  // Handle removing a single file
+  const handleRemoveReviewFile = (index: number) => {
+    setReviewFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Handle review upload
+  const handleReviewUpload = async () => {
+    if (reviewFiles.length === 0) {
+      toast.error('Пожалуйста, выберите хотя бы один файл');
+      return;
+    }
+
+    if (reviewFiles.length > 10) {
+      toast.error('Можно загрузить максимум 10 изображений');
+      return;
+    }
+
+    const formData = new FormData();
+    reviewFiles.forEach((file) => {
+      formData.append('images[]', file);
+    });
+    formData.append('is_active', 'true');
+
+    await createFeedbackMutation.mutateAsync(formData);
+  };
+
+  // Handle delete feedback
+  const handleDeleteFeedback = (feedbackId: number) => {
+    setFeedbackToDelete(feedbackId);
+    setDeleteFeedbackDialogOpen(true);
+  };
+
+  // Confirm delete feedback
+  const confirmDeleteFeedback = async () => {
+    if (feedbackToDelete === null) return;
+    await deleteFeedbackMutation.mutateAsync(feedbackToDelete);
   };
 
   // Handle post click with mobile detection
@@ -477,12 +566,64 @@ export function TutorProfile() {
 
           {/* Reviews Tab */}
           <TabsContent value="reviews" className="mt-0">
-            <div className="bg-white border rounded-lg p-6">
-              <h3 className="font-semibold text-lg mb-4">{t('tutorProfile.reviews.title')}</h3>
-              <div className="text-center py-12 text-gray-500">
-                <p>{t('tutorProfile.reviews.noReviews')}</p>
-                <p className="text-sm mt-2">{t('tutorProfile.reviews.firstReview')}</p>
-              </div>
+            <div>
+              {isOwner() && (
+                <div className="flex justify-end mb-4 px-4 lg:px-0">
+                  <Button
+                    onClick={() => setReviewDialogOpen(true)}
+                    size="sm"
+                    variant="success"
+                    className="cursor-pointer"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Добавить отзыв
+                  </Button>
+                </div>
+              )}
+              {loadingFeedbacks ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : feedbacks.length > 0 ? (
+                <div className="grid grid-cols-3 gap-0.5 sm:gap-0.5 my-0 -mx-4 lg:mx-0">
+                  {feedbacks.flatMap((feedback) =>
+                    feedback.images.map((image) => (
+                      <div
+                        key={`${feedback.id}-${image.unique_id}`}
+                        className="aspect-[3/4] bg-gray-200 overflow-hidden cursor-pointer hover:opacity-75 transition-opacity min-w-[105px] sm:min-w-[140px] relative group"
+                      >
+                        <img
+                          src={image.medium}
+                          alt="Отзыв студента"
+                          className="w-full h-full object-cover"
+                        />
+                        {isOwner() && (
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteFeedback(feedback.id);
+                            }}
+                            disabled={deleteFeedbackMutation.isPending}
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-200 bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              ) : (
+                <div className="bg-white border rounded-lg p-6">
+                  <div className="text-center py-12 text-gray-500">
+                    <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                    <p>{t('tutorProfile.reviews.noReviews')}</p>
+                    <p className="text-sm mt-2">{t('tutorProfile.reviews.firstReview')}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -871,6 +1012,122 @@ export function TutorProfile() {
               className="cursor-pointer"
             >
               {deleteMiniLessonMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Удаление...
+                </>
+              ) : (
+                'Удалить'
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Review Upload Dialog */}
+      <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Добавить отзыв</DialogTitle>
+            <DialogDescription>
+              Загрузите файлы с отзывами от ваших учеников. Поддерживаются изображения и PDF файлы.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4 overflow-hidden">
+            {/* File Upload Area */}
+            <div className="border-2 border-dashed rounded-lg p-6 overflow-hidden">
+              <div className="flex flex-col items-center gap-4">
+                <Upload className="h-12 w-12 text-gray-400" />
+                <div className="text-center">
+                  <label
+                    htmlFor="review-file-upload"
+                    className="cursor-pointer text-indigo-600 hover:text-indigo-700 font-medium"
+                  >
+                    Выберите файлы
+                  </label>
+                  <input
+                    id="review-file-upload"
+                    type="file"
+                    accept="image/*,.pdf"
+                    multiple
+                    onChange={handleReviewFileChange}
+                    className="hidden"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    или перетащите файлы сюда
+                  </p>
+                </div>
+                {reviewFiles.length > 0 && (
+                  <div className="space-y-2 w-full max-h-32 overflow-y-auto overflow-x-hidden pr-2">
+                    {reviewFiles.map((file, index) => (
+                      <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-md">
+                        <FileText className="h-5 w-5 text-gray-600 shrink-0" />
+                        <p className="text-sm text-gray-700 truncate flex-1 min-w-0" title={file.name}>
+                          {file.name}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveReviewFile(index)}
+                          className="h-6 w-6 p-0 cursor-pointer shrink-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setReviewDialogOpen(false);
+                  setReviewFiles([]);
+                }}
+              >
+                Отмена
+              </Button>
+              <Button
+                onClick={handleReviewUpload}
+                disabled={reviewFiles.length === 0}
+                className="bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Загрузить {reviewFiles.length > 0 && `(${reviewFiles.length})`}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Feedback Confirmation Dialog */}
+      <Dialog open={deleteFeedbackDialogOpen} onOpenChange={setDeleteFeedbackDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Удалить отзыв</DialogTitle>
+            <DialogDescription>
+              Вы уверены, что хотите удалить этот отзыв? Это действие нельзя отменить.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 justify-end mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteFeedbackDialogOpen(false)}
+              disabled={deleteFeedbackMutation.isPending}
+            >
+              Отмена
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteFeedback}
+              disabled={deleteFeedbackMutation.isPending}
+              className="cursor-pointer"
+            >
+              {deleteFeedbackMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Удаление...
