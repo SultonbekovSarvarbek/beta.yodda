@@ -94,8 +94,8 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
           </div>
         </div>
 
-        {/* Video/Image - Square aspect ratio like Instagram */}
-        <div className="relative aspect-square bg-gray-100">
+        {/* Video/Image - 16:9 aspect ratio (widescreen) with max height */}
+        <div className="relative aspect-video bg-gray-100 max-h-[400px]">
           {thumbnailUrl && (
             <img
               src={thumbnailUrl}
@@ -122,20 +122,17 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
           )}
         </div>
 
-        {/* Content Section */}
-        <div className="px-4 pb-3 space-y-2">
-          {/* Title */}
-          <div className="text-sm mt-3">
-            <span className="font-semibold">{lesson.title}</span>
+        {/* Content Section - Compact */}
+        <div className="px-4 py-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-semibold line-clamp-1">{lesson.title}</span>
+            {lesson.views_count !== undefined && lesson.views_count > 0 && (
+              <div className="flex items-center gap-1 text-xs text-gray-500 ml-2">
+                <Eye className="h-3 w-3" />
+                <span>{lesson.views_count}</span>
+              </div>
+            )}
           </div>
-
-          {/* Views */}
-          {lesson.views_count !== undefined && lesson.views_count > 0 && (
-            <div className="flex items-center gap-1 text-sm text-gray-500">
-              <Eye className="h-4 w-4" />
-              <span>{lesson.views_count} {t('miniLessons.views', 'views')}</span>
-            </div>
-          )}
         </div>
       </Card>
 

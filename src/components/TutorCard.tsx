@@ -74,15 +74,21 @@ export function TutorCard({ tutor }: TutorCardProps) {
       {/* Header - Instagram Post Header Style */}
       <div className="flex items-center justify-between px-4">
         <div className="flex items-center gap-3">
-          <Avatar className="w-10 h-10">
-            <AvatarImage
-              src={tutor.image?.thumbnail}
-              alt={tutor.fullname}
-            />
-            <AvatarFallback className="text-sm font-semibold bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-              {tutor.fullname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-            </AvatarFallback>
-          </Avatar>
+          <Link
+            to="/tutor/$id"
+            params={{ id: tutor.id.toString() }}
+            className="cursor-pointer"
+          >
+            <Avatar className="w-10 h-10">
+              <AvatarImage
+                src={tutor.image?.thumbnail}
+                alt={tutor.fullname}
+              />
+              <AvatarFallback className="text-sm font-semibold bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                {tutor.fullname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
 
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
