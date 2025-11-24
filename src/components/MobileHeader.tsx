@@ -1,13 +1,15 @@
-import { LogIn } from 'lucide-react';
+import { LogIn, Menu } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
+import { useMobileMenu } from '@/contexts/MobileMenuContext';
 
 export function MobileHeader() {
   const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
+  const { toggleMenu } = useMobileMenu();
 
   const getUserInitials = (name: string) => {
     if (!name) return '??';
@@ -22,10 +24,20 @@ export function MobileHeader() {
   return (
     <header className="lg:hidden sticky top-0 z-50 bg-white border-b px-4 py-3">
       <div className="flex items-center justify-between">
+        {/* Hamburger Menu Icon */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleMenu}
+          className="h-9 w-9"
+        >
+          <Menu className="h-6 w-6" />
+        </Button>
+
         {/* Logo */}
         <Link to="/">
-          <h1 className="text-2xl font-bold cursor-pointer">
-          YODDAGRAM
+          <h1 className="text-xl font-bold cursor-pointer">
+            YODDAGRAM
           </h1>
         </Link>
 

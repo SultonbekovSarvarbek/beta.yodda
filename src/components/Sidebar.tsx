@@ -6,7 +6,8 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { CreateMenuDialog } from './CreateMenuDialog';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useMobileMenu } from '@/contexts/MobileMenuContext';
 
 interface NavItem {
   icon: React.ReactNode;
@@ -20,6 +21,30 @@ export function Sidebar() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { isOpen, closeMenu } = useMobileMenu();
+
+  // Close menu when ESC key is pressed
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        closeMenu();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, closeMenu]);
+
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   const getUserInitials = (name: string) => {
     if (!name) return '??';
@@ -44,8 +69,9 @@ export function Sidebar() {
     { icon: <HelpCircle className="w-6 h-6" />, labelKey: 'sidebar.support', to: '/support' },
   ];
 
-  const handleNavClick = (item: NavItem, e: React.MouseEvent) => {
-    // This is kept for future use but currently not needed
+  const handleNavClick = () => {
+    // Close mobile menu when navigation link is clicked
+    closeMenu();
   };
 
   const handleCreateClick = () => {
@@ -57,7 +83,23 @@ export function Sidebar() {
   };
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 border-r bg-white p-4 flex flex-col hidden lg:flex">
+    <>
+      {/* Backdrop Overlay for Mobile */}
+      {isOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40 transition-opacity"
+          onClick={closeMenu}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={cn(
+        "fixed left-0 top-0 h-full w-64 border-r bg-white p-4 flex flex-col z-50 transition-transform duration-300",
+        // Desktop: always visible
+        "lg:flex",
+        // Mobile: slide in/out
+        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}>
       {/* Logo */}
       <div className="mb-10 px-3">
         <Link to="/">
@@ -80,7 +122,7 @@ export function Sidebar() {
               key={item.labelKey}
               to={item.to}
               className="block cursor-pointer"
-              onClick={(e) => handleNavClick(item, e)}
+              onClick={handleNavClick}
             >
               {({ isActive }) => (
                 <Button
@@ -187,12 +229,13 @@ export function Sidebar() {
           )}
         </Link>
       )}
+      </div>
 
       {/* Create Menu Dialog */}
       <CreateMenuDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
       />
-    </div>
+    </>
   );
 }
