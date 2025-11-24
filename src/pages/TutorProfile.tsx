@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScheduleGrid } from '@/components/ScheduleGrid';
-import { Check, Share2, Grid3x3, Calendar, Star, FileText, Play, Award, PlayCircle, Trash2 } from 'lucide-react';
+import { Check, Share2, Grid3x3, Calendar, Star, FileText, Play, Award, PlayCircle, Trash2, X } from 'lucide-react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { useAnnouncementById } from '@/hooks/api';
 import { Loader2 } from 'lucide-react';
@@ -756,11 +756,12 @@ export function TutorProfile() {
 
       {/* Mini Lesson Preview Modal */}
       <Dialog open={selectedMiniLessonId !== null} onOpenChange={(open) => !open && setSelectedMiniLessonId(null)}>
-        <DialogContent className="!max-w-[95vw] md:!max-w-[85vw] lg:!max-w-[80vw] !w-full lg:!w-[80vw] h-[90vh] p-0 overflow-hidden border-none bg-transparent shadow-2xl">
+        <DialogContent className="!max-w-[95vw] md:!max-w-[85vw] lg:!max-w-[80vw] !w-full lg:!w-[80vw] h-[90vh] p-0 overflow-hidden border-none bg-transparent shadow-2xl [&>button:not(.custom-close)]:hidden">
           <DialogTitle className="sr-only">{selectedMiniLesson?.title || 'Mini Lesson'}</DialogTitle>
           <DialogDescription className="sr-only">
             {selectedMiniLesson?.description || 'Mini lesson video or photo'}
           </DialogDescription>
+
           {/* Loading state */}
           {isLoadingMiniLesson ? (
             <div className="flex items-center justify-center h-full bg-white rounded-lg">
@@ -789,8 +790,17 @@ export function TutorProfile() {
 
               {/* Right side - Lesson Information */}
               <div className="w-full lg:w-[400px] lg:min-w-[400px] lg:flex-none bg-white border-t lg:border-t-0 lg:border-l flex flex-col h-[40%] lg:h-full">
-              <DialogHeader className="p-4 border-b flex-shrink-0">
-                <div className="text-base sm:text-lg line-clamp-1 font-semibold">{selectedMiniLesson?.title}</div>
+              <DialogHeader className="p-4 border-b flex-shrink-0 flex flex-row items-center justify-between gap-2 text-left">
+                <div className="text-base sm:text-lg font-semibold flex-1">{selectedMiniLesson?.title}</div>
+                {/* Close Button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="custom-close h-8 w-8 rounded-full hover:bg-gray-100 flex-shrink-0"
+                  onClick={() => setSelectedMiniLessonId(null)}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
               </DialogHeader>
               <div className="p-4 overflow-y-auto flex-1">
                 <div className="space-y-4">
