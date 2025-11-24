@@ -2,8 +2,10 @@ import { Home, Search, Users, PlaySquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Link } from '@tanstack/react-router';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
 
 export function BottomNavigation() {
+  const { user, isAuthenticated } = useAuth();
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/', active: true },
@@ -39,13 +41,15 @@ export function BottomNavigation() {
           );
         })}
 
-        {/* Profile Avatar */}
-        <Link to="/be-tutor" className="flex flex-col items-center justify-center p-2 cursor-pointer">
-          <Avatar className="w-6 h-6 ring-2 ring-black">
-            <AvatarImage src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop" />
-            <AvatarFallback>ME</AvatarFallback>
-          </Avatar>
-        </Link>
+        {/* Profile Avatar - only show if authenticated */}
+        {isAuthenticated && user && (
+          <Link to="/profile" className="flex flex-col items-center justify-center p-2 cursor-pointer">
+            <Avatar className="w-6 h-6 ring-2 ring-black">
+              <AvatarImage src={user.avatar} />
+              <AvatarFallback>{user.name?.charAt(0) || 'U'}</AvatarFallback>
+            </Avatar>
+          </Link>
+        )}
       </div>
     </nav>
   );

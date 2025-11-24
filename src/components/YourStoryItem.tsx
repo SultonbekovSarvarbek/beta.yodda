@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 interface YourStoryItemProps {
   userPhoto: string;
@@ -10,8 +11,12 @@ interface YourStoryItemProps {
 export function YourStoryItem({ userPhoto, userName }: YourStoryItemProps) {
   const { t } = useTranslation();
 
+  const handleClick = () => {
+    toast.info(t('stories.comingSoon'));
+  };
+
   return (
-    <div className="flex flex-col items-center gap-1 cursor-pointer flex-shrink-0">
+    <div className="flex flex-col items-center gap-1 cursor-pointer flex-shrink-0" onClick={handleClick}>
       <div className="relative">
         <Avatar className="w-14 h-14">
           <AvatarImage src={userPhoto} alt={userName} />

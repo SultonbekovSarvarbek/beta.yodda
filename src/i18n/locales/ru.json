@@ -41,7 +41,8 @@
     "yourProfile": "Ваш профиль"
   },
   "stories": {
-    "yourStory": "Ваша история"
+    "yourStory": "Ваша история",
+    "comingSoon": "Функция бронирования скоро появится!"
   },
   "subjects": {
     "mathematics": "Математика",

@@ -1,5 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface StoryItemProps {
   tutorName: string;
@@ -8,8 +10,14 @@ interface StoryItemProps {
 }
 
 export function StoryItem({ tutorName, tutorPhoto, viewed }: StoryItemProps) {
+  const { t } = useTranslation();
+
+  const handleClick = () => {
+    toast.info(t('stories.comingSoon'));
+  };
+
   return (
-    <div className="flex flex-col items-center gap-1 cursor-pointer">
+    <div className="flex flex-col items-center gap-1 cursor-pointer" onClick={handleClick}>
       <div
         className={cn(
           'rounded-full p-0.5',

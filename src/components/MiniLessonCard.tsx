@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Play, Loader2, Eye, Clock, ChevronUp, ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Play, Loader2, Eye, Clock, ChevronUp, ChevronDown, X } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useNavigate } from '@tanstack/react-router';
 import { getMiniLessonById } from '@/services/api';
@@ -155,6 +156,17 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
           <DialogDescription className="sr-only">
             {selectedLesson?.description || 'Mini lesson video or photo'}
           </DialogDescription>
+
+          {/* Close Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 z-50 bg-black/50 text-white rounded-full h-10 w-10"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <X className="h-5 w-5" />
+          </Button>
+
           <div className="relative w-full h-full bg-black">
             {/* Loading state */}
             {isLoadingLesson ? (
