@@ -220,7 +220,7 @@ export interface MiniLessonTutor {
   phone?: string;
   email?: string;
   telegram_username?: string | null;
-  image?: ApiImage | null;
+  image?: ApiImage | string | null; // Can be ApiImage object or string URL
 }
 
 export interface MiniLesson {

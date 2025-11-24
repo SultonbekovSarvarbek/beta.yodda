@@ -253,7 +253,7 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">
                 {t('profile.totalLessons') || 'Total Lessons'}
@@ -265,7 +265,7 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
                 {t('profile.completedLessons') || 'Completed lessons'}
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card>
             <CardHeader className="pb-2 md:pb-3">

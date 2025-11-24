@@ -1,14 +1,15 @@
 import { StoriesContainer } from './StoriesContainer';
 import { TutorCard } from './TutorCard';
+import { MiniLessonCard } from './MiniLessonCard';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorMessage } from './ErrorMessage';
 import { Pagination } from './Pagination';
 import type { Story } from '@/types/social';
-import type { Tutor } from '@/types/tutor';
+import type { ApiAnnouncement, MiniLesson } from '@/types/api';
 
 interface FeedContentProps {
   stories: Story[];
-  announcements: Tutor[];
+  feedItems: Array<{ type: 'tutor' | 'miniLesson'; data: ApiAnnouncement | MiniLesson }>;
   loading: boolean;
   error: string | null;
   currentPage: number;
@@ -19,7 +20,7 @@ interface FeedContentProps {
 
 export function FeedContent({
   stories,
-  announcements,
+  feedItems,
   loading,
   error,
   currentPage,
@@ -52,18 +53,24 @@ export function FeedContent({
         </div>
       )}
 
-      {/* Announcements */}
+      {/* Feed Items (Tutors and Mini Lessons) */}
       {!loading && !error && (
         <>
           <div className="grid grid-cols-1 gap-6">
-            {announcements.map((announcement) => (
-              <TutorCard key={announcement.id} tutor={announcement} />
+            {feedItems.map((item, index) => (
+              <div key={`${item.type}-${item.data.id}-${index}`}>
+                {item.type === 'tutor' ? (
+                  <TutorCard tutor={item.data as ApiAnnouncement} />
+                ) : (
+                  <MiniLessonCard lesson={item.data as MiniLesson} />
+                )}
+              </div>
             ))}
           </div>
 
-          {announcements.length === 0 && (
+          {feedItems.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
-              No tutors found.
+              No content found.
             </div>
           )}
 

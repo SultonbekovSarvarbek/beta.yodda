@@ -118,7 +118,7 @@ export default function MiniLessons() {
                     >
                       <Avatar className="h-6 w-6 border border-indigo-400">
                         <AvatarImage
-                          src={lesson.tutor.image?.small}
+                          src={typeof lesson.tutor.image === 'string' ? lesson.tutor.image : lesson.tutor.image?.small}
                           alt={lesson.tutor.fullname}
                         />
                         <AvatarFallback className="text-xs bg-gradient-to-br from-primary/10 to-primary/5">
@@ -238,7 +238,7 @@ export default function MiniLessons() {
                   >
                     <Avatar className="h-10 w-10 border-2 border-white/50">
                       <AvatarImage
-                        src={selectedLesson?.tutor.image?.small}
+                        src={selectedLesson ? (typeof selectedLesson.tutor.image === 'string' ? selectedLesson.tutor.image : selectedLesson.tutor.image?.small) : undefined}
                         alt={selectedLesson?.tutor.fullname}
                       />
                       <AvatarFallback className="bg-primary text-primary-foreground">
