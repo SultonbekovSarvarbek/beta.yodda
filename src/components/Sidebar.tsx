@@ -219,7 +219,7 @@ export function Sidebar() {
             <Button
               variant="ghost"
               className={cn(
-                "w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100",
+                "w-full justify-start gap-4 px-3 py-6 text-base hover:bg-gray-100 cursor-pointer",
                 isActive && "font-bold"
               )}
             >
