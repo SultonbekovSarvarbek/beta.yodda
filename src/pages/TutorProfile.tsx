@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMiniLessonsByAnnouncement, getMiniLessonById, deleteMiniLesson, getProfileFeedbacks, createFeedback, deleteFeedback } from '@/services/api';
+import { getMiniLessonsByAnnouncement, getMiniLessonById, deleteMiniLesson, getProfileFeedbacks, createFeedback, updateFeedback, deleteFeedback } from '@/services/api';
 import type { MiniLesson } from '@/types/api';
 import {
   Dialog,
@@ -57,7 +57,7 @@ export function TutorProfile() {
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [reviewFiles, setReviewFiles] = useState<File[]>([]);
   const [deleteFeedbackDialogOpen, setDeleteFeedbackDialogOpen] = useState(false);
-  const [feedbackToDelete, setFeedbackToDelete] = useState<number | null>(null);
+  const [feedbackToDelete, setFeedbackToDelete] = useState<{ feedbackId: number; imageUniqueId: string; isLastImage: boolean } | null>(null);
 
   // Fetch mini lessons for this tutor
   const { data: miniLessonsData, isLoading: loadingMiniLessons } = useQuery({
@@ -112,6 +112,19 @@ export function TutorProfile() {
     onError: (error) => {
       toast.error('Ошибка при загрузке отзывов');
       console.error('Failed to create feedback:', error);
+    },
+  });
+
+  // Update feedback mutation (for deleting specific images)
+  const updateFeedbackMutation = useMutation({
+    mutationFn: ({ id, formData }: { id: number; formData: FormData }) => updateFeedback(id, formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feedbacks', tutor?.profile_id || tutor?.user_id] });
+      toast.success('Изображение успешно удалено');
+    },
+    onError: (error) => {
+      toast.error('Ошибка при удалении изображения');
+      console.error('Failed to update feedback:', error);
     },
   });
 
@@ -189,16 +202,35 @@ export function TutorProfile() {
     await createFeedbackMutation.mutateAsync(formData);
   };
 
-  // Handle delete feedback
-  const handleDeleteFeedback = (feedbackId: number) => {
-    setFeedbackToDelete(feedbackId);
+  // Handle delete feedback image - always show confirmation
+  const handleDeleteFeedbackImage = (feedbackId: number, imageUniqueId: string) => {
+    // Find the feedback to check how many images it has
+    const feedback = feedbacks.find(f => f.id === feedbackId);
+    if (!feedback) return;
+
+    const isLastImage = feedback.images.length === 1;
+
+    setFeedbackToDelete({ feedbackId, imageUniqueId, isLastImage });
     setDeleteFeedbackDialogOpen(true);
   };
 
-  // Confirm delete feedback
+  // Confirm delete feedback image or entire feedback
   const confirmDeleteFeedback = async () => {
-    if (feedbackToDelete === null) return;
-    await deleteFeedbackMutation.mutateAsync(feedbackToDelete);
+    if (!feedbackToDelete) return;
+
+    const { feedbackId, imageUniqueId, isLastImage } = feedbackToDelete;
+
+    if (isLastImage) {
+      // Delete entire feedback if it's the last image
+      await deleteFeedbackMutation.mutateAsync(feedbackId);
+    } else {
+      // Delete just this image
+      const formData = new FormData();
+      formData.append('deleted_image_uids[]', imageUniqueId);
+      await updateFeedbackMutation.mutateAsync({ id: feedbackId, formData });
+      setDeleteFeedbackDialogOpen(false);
+      setFeedbackToDelete(null);
+    }
   };
 
   // Handle post click with mobile detection
@@ -459,14 +491,14 @@ export function TutorProfile() {
           <TabsList className="w-full h-auto justify-center gap-2 bg-gray-50">
             <TabsTrigger
               value="posts"
-              className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-2 py-1.5 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
             >
               <Grid3x3 className="h-4 w-4" />
               <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.posts')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="schedule"
-              className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-2 py-1.5 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
             >
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.schedule')}</span>
@@ -480,21 +512,21 @@ export function TutorProfile() {
               </TabsTrigger> */}
             <TabsTrigger
               value="reviews"
-              className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-2 py-1.5 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
             >
               <Star className="h-4 w-4" />
               <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.reviews')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="certificates"
-              className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-2 py-1.5 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
             >
               <Award className="h-4 w-4" />
               <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.certificates')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="minilessons"
-              className="flex-1 flex items-center justify-center gap-2 py-3 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-2 py-1.5 data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-50 data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-lg cursor-pointer"
             >
               <PlayCircle className="h-4 w-4" />
               <span className="hidden sm:inline text-sm">{t('tutorProfile.tabs.miniLessons')}</span>
@@ -601,12 +633,12 @@ export function TutorProfile() {
                           <Button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDeleteFeedback(feedback.id);
+                              handleDeleteFeedbackImage(feedback.id, image.unique_id);
                             }}
-                            disabled={deleteFeedbackMutation.isPending}
+                            disabled={updateFeedbackMutation.isPending || deleteFeedbackMutation.isPending}
                             variant="ghost"
                             size="icon"
-                            className="absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-200 bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            className="absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-200 bg-red-100 cursor-pointer"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -862,32 +894,27 @@ export function TutorProfile() {
               )}
             </div>
 
-            {/* Right side - File Information */}
+            {/* Right side - Tutor Information */}
             <div className="w-[400px] min-w-[400px] flex-none bg-white border-l flex flex-col h-full">
               <DialogHeader className="p-4 border-b">
-                <div className="font-semibold text-lg">File Information</div>
+                <div className="font-semibold text-lg">{tutor?.fullname}</div>
               </DialogHeader>
               <div className="p-4 overflow-y-auto flex-1">
                 <div className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-600 mb-1">File Type</h4>
-                    <p className="text-base">
-                      {selectedPost?.fileType === 'pdf' ? 'PDF Document' :
-                        selectedPost?.fileType === 'video' ? 'Video' : 'Image'}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-600 mb-1">File ID</h4>
-                    <p className="text-base">{selectedPost?.id}</p>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-600 mb-1">Source</h4>
-                    <p className="text-base">{selectedPost?.isFile ? 'Tutor Upload' : 'Profile Gallery'}</p>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-600 mb-1">Description</h4>
-                    <p className="text-sm text-gray-500">Mock information - This section will display file metadata and description in future updates.</p>
-                  </div>
+                  {tutor?.subjects && tutor.subjects.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-600 mb-1">Предмет</h4>
+                      <p className="text-base">{tutor.subjects[0].name}</p>
+                    </div>
+                  )}
+                  {(tutor?.aboutme || tutor?.description) && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-600 mb-1">О себе</h4>
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                        {tutor.aboutme || tutor.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1093,11 +1120,20 @@ export function TutorProfile() {
               </Button>
               <Button
                 onClick={handleReviewUpload}
-                disabled={reviewFiles.length === 0}
+                disabled={reviewFiles.length === 0 || createFeedbackMutation.isPending}
                 className="bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
               >
-                <Upload className="h-4 w-4 mr-2" />
-                Загрузить {reviewFiles.length > 0 && `(${reviewFiles.length})`}
+                {createFeedbackMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Загрузка...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Загрузить {reviewFiles.length > 0 && `(${reviewFiles.length})`}
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -1108,26 +1144,34 @@ export function TutorProfile() {
       <Dialog open={deleteFeedbackDialogOpen} onOpenChange={setDeleteFeedbackDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Удалить отзыв</DialogTitle>
+            <DialogTitle>
+              {feedbackToDelete?.isLastImage ? 'Удалить отзыв' : 'Удалить изображение'}
+            </DialogTitle>
             <DialogDescription>
-              Вы уверены, что хотите удалить этот отзыв? Это действие нельзя отменить.
+              {feedbackToDelete?.isLastImage
+                ? 'Вы уверены, что хотите удалить этот отзыв? Это последнее изображение, поэтому весь отзыв будет удален. Это действие нельзя отменить.'
+                : 'Вы уверены, что хотите удалить это изображение? Это действие нельзя отменить.'}
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-3 justify-end mt-4">
             <Button
               variant="outline"
-              onClick={() => setDeleteFeedbackDialogOpen(false)}
-              disabled={deleteFeedbackMutation.isPending}
+              onClick={() => {
+                setDeleteFeedbackDialogOpen(false);
+                setFeedbackToDelete(null);
+              }}
+              disabled={deleteFeedbackMutation.isPending || updateFeedbackMutation.isPending}
+              className="cursor-pointer"
             >
               Отмена
             </Button>
             <Button
               variant="destructive"
               onClick={confirmDeleteFeedback}
-              disabled={deleteFeedbackMutation.isPending}
+              disabled={deleteFeedbackMutation.isPending || updateFeedbackMutation.isPending}
               className="cursor-pointer"
             >
-              {deleteFeedbackMutation.isPending ? (
+              {(deleteFeedbackMutation.isPending || updateFeedbackMutation.isPending) ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Удаление...

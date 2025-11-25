@@ -299,6 +299,16 @@ export async function getProfileFeedbacks(userId: number): Promise<ApiFeedbacksL
   return data;
 }
 
+// Update feedback (owner only) - for deleting specific images
+export async function updateFeedback(id: number, formData: FormData): Promise<ApiFeedbackResponse> {
+  const { data } = await apiClient.patch<ApiFeedbackResponse>(`/feedbacks/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+}
+
 // Delete feedback (owner only)
 export async function deleteFeedback(id: number): Promise<{ message: string }> {
   const { data } = await apiClient.delete<{ message: string }>(`/feedbacks/${id}`);
