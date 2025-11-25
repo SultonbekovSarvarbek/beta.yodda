@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
+import { Helmet } from 'react-helmet-async';
 import { TutorCard } from '@/components/TutorCard';
 import { StoriesContainer } from '@/components/StoriesContainer';
 import { TutorsFilters, type FilterValues } from '@/components/TutorsFilters';
@@ -185,11 +186,35 @@ export function Tutors() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Stories */}
-          <div className="mb-6">
-            <StoriesContainer stories={stories} />
-          </div>
+    <>
+      <Helmet>
+        <title>Все репетиторы - YODDAGRAM | Найдите репетитора онлайн</title>
+        <meta
+          name="description"
+          content="Найдите репетитора по математике, английскому, физике и другим предметам. Более 1000 проверенных репетиторов в Узбекистане. Онлайн и офлайн занятия."
+        />
+        <meta name="keywords" content="репетиторы Узбекистан, найти репетитора, онлайн репетиторы, репетиторы по математике, репетиторы по английскому" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:title" content="Все репетиторы - YODDAGRAM" />
+        <meta property="og:description" content="Найдите репетитора по математике, английскому, физике и другим предметам. Более 1000 проверенных репетиторов." />
+        <meta property="og:site_name" content="YODDAGRAM" />
+
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content="Все репетиторы - YODDAGRAM" />
+        <meta property="twitter:description" content="Найдите репетитора по математике, английскому, физике и другим предметам." />
+
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Stories */}
+            <div className="mb-6">
+              <StoriesContainer stories={stories} />
+            </div>
 
           {/* Page Header */}
           <div className="mb-6">
@@ -308,6 +333,7 @@ export function Tutors() {
               )}
             </>
           )}
-    </div>
+      </div>
+    </>
   );
 }

@@ -122,9 +122,9 @@ export function TutorCard({ tutor }: TutorCardProps) {
 
       {/* Main Image - Square */}
       <div className="relative aspect-square bg-gray-100">
-        {tutor.image?.medium ? (
+        {tutor.image?.large ? (
           <img
-            src={tutor.image.medium}
+            src={tutor.image.large}
             alt={tutor.fullname}
             className="w-full h-full object-cover"
           />

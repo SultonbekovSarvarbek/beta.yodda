@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -349,8 +350,37 @@ export function TutorProfile() {
 
   const allPosts = [...imagePosts, ...miniLessonPosts];
 
+  // Generate SEO-friendly description
+  const seoDescription = `${tutor.fullname} - репетитор с опытом ${tutor.experience} ${t('tutorProfile.about.yearsTeaching')}. Преподает: ${tutor.subjects.map(s => s.name).join(', ')}. Цена от ${tutor.formatsData[0]?.amount.toLocaleString()} сум за урок.`;
+
+  const tutorImage = tutor.image?.medium || tutor.image?.thumbnail;
+
   return (
     <>
+      <Helmet>
+        <title>{`${tutor.fullname} - Репетитор ${tutor.subjects[0]?.name || ''} | YODDAGRAM`}</title>
+        <meta name="description" content={seoDescription} />
+        <meta name="keywords" content={`репетитор ${tutor.subjects.map(s => s.name).join(', ')}, ${tutor.city.name}, ${tutor.region.name}, онлайн репетитор, репетитор ${tutor.formatsData[0]?.name}`} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="profile" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:title" content={`${tutor.fullname} - Репетитор ${tutor.subjects[0]?.name || ''}`} />
+        <meta property="og:description" content={seoDescription} />
+        {tutorImage && <meta property="og:image" content={tutorImage} />}
+        <meta property="og:site_name" content="YODDAGRAM" />
+        <meta property="profile:first_name" content={tutor.fullname.split(' ')[0]} />
+        <meta property="profile:last_name" content={tutor.fullname.split(' ').slice(1).join(' ')} />
+
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content={`${tutor.fullname} - Репетитор ${tutor.subjects[0]?.name || ''}`} />
+        <meta property="twitter:description" content={seoDescription} />
+        {tutorImage && <meta property="twitter:image" content={tutorImage} />}
+
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-4">
         {/* Profile Header - Instagram Style */}
         <div className="mb-0">

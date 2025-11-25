@@ -3,6 +3,7 @@
  * Landing page for parents looking to find tutors for their children
  */
 
+import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,9 +74,33 @@ export function ForParents() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Hero Section */}
-      <div className="text-center mb-6 bg-white rounded-lg p-8 md:p-12 box-shadow-none border">
+    <>
+      <Helmet>
+        <title>Для родителей - Найдите репетитора для вашего ребенка | YODDAGRAM</title>
+        <meta
+          name="description"
+          content="Найдите проверенного репетитора для вашего ребенка на YODDAGRAM. Удобный поиск, прозрачные цены, онлайн и офлайн занятия. Помогите вашему ребенку достичь успехов в учебе."
+        />
+        <meta name="keywords" content="репетитор для ребенка, найти репетитора, детское образование, школьные предметы, помощь в учебе, онлайн репетиторство" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:title" content="Для родителей - Найдите репетитора для вашего ребенка" />
+        <meta property="og:description" content="Найдите проверенного репетитора для вашего ребенка на YODDAGRAM. Удобный поиск, прозрачные цены." />
+        <meta property="og:site_name" content="YODDAGRAM" />
+
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content="Для родителей - Найдите репетитора для вашего ребенка" />
+        <meta property="twitter:description" content="Найдите проверенного репетитора для вашего ребенка. Удобный поиск, прозрачные цены." />
+
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-6 bg-white rounded-lg p-8 md:p-12 box-shadow-none border">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
           {t('forParents.hero.title')}
         </h1>
@@ -168,6 +193,7 @@ export function ForParents() {
           {t('forParents.hero.button')}
         </Button>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { FeedContent } from '@/components/FeedContent';
 import { useAnnouncements } from '@/hooks/api';
 import { getMiniLessons } from '@/services/api';
@@ -60,15 +61,41 @@ export function Feed() {
   }, [announcements, miniLessons]);
 
   return (
-    <FeedContent
-      stories={stories}
-      feedItems={mixedFeed}
-      loading={loading}
-      error={error}
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={goToPage}
-      onRetry={refetch}
-    />
+    <>
+      <Helmet>
+        <title>YODDAGRAM - Репетиторы и Мини-уроки | Найдите лучшего репетитора</title>
+        <meta
+          name="description"
+          content="YODDAGRAM - платформа для поиска репетиторов по любому предмету. Просматривайте мини-уроки от опытных преподавателей и находите идеального репетитора для вас или вашего ребенка."
+        />
+        <meta name="keywords" content="репетиторы, мини-уроки, обучение, образование, преподаватели, онлайн обучение, Узбекистан" />
+
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:title" content="YODDAGRAM - Репетиторы и Мини-уроки" />
+        <meta property="og:description" content="Найдите лучшего репетитора по любому предмету. Просматривайте мини-уроки от опытных преподавателей." />
+        <meta property="og:site_name" content="YODDAGRAM" />
+
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content={window.location.href} />
+        <meta property="twitter:title" content="YODDAGRAM - Репетиторы и Мини-уроки" />
+        <meta property="twitter:description" content="Найдите лучшего репетитора по любому предмету. Просматривайте мини-уроки от опытных преподавателей." />
+
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
+
+      <FeedContent
+        stories={stories}
+        feedItems={mixedFeed}
+        loading={loading}
+        error={error}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={goToPage}
+        onRetry={refetch}
+      />
+    </>
   );
 }

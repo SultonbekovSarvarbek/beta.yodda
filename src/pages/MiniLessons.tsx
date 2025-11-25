@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
@@ -47,9 +48,33 @@ export default function MiniLessons() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
-      {/* Mini Lessons Grid */}
-      <section>
+    <>
+      <Helmet>
+        <title>Мини-уроки от репетиторов - YODDAGRAM | Короткие обучающие видео</title>
+        <meta
+          name="description"
+          content="Смотрите короткие обучающие видео от опытных репетиторов. Мини-уроки по математике, физике, английскому и другим предметам. Быстро, понятно и бесплатно."
+        />
+        <meta name="keywords" content="мини уроки, обучающие видео, короткие уроки, видеоуроки, репетиторы, обучение онлайн" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:title" content="Мини-уроки от репетиторов - YODDAGRAM" />
+        <meta property="og:description" content="Смотрите короткие обучающие видео от опытных репетиторов. Быстро, понятно и бесплатно." />
+        <meta property="og:site_name" content="YODDAGRAM" />
+
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content="Мини-уроки от репетиторов - YODDAGRAM" />
+        <meta property="twitter:description" content="Смотрите короткие обучающие видео от опытных репетиторов." />
+
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
+
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+        {/* Mini Lessons Grid */}
+        <section>
         <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
           {t('miniLessons.page.title')}
         </h2>
@@ -308,6 +333,7 @@ export default function MiniLessons() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </>
   );
 }
