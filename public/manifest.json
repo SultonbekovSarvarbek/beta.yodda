@@ -1,6 +1,7 @@
 {
-  "short_name": "TanStack App",
-  "name": "Create TanStack App Sample",
+  "short_name": "YODDAGRAM",
+  "name": "YODDAGRAM - Поиск репетиторов и мини-уроки",
+  "description": "Найдите лучшего репетитора по любому предмету в Узбекистане",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +21,8 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#4F46E5",
+  "background_color": "#ffffff",
+  "lang": "ru",
+  "scope": "/"
 }
