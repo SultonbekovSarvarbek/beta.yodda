@@ -109,7 +109,7 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
               <div className="bg-white/95 rounded-full px-4 py-2 shadow-lg">
                 <p className="text-sm font-semibold text-gray-900 flex items-center gap-2">
                   <Clock className="h-4 w-4" />
-                  {t('miniLessons.processing') || 'Обработка...'}
+                  {t('miniLessons.processing')}
                 </p>
               </div>
             </div>
@@ -266,7 +266,7 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
 
                         {/* Tap to collapse hint */}
                         <p className="text-xs text-white/50 text-center pt-2">
-                          {t('miniLessons.page.tapToCollapse') || 'Нажмите, чтобы свернуть'}
+                          {t('miniLessons.page.tapToCollapse')}
                         </p>
                       </div>
                     )}
@@ -274,7 +274,7 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
                     {/* Tap to expand hint when collapsed */}
                     {!isOverlayExpanded && (
                       <p className="text-xs text-white/50 text-center">
-                        {t('miniLessons.page.tapForDetails') || 'Нажмите для подробностей'}
+                        {t('miniLessons.page.tapForDetails')}
                       </p>
                     )}
                   </div>

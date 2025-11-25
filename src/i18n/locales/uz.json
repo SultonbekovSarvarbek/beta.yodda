@@ -80,7 +80,12 @@
     "sumPerHour": "so'm/soat",
     "tryAgain": "Qayta urinib ko'ring",
     "home": "Bosh sahifa",
-    "search": "Qidiruv..."
+    "search": "Qidiruv...",
+    "uploading": "Yuklanmoqda...",
+    "upload": "Yuklash",
+    "online": "Onlayn",
+    "subject": "Fan",
+    "aboutSelf": "O'zim haqimda"
   },
   "beTutorForm": {
     "title": "Repetitor ro'yxatdan o'tish",
@@ -341,7 +346,35 @@
       "subject": "Fan",
       "mediaType": "Media turi",
       "tutor": "Repetitor",
-      "contact": "Aloqa"
+      "contact": "Aloqa",
+      "deleteSuccess": "Mini dars muvaffaqiyatli o'chirildi",
+      "deleteError": "Mini darsni o'chirishda xatolik",
+      "deleteTitle": "Mini darsni o'chirish",
+      "deleteDescription": "Ushbu mini darsni o'chirishga ishonchingiz komilmi? Bu amalni bekor qilib bo'lmaydi.",
+      "uploadLesson": "Mini dars yuklash"
+    },
+    "posts": {
+      "noPosts": "Hali postlar yo'q",
+      "noPostsDescription": "Rasm va videolar bu yerda ko'rsatiladi"
+    },
+    "feedback": {
+      "addReview": "Sharh qo'shish",
+      "uploadSuccess": "Sharhlar muvaffaqiyatli yuklandi",
+      "uploadError": "Sharhlarni yuklashda xatolik",
+      "deleteSuccess": "Sharh muvaffaqiyatli o'chirildi",
+      "deleteError": "Sharhni o'chirishda xatolik",
+      "imageDeleteSuccess": "Rasm muvaffaqiyatli o'chirildi",
+      "imageDeleteError": "Rasmni o'chirishda xatolik",
+      "selectFileError": "Iltimos, kamida bitta faylni tanlang",
+      "maxFilesError": "Maksimal 10 ta rasm yuklash mumkin",
+      "studentReview": "Talaba sharhi",
+      "uploadDescription": "O'quvchilaringizdan sharhlar bilan fayllarni yuklang. Rasm va PDF fayllar qo'llab-quvvatlanadi.",
+      "selectFiles": "Fayllarni tanlang",
+      "dragDropHere": "yoki fayllarni bu yerga torting",
+      "deleteTitle": "Sharhni o'chirish",
+      "deleteImageTitle": "Rasmni o'chirish",
+      "deleteFeedbackDescription": "Ushbu sharhni o'chirishga ishonchingiz komilmi? Bu oxirgi rasm, shuning uchun butun sharh o'chiriladi. Bu amalni bekor qilib bo'lmaydi.",
+      "deleteImageDescription": "Ushbu rasmni o'chirishga ishonchingiz komilmi? Bu amalni bekor qilib bo'lmaydi."
     }
   },
   "bookingDialog": {

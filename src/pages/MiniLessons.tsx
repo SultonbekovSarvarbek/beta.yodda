@@ -51,7 +51,7 @@ export default function MiniLessons() {
       {/* Mini Lessons Grid */}
       <section>
         <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
-          {t('miniLessons.page.title') || 'Мини-уроки от репетиторов'}
+          {t('miniLessons.page.title')}
         </h2>
 
         {isLoading ? (
@@ -90,7 +90,7 @@ export default function MiniLessons() {
                         <div className="bg-white/95 rounded-full px-4 py-2 shadow-lg">
                           <p className="text-sm font-semibold text-gray-900 flex items-center gap-2">
                             <Clock className="h-4 w-4" />
-                            Обработка...
+                            {t('miniLessons.processing')}
                           </p>
                         </div>
                       </div>
@@ -126,7 +126,7 @@ export default function MiniLessons() {
                           {lesson.tutor.fullname.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      <p className="text-[10px] sm:text-xs font-medium text-gray-700 group-hover/tutor:text-primary transition-colors truncate">
+                      <p className="text-[10px] sm:text-xs font-medium text-gray-700 group-hover/tutor:text-primary transition-colors">
                         {lesson.tutor.fullname}
                       </p>
                     </div>
@@ -154,7 +154,7 @@ export default function MiniLessons() {
           <div className="text-center py-20">
             <PlayCircle className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <p className="text-xl text-muted-foreground">
-              {t('miniLessons.page.noLessons') || 'Мини-уроки пока не загружены'}
+              {t('miniLessons.page.noLessons')}
             </p>
 
           </div>
@@ -290,7 +290,7 @@ export default function MiniLessons() {
 
                       {/* Tap to collapse hint */}
                       <p className="text-xs text-white/50 text-center pt-2">
-                        {t('miniLessons.page.tapToCollapse') || 'Нажмите, чтобы свернуть'}
+                        {t('miniLessons.page.tapToCollapse')}
                       </p>
                     </div>
                   )}
@@ -298,7 +298,7 @@ export default function MiniLessons() {
                   {/* Tap to expand hint when collapsed */}
                   {!isOverlayExpanded && (
                     <p className="text-xs text-white/50 text-center">
-                      {t('miniLessons.page.tapForDetails') || 'Нажмите для подробностей'}
+                      {t('miniLessons.page.tapForDetails')}
                     </p>
                   )}
                 </div>

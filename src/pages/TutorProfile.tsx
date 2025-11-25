@@ -90,12 +90,12 @@ export function TutorProfile() {
     mutationFn: deleteMiniLesson,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mini-lessons', id] });
-      toast.success('Мини-урок успешно удален');
+      toast.success(t('tutorProfile.miniLessons.deleteSuccess'));
       setDeleteMiniLessonDialogOpen(false);
       setMiniLessonToDelete(null);
     },
     onError: (error) => {
-      toast.error('Ошибка при удалении мини-урока');
+      toast.error(t('tutorProfile.miniLessons.deleteError'));
       console.error('Failed to delete mini lesson:', error);
     },
   });
@@ -105,12 +105,12 @@ export function TutorProfile() {
     mutationFn: createFeedback,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feedbacks', tutor?.profile_id || tutor?.user_id] });
-      toast.success('Отзывы успешно загружены');
+      toast.success(t('tutorProfile.feedback.uploadSuccess'));
       setReviewDialogOpen(false);
       setReviewFiles([]);
     },
     onError: (error) => {
-      toast.error('Ошибка при загрузке отзывов');
+      toast.error(t('tutorProfile.feedback.uploadError'));
       console.error('Failed to create feedback:', error);
     },
   });
@@ -120,10 +120,10 @@ export function TutorProfile() {
     mutationFn: ({ id, formData }: { id: number; formData: FormData }) => updateFeedback(id, formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feedbacks', tutor?.profile_id || tutor?.user_id] });
-      toast.success('Изображение успешно удалено');
+      toast.success(t('tutorProfile.feedback.imageDeleteSuccess'));
     },
     onError: (error) => {
-      toast.error('Ошибка при удалении изображения');
+      toast.error(t('tutorProfile.feedback.imageDeleteError'));
       console.error('Failed to update feedback:', error);
     },
   });
@@ -133,12 +133,12 @@ export function TutorProfile() {
     mutationFn: deleteFeedback,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feedbacks', tutor?.profile_id || tutor?.user_id] });
-      toast.success('Отзыв успешно удален');
+      toast.success(t('tutorProfile.feedback.deleteSuccess'));
       setDeleteFeedbackDialogOpen(false);
       setFeedbackToDelete(null);
     },
     onError: (error) => {
-      toast.error('Ошибка при удалении отзыва');
+      toast.error(t('tutorProfile.feedback.deleteError'));
       console.error('Failed to delete feedback:', error);
     },
   });
@@ -184,12 +184,12 @@ export function TutorProfile() {
   // Handle review upload
   const handleReviewUpload = async () => {
     if (reviewFiles.length === 0) {
-      toast.error('Пожалуйста, выберите хотя бы один файл');
+      toast.error(t('tutorProfile.feedback.selectFileError'));
       return;
     }
 
     if (reviewFiles.length > 10) {
-      toast.error('Можно загрузить максимум 10 изображений');
+      toast.error(t('tutorProfile.feedback.maxFilesError'));
       return;
     }
 
@@ -296,14 +296,14 @@ export function TutorProfile() {
   const handleBookLesson = () => {
     // Check if user is authenticated
     if (!isAuthenticated) {
-      toast.warning(t('favorites.loginRequired', 'Вам нужно войти или зарегистрироваться'));
+      toast.warning(t('favorites.loginRequired'));
       navigate({ to: '/login' });
       return;
     }
 
     // Check if user is a tutor (only seekers can book lessons)
     if (user?.role === 'tutor') {
-      toast.error(t('tutorProfile.errors.tutorCannotBook', 'Вы репетитор. Только ученики могут записываться на уроки'));
+      toast.error(t('tutorProfile.errors.tutorCannotBook'));
       return;
     }
 
@@ -392,7 +392,7 @@ export function TutorProfile() {
                     <span className="text-gray-600">{t('pricingCard.sumPerLesson')}</span>
                   </div>
                   <div className="text-sm md:text-base">
-                    <span className="text-gray-600"><span className="font-semibold text-black">•</span> {tutor.formatsData[0]?.name || t('tutorProfile.online', { defaultValue: 'Онлайн' })}</span>
+                    <span className="text-gray-600"><span className="font-semibold text-black">•</span> {tutor.formatsData[0]?.name || t('common.online')}</span>
                   </div>
                   <div className="text-sm md:text-base">
                     <span className="text-gray-600"><span className="font-semibold text-black">•</span> {tutor.city.name}, {tutor.region.name}</span>
@@ -565,8 +565,8 @@ export function TutorProfile() {
                 <div className="bg-white border rounded-lg p-6">
                   <div className="text-center py-12 text-gray-500">
                     <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                    <p>{t('tutorProfile.posts.noPosts') || 'Пока нет постов'}</p>
-                    <p className="text-sm mt-2">{t('tutorProfile.posts.noPostsDescription') || 'Изображения и видео будут отображаться здесь'}</p>
+                    <p>{t('tutorProfile.posts.noPosts')}</p>
+                    <p className="text-sm mt-2">{t('tutorProfile.posts.noPostsDescription')}</p>
                   </div>
                 </div>
               )}
@@ -608,7 +608,7 @@ export function TutorProfile() {
                     className="cursor-pointer"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Добавить отзыв
+                    {t('tutorProfile.feedback.addReview')}
                   </Button>
                 </div>
               )}
@@ -626,7 +626,7 @@ export function TutorProfile() {
                       >
                         <img
                           src={image.medium}
-                          alt="Отзыв студента"
+                          alt={t('tutorProfile.feedback.studentReview')}
                           className="w-full h-full object-cover"
                         />
                         {isOwner() && (
@@ -793,12 +793,12 @@ export function TutorProfile() {
                           <div className="flex items-center gap-2 mt-1">
                             {isProcessing ? (
                               <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 bg-yellow-100 text-yellow-800">
-                                Обработка...
+                                {t('miniLessons.processing')}
                               </Badge>
                             ) : (
                               <>
                                 {lesson.subject && (
-                                  <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0">
+                                  <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 border-indigo-500">
                                     {lesson.subject.name}
                                   </Badge>
                                 )}
@@ -850,7 +850,7 @@ export function TutorProfile() {
                       onClick={() => navigate({ to: '/mini-lessons/upload' })}
                       className="bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
                     >
-                      Загрузить мини-урок
+                      {t('tutorProfile.miniLessons.uploadLesson')}
                     </Button>
                   )}
                 </div>
@@ -903,13 +903,13 @@ export function TutorProfile() {
                 <div className="space-y-4">
                   {tutor?.subjects && tutor.subjects.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-600 mb-1">Предмет</h4>
+                      <h4 className="text-sm font-semibold text-gray-600 mb-1">{t('common.subject')}</h4>
                       <p className="text-base">{tutor.subjects[0].name}</p>
                     </div>
                   )}
                   {(tutor?.aboutme || tutor?.description) && (
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-600 mb-1">О себе</h4>
+                      <h4 className="text-sm font-semibold text-gray-600 mb-1">{t('common.aboutSelf')}</h4>
                       <p className="text-sm text-gray-700 whitespace-pre-wrap">
                         {tutor.aboutme || tutor.description}
                       </p>
@@ -1019,9 +1019,9 @@ export function TutorProfile() {
       <Dialog open={deleteMiniLessonDialogOpen} onOpenChange={setDeleteMiniLessonDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Удалить мини-урок</DialogTitle>
+            <DialogTitle>{t('tutorProfile.miniLessons.deleteTitle')}</DialogTitle>
             <DialogDescription>
-              Вы уверены, что хотите удалить этот мини-урок? Это действие нельзя отменить.
+              {t('tutorProfile.miniLessons.deleteDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-3 justify-end mt-4">
@@ -1030,7 +1030,7 @@ export function TutorProfile() {
               onClick={() => setDeleteMiniLessonDialogOpen(false)}
               disabled={deleteMiniLessonMutation.isPending}
             >
-              Отмена
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
@@ -1041,10 +1041,10 @@ export function TutorProfile() {
               {deleteMiniLessonMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Удаление...
+                  {t('common.deleting')}
                 </>
               ) : (
-                'Удалить'
+                t('profile.delete')
               )}
             </Button>
           </div>
@@ -1055,9 +1055,9 @@ export function TutorProfile() {
       <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Добавить отзыв</DialogTitle>
+            <DialogTitle>{t('tutorProfile.feedback.addReview')}</DialogTitle>
             <DialogDescription>
-              Загрузите файлы с отзывами от ваших учеников. Поддерживаются изображения и PDF файлы.
+              {t('tutorProfile.feedback.uploadDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-4 overflow-hidden">
@@ -1070,7 +1070,7 @@ export function TutorProfile() {
                     htmlFor="review-file-upload"
                     className="cursor-pointer text-indigo-600 hover:text-indigo-700 font-medium"
                   >
-                    Выберите файлы
+                    {t('tutorProfile.feedback.selectFiles')}
                   </label>
                   <input
                     id="review-file-upload"
@@ -1081,7 +1081,7 @@ export function TutorProfile() {
                     className="hidden"
                   />
                   <p className="text-sm text-gray-500 mt-1">
-                    или перетащите файлы сюда
+                    {t('tutorProfile.feedback.dragDropHere')}
                   </p>
                 </div>
                 {reviewFiles.length > 0 && (
@@ -1116,7 +1116,7 @@ export function TutorProfile() {
                   setReviewFiles([]);
                 }}
               >
-                Отмена
+                {t('common.cancel')}
               </Button>
               <Button
                 onClick={handleReviewUpload}
@@ -1126,12 +1126,12 @@ export function TutorProfile() {
                 {createFeedbackMutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Загрузка...
+                    {t('common.uploading')}
                   </>
                 ) : (
                   <>
                     <Upload className="h-4 w-4 mr-2" />
-                    Загрузить {reviewFiles.length > 0 && `(${reviewFiles.length})`}
+                    {t('common.upload')} {reviewFiles.length > 0 && `(${reviewFiles.length})`}
                   </>
                 )}
               </Button>
@@ -1145,12 +1145,12 @@ export function TutorProfile() {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
-              {feedbackToDelete?.isLastImage ? 'Удалить отзыв' : 'Удалить изображение'}
+              {feedbackToDelete?.isLastImage ? t('tutorProfile.feedback.deleteTitle') : t('tutorProfile.feedback.deleteImageTitle')}
             </DialogTitle>
             <DialogDescription>
               {feedbackToDelete?.isLastImage
-                ? 'Вы уверены, что хотите удалить этот отзыв? Это последнее изображение, поэтому весь отзыв будет удален. Это действие нельзя отменить.'
-                : 'Вы уверены, что хотите удалить это изображение? Это действие нельзя отменить.'}
+                ? t('tutorProfile.feedback.deleteFeedbackDescription')
+                : t('tutorProfile.feedback.deleteImageDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-3 justify-end mt-4">
@@ -1163,7 +1163,7 @@ export function TutorProfile() {
               disabled={deleteFeedbackMutation.isPending || updateFeedbackMutation.isPending}
               className="cursor-pointer"
             >
-              Отмена
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
@@ -1174,10 +1174,10 @@ export function TutorProfile() {
               {(deleteFeedbackMutation.isPending || updateFeedbackMutation.isPending) ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Удаление...
+                  {t('common.deleting')}
                 </>
               ) : (
-                'Удалить'
+                t('profile.delete')
               )}
             </Button>
           </div>
