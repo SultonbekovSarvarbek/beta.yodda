@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UserRole } from '@/constants/roles';
+import ygLogo from '@/ygLogo.svg';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,14 +46,7 @@ export function Header() {
           {/* Logo */}
           <div className="flex items-center gap-8">
             <a href="/" className="flex items-center gap-2 cursor-pointer">
-              <svg
-                className="h-8 w-8 text-primary"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 2.18l8 3.6v8.72c0 4.42-3.05 8.55-8 9.65-4.95-1.1-8-5.23-8-9.65V7.78l8-3.6z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
+              <img src={ygLogo} alt="YODDAGRAM" className="h-8 w-8" />
               <span className="text-xl font-bold text-primary">YODDAGRAM</span>
             </a>
 

@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { useMobileMenu } from '@/contexts/MobileMenuContext';
+import ygLogo from '@/ygLogo.svg';
 
 export function MobileHeader() {
   const { t } = useTranslation();
@@ -35,7 +36,8 @@ export function MobileHeader() {
         </Button>
 
         {/* Logo */}
-        <Link to="/">
+        <Link to="/" className="flex items-center gap-2">
+          <img src={ygLogo} alt="YODDAGRAM" className="h-7 w-7" />
           <h1 className="text-xl font-bold cursor-pointer">
             YODDAGRAM
           </h1>

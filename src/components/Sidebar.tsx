@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { CreateMenuDialog } from './CreateMenuDialog';
 import { useState, useEffect } from 'react';
 import { useMobileMenu } from '@/contexts/MobileMenuContext';
+import ygLogo from '@/ygLogo.svg';
 
 interface NavItem {
   icon: React.ReactNode;
@@ -102,7 +103,8 @@ export function Sidebar() {
       )}>
       {/* Logo */}
       <div className="mb-10 px-3">
-        <Link to="/">
+        <Link to="/" className="flex items-center gap-2">
+          <img src={ygLogo} alt="YODDAGRAM" className="h-8 w-8" />
           <h1 className="text-2xl font-semibold cursor-pointer">{t('sidebar.appName')}</h1>
         </Link>
       </div>
