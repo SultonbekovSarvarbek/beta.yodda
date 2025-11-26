@@ -21,6 +21,7 @@ import { useAuthStore } from './stores/authStore'
 import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 import { AppLayout } from './components/AppLayout.tsx'
 import { PageSkeleton, FormSkeleton, ProfileSkeleton } from './components/skeletons'
+import { useYandexMetrika } from './hooks/useYandexMetrika'
 
 // Eager load: Landing page only
 import { Feed } from './pages/Feed.tsx'
@@ -41,13 +42,19 @@ const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy.tsx').then(m => (
 const Terms = lazy(() => import('./pages/Terms.tsx').then(m => ({ default: m.Terms })))
 const Offer = lazy(() => import('./pages/Offer.tsx').then(m => ({ default: m.Offer })))
 
-const rootRoute = createRootRoute({
-  component: () => (
+// Root component with Yandex Metrika tracking
+function RootComponent() {
+  useYandexMetrika();
+  return (
     <>
       <Outlet />
       <TanStackRouterDevtools />
     </>
-  ),
+  );
+}
+
+const rootRoute = createRootRoute({
+  component: RootComponent,
 })
 
 const indexRoute = createRoute({
