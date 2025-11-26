@@ -306,57 +306,68 @@ function TutorDashboard({ activeTab, onTabChange }: DashboardProps) {
               </div>
             ) : (
               <div className="space-y-3">
-                {announcements.map((announcement) => (
-                  <div
-                    key={announcement.id}
-                    className="flex flex-wrap gap-4 justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex-1">
-                      <h3 className="font-medium text-lg">{announcement.fullname}</h3>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {announcement.subjects.map((subject) => (
-                          <Badge key={subject.id} variant="secondary" className="border-indigo-500">
-                            {subject.name}
-                          </Badge>
-                        ))}
+                {announcements.map((announcement) => {
+                  // Extract unique subjects from subjectLevels to avoid duplicates
+                  const uniqueSubjects = announcement.subjectLevels
+                    ? Array.from(
+                        new Map(
+                          announcement.subjectLevels.map((sl) => [sl.subject.id, sl.subject])
+                        ).values()
+                      )
+                    : announcement.subjects || [];
+
+                  return (
+                    <div
+                      key={announcement.id}
+                      className="flex flex-wrap gap-4 justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <h3 className="font-medium text-lg">{announcement.fullname}</h3>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {uniqueSubjects.map((subject) => (
+                            <Badge key={subject.id} variant="secondary" className="border-indigo-500">
+                              {subject.name}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewAnnouncement(announcement.id)}
+                          className="cursor-pointer"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          {t('profile.view') || 'View'}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate({ to: `/be-tutor/${announcement.id}` })}
+                          className="cursor-pointer"
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          {t('common.edit') || 'Edit'}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteAnnouncement(announcement.id)}
+                          disabled={isDeleting}
+                          className="cursor-pointer"
+                        >
+                          {isDeleting ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4 mr-1" />
+                          )}
+                          {t('profile.delete') || 'Delete'}
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewAnnouncement(announcement.id)}
-                        className="cursor-pointer"
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        {t('profile.view') || 'View'}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate({ to: `/be-tutor/${announcement.id}` })}
-                        className="cursor-pointer"
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        {t('common.edit') || 'Edit'}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteAnnouncement(announcement.id)}
-                        disabled={isDeleting}
-                        className="cursor-pointer"
-                      >
-                        {isDeleting ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4 mr-1" />
-                        )}
-                        {t('profile.delete') || 'Delete'}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
