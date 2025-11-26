@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import type { Tutor } from '@/types/tutor';
 import type { ApiAnnouncement } from '@/types/api';
-import { Check, Heart, MessageCircle, Send, MoreHorizontal } from 'lucide-react';
+import { Check, Heart, MessageCircle, Send, MoreHorizontal, Star } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useFavorites } from '@/hooks/api/useFavorites';
@@ -176,7 +176,10 @@ export function TutorCard({ tutor }: TutorCardProps) {
       <div className="px-4 pb-3 space-y-2">
         {/* Rating */}
         <div className="flex items-center gap-1 text-sm">
-          <span className="font-semibold">⭐ {tutor.rate.toFixed(1)}</span>
+          <span className="flex items-center gap-1 font-semibold">
+            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+            {tutor.rate.toFixed(1)}
+          </span>
           {'reviewCount' in tutor && tutor.reviewCount && (
             <span className="text-gray-500">• {tutor.reviewCount} {t('tutorCard.reviews', 'reviews')}</span>
           )}
