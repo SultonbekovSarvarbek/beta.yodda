@@ -88,7 +88,7 @@ export function BeTutorForm() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, refreshProfile } = useAuth();
   const { announcements, loading: loadingAnnouncements } = useProfileAnnouncements();
   const [currentTab, setCurrentTab] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -598,9 +598,12 @@ export function BeTutorForm() {
           phone: data.phoneNumber,
           password: data.password,
         });
+
+        // Step 3: Update auth store state with user profile
+        await refreshProfile();
       }
 
-      // Step 3: Create or Update announcement
+      // Step 4: Create or Update announcement
       // Create FormData object
       const apiFormData = new FormData();
 
