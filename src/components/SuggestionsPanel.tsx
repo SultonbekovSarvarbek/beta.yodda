@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { SuggestionItem } from './SuggestionItem';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { TelegramCommunityBlock } from './TelegramCommunityBlock';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { useAnnouncements } from '@/hooks/api';
@@ -109,6 +110,11 @@ export function SuggestionsPanel() {
             ))
           )}
         </div>
+      </div>
+
+      {/* Telegram Community Block */}
+      <div className="mb-6">
+        <TelegramCommunityBlock />
       </div>
     </div>
   );

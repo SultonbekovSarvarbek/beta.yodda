@@ -26,6 +26,7 @@ import { registerTutor, createAnnouncement, getAnnouncementById, updateAnnouncem
 import * as authService from '@/services/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useParams } from '@tanstack/react-router';
+import { TutorWelcomeScreen } from './TutorWelcomeScreen';
 
 // Type definition for form data
 type FormData = {
@@ -718,13 +719,12 @@ export function BeTutorForm() {
       isSubmittingRef[1](false);
 
       // Navigate after successful submission
-      setTimeout(() => {
-        if (isEditMode) {
+      if (isEditMode) {
+        setTimeout(() => {
           navigate({ to: '/profile' });
-        } else {
-          window.location.reload();
-        }
-      }, 2000);
+        }, 2000);
+      }
+      // For new registration, the welcome screen will handle navigation
     } catch (error: any) {
       console.error('Form submission error:', error);
       setSubmitError(error?.response?.data?.message || error?.message || t('beTutorForm.submitError'));
@@ -798,6 +798,17 @@ export function BeTutorForm() {
           </CardContent>
         </Card>
       </div>
+    );
+  }
+
+  // Show welcome screen after successful tutor registration (not for edit mode)
+  if (submitSuccess && !isEditMode) {
+    return (
+      <TutorWelcomeScreen
+        onContinue={() => {
+          navigate({ to: '/profile' });
+        }}
+      />
     );
   }
 

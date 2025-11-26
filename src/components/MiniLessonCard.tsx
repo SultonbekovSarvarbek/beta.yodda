@@ -146,7 +146,10 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
           }
         }}
       >
-        <DialogContent className="!max-w-[95vw] sm:!max-w-[600px] md:!max-w-[700px] lg:!max-w-[800px] !w-[95vw] sm:!w-[600px] md:!w-[700px] lg:!w-[800px] h-[95vh] p-0 overflow-hidden">
+        <DialogContent
+          className="!max-w-[95vw] sm:!max-w-[600px] md:!max-w-[700px] lg:!max-w-[800px] !w-[95vw] sm:!w-[600px] md:!w-[700px] lg:!w-[800px] h-[95vh] p-0 overflow-hidden"
+          showCloseButton={false}
+        >
           <DialogTitle className="sr-only">
             {selectedLesson?.title || 'Mini Lesson'}
           </DialogTitle>

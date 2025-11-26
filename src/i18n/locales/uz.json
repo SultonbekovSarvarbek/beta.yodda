@@ -236,6 +236,22 @@
     "userAgreement": "Пользовательское соглашение",
     "offer": "Оферта"
   },
+  "telegram": {
+    "title": "YODDA repetitorlar hamjamiyati",
+    "description": "Yangiliklar, maslahatlar va platforma yangilanishlarini olish uchun Telegram kanalimizga qo'shiling.",
+    "joinButton": "Kanalga qo'shilish",
+    "community": "YODDA repetitorlar hamjamiyati",
+    "join": "Qo'shilish"
+  },
+  "tutorWelcome": {
+    "title": "YODDAGRAM'ga xush kelibsiz!",
+    "subtitle": "Repetitor anketangiz muvaffaqiyatli yaratildi",
+    "nextSteps": "Keyingi qadamlar?",
+    "step1": "Anketangiz 24 soat ichida jamoamiz tomonidan tekshiriladi",
+    "step2": "Tasdiqlanganidan so'ng, profilingiz o'quvchilarga ko'rinadi",
+    "step3": "Qiziqayotgan o'quvchilardan dars so'rovlarini qabul qila boshlaysiz",
+    "continueButton": "Profilga o'tish"
+  },
   "tutorCard": {
     "reviews": "sharhlar",
     "perHour": "soat",
