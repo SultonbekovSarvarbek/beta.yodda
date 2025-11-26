@@ -146,7 +146,7 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
 
         {/* Content Section - Compact */}
         <div className="px-4 py-2">
-          <div className="flex items-center justify-between text-sm">
+          <div className="text-sm">
             <span className="font-semibold line-clamp-1 mb-2">{lesson.title}</span>
             <span className="line-clamp-1">{lesson.description}</span>
             {lesson.views_count !== undefined && lesson.views_count > 0 && (
