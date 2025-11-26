@@ -833,18 +833,18 @@ export function TutorProfile() {
                           <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1 line-clamp-2">
                             {lesson.description}
                           </p>
-                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <div className="flex items-center gap-2 mt-1">
                             {isProcessing ? (
                               <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 bg-yellow-100 text-yellow-800">
                                 {t('miniLessons.processing')}
                               </Badge>
                             ) : (
                               <>
-                                {getSubjects(lesson).map((subject) => (
-                                  <Badge key={subject.id} variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 border-indigo-500">
-                                    {subject.name}
+                                {lesson.subject && (
+                                  <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 border-indigo-500">
+                                    {lesson.subject.name}
                                   </Badge>
-                                ))}
+                                )}
                                 {lesson.views_count > 0 && (
                                   <span className="text-[10px] sm:text-xs text-gray-400">
                                     {lesson.views_count} {t('tutorProfile.miniLessons.views')}
@@ -1022,12 +1022,23 @@ export function TutorProfile() {
                     </p>
                   </div>
 
-                  {selectedMiniLesson?.subject && (
+                  {selectedMiniLesson?.subjects?.length > 0 && (
                     <div>
-                      <h4 className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">{t('tutorProfile.miniLessons.subject')}</h4>
-                      <Badge variant="outline" className="text-xs sm:text-sm border-indigo-500">
-                        {selectedMiniLesson.subject.name}
-                      </Badge>
+                      <h4 className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">
+                        {t('tutorProfile.miniLessons.subject')}
+                      </h4>
+
+                      <div className="flex flex-wrap gap-2">
+                        {selectedMiniLesson.subjects.map((s) => (
+                          <Badge
+                            key={s.id}
+                            variant="outline"
+                            className="text-xs sm:text-sm border-indigo-500"
+                          >
+                            {s.name}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   )}
 
