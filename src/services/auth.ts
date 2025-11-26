@@ -79,7 +79,6 @@ export function setStoredUser(user: User): void {
  */
 export async function login(credentials: LoginRequest): Promise<AuthResponse> {
   const { data } = await apiClient.post<AuthResponse>('/login', credentials);
-  console.log('data', data)
   // Store access token
   if (data.access_token) {
     setToken(data.access_token);
