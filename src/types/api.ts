@@ -235,7 +235,8 @@ export interface MiniLesson {
   media_type: 'photo' | 'video';
   processing_status?: string;
   processed_at?: string;
-  subject?: ApiSubject;
+  subject?: ApiSubject; // Legacy single subject (deprecated)
+  subjects?: ApiSubject[]; // New multiple subjects array
   tutor: MiniLessonTutor;
   views_count: number;
   is_active?: boolean;

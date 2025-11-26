@@ -676,7 +676,11 @@
       "createAnnouncement": "Anketa yaratish",
       "announcementDescription": "Repetitor anketangizni yarating",
       "createLesson": "Mini dars yaratish",
-      "lessonDescription": "Video yoki foto dars yuklang"
+      "lessonDescription": "Video yoki foto dars yuklang",
+      "createPost": "Post yaratish",
+      "postDescription": "Foto yuklang, tavsif qo'shing va fanni tanlang",
+      "createStory": "Storis yaratish",
+      "storyDescription": "Video yuklang Qisqa video-salomlashma qo'shing, ishonch va ko'proq talabalarni jalb qilish uchun."
     },
     "create": {
       "title": "Mini dars yaratish",
@@ -685,7 +689,9 @@
       "titlePlaceholder": "Dars nomini kiriting...",
       "descriptionPlaceholder": "O'quvchilar nimani o'rganishlarini tavsiflab bering...",
       "subject": "Fan",
+      "subjects": "Fanlar",
       "selectSubject": "Fanni tanlang",
+      "selectSubjects": "Fanlarni tanlang",
       "noSubject": "Fansiz",
       "uploadMedia": "Media fayl yuklash",
       "mediaDescription": "Foto (max. 2MB) yoki video (max. 50MB) yuklang. Qo'llab-quvvatlanadigan formatlar: JPG, PNG, WEBP, MP4, WebM, MOV.",
@@ -707,6 +713,7 @@
         "titleTooLong": "Nom juda uzun (max. 255 belgi)",
         "descriptionRequired": "Tavsif majburiy",
         "subjectRequired": "Fanni tanlang",
+        "subjectsRequired": "Kamida bitta fanni tanlang",
         "mediaRequired": "Fayl yuklang",
         "noAnnouncement": "Sizda repetitor anketasi yo'q",
         "invalidFileType": "Qo'llab-quvvatlanmaydigan fayl turi. Foto (JPG, PNG, WEBP) yoki video (MP4, WebM, MOV) yuklang.",

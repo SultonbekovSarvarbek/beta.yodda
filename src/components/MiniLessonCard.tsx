@@ -8,7 +8,7 @@ import { Play, Loader2, Eye, Clock, ChevronUp, ChevronDown, X } from 'lucide-rea
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useNavigate } from '@tanstack/react-router';
 import { getMiniLessonById } from '@/services/api';
-import type { MiniLesson } from '@/types/api';
+import type { MiniLesson, ApiSubject } from '@/types/api';
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,19 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOverlayExpanded, setIsOverlayExpanded] = useState(false);
 
+  // Helper function to get subjects array (supports legacy single subject and new subjects array)
+  const getSubjects = (lessonData: MiniLesson | null): ApiSubject[] => {
+    if (!lessonData) return [];
+    // Prefer subjects array, fallback to single subject for backward compatibility
+    if (lessonData.subjects && lessonData.subjects.length > 0) {
+      return lessonData.subjects;
+    }
+    if (lessonData.subject) {
+      return [lessonData.subject];
+    }
+    return [];
+  };
+
   // Fetch full lesson details when modal opens
   const { data: selectedLessonData, isLoading: isLoadingLesson } = useQuery({
     queryKey: ['mini-lesson', lesson.id],
@@ -35,6 +48,8 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
   });
 
   const selectedLesson = selectedLessonData?.data || null;
+  const lessonSubjects = getSubjects(lesson);
+  const selectedLessonSubjects = getSubjects(selectedLesson);
 
   // In list endpoint, media is a string URL (thumbnail)
   const thumbnailUrl = lesson.media
@@ -85,9 +100,16 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
                   {lesson.tutor.fullname}
                 </span>
               </div>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                {lesson.subject && (
-                  <span>{lesson.subject.name}</span>
+              <div className="flex items-center gap-1 text-xs text-gray-500 flex-wrap">
+                {lessonSubjects.length > 0 && (
+                  <>
+                    {lessonSubjects.map((subject, index) => (
+                      <span key={subject.id}>
+                        {subject.name}
+                        {index < lessonSubjects.length - 1 && ', '}
+                      </span>
+                    ))}
+                  </>
                 )}
               </div>
             </div>
@@ -238,11 +260,15 @@ export function MiniLessonCard({ lesson }: MiniLessonCardProps) {
                       </Avatar>
                       <div>
                         <p className="font-semibold">{selectedLesson?.tutor.fullname}</p>
-                        <div className="flex items-center gap-3 text-sm text-white/80">
-                          {selectedLesson?.subject && (
-                            <Badge variant="secondary" className="text-xs">
-                              {selectedLesson.subject.name}
-                            </Badge>
+                        <div className="flex items-center gap-2 text-sm text-white/80 flex-wrap">
+                          {selectedLessonSubjects.length > 0 && (
+                            <>
+                              {selectedLessonSubjects.map((subject) => (
+                                <Badge key={subject.id} variant="secondary" className="text-xs">
+                                  {subject.name}
+                                </Badge>
+                              ))}
+                            </>
                           )}
                           {selectedLesson?.views_count !== undefined && selectedLesson.views_count > 0 && (
                             <span className="flex items-center gap-1">

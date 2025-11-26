@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
-import { FileText, Video } from 'lucide-react';
+import { FileText, Video, Film } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -46,6 +46,22 @@ export function CreateMenuDialog({ open, onOpenChange }: CreateMenuDialogProps) 
               <p className="font-medium">{t('miniLessons.menu.createPost')} (скоро)</p>
               <p className="text-xs text-muted-foreground break-words">
                 {t('miniLessons.menu.postDescription') || 'Загрузите фото, добавьте описание и выберите предмет'}
+              </p>
+            </div>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-2 sm:gap-4 h-auto py-4 cursor-not-allowed opacity-60"
+            disabled
+          >
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
+              <Film className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 text-left whitespace-normal">
+              <p className="font-medium">{t('miniLessons.menu.createStory')} (скоро)</p>
+              <p className="text-xs text-muted-foreground break-words">
+                {t('miniLessons.menu.storyDescription') || 'Загрузите видео Добавьте короткое видео-приветствие, чтобы повысить доверие и привлечь больше учеников.'}
               </p>
             </div>
           </Button>

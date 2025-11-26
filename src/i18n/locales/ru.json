@@ -678,7 +678,9 @@
       "createLesson": "Создать мини урок",
       "lessonDescription": "Загрузите видео или фото урок",
       "createPost": "Создать пост",
-      "postDescription": "Загрузите фото, добавьте описание и выберите предмет"
+      "postDescription": "Загрузите фото, добавьте описание и выберите предмет",
+      "createStory": "Создать сторис",
+      "storyDescription": "Загрузите видео Добавьте короткое видео-приветствие, чтобы повысить доверие и привлечь больше учеников."
     },
     "create": {
       "title": "Создать мини урок",
@@ -688,7 +690,9 @@
       "titlePlaceholder": "Введите название урока...",
       "descriptionPlaceholder": "Опишите, что ученики узнают...",
       "subject": "Предмет",
+      "subjects": "Предметы",
       "selectSubject": "Выберите предмет",
+      "selectSubjects": "Выберите предметы",
       "noSubject": "Без предмета",
       "uploadMedia": "Загрузить медиа файл",
       "mediaDescription": "Загрузите фото (макс. 2MB) или видео (макс. 50MB). Поддерживаемые форматы: JPG, PNG, WEBP, MP4, WebM, MOV.",
@@ -710,6 +714,7 @@
         "titleTooLong": "Название слишком длинное (макс. 255 символов)",
         "descriptionRequired": "Описание обязательно",
         "subjectRequired": "Выберите предмет",
+        "subjectsRequired": "Выберите хотя бы один предмет",
         "mediaRequired": "Загрузите файл",
         "noAnnouncement": "У вас нет анкеты репетитора",
         "invalidFileType": "Неподдерживаемый тип файла. Загрузите фото (JPG, PNG, WEBP) или видео (MP4, WebM, MOV).",

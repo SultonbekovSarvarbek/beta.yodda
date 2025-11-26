@@ -9,15 +9,9 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MediaUpload } from '@/components/MediaUpload';
+import { MultiSelect } from '@/components/ui/multi-select';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubjects } from '@/hooks/api';
 import { createMiniLesson, getProfileAnnouncements } from '@/services/api';
@@ -26,7 +20,7 @@ import { useQuery } from '@tanstack/react-query';
 type FormData = {
   title: string;
   description: string;
-  subjectId: string;
+  subjectIds: number[];
   media: File | null;
   mediaType: 'photo' | 'video';
 };
@@ -59,7 +53,7 @@ export function MiniLessonsUpload() {
   const formSchema = useMemo(() => z.object({
     title: z.string().min(1, t('miniLessons.create.errors.titleRequired')).max(255, t('miniLessons.create.errors.titleTooLong')),
     description: z.string().min(1, t('miniLessons.create.errors.descriptionRequired')),
-    subjectId: z.string().min(1, t('miniLessons.create.errors.subjectRequired')),
+    subjectIds: z.array(z.number()).min(1, t('miniLessons.create.errors.subjectsRequired')),
     media: z.instanceof(File).nullable().refine((file) => file !== null, {
       message: t('miniLessons.create.errors.mediaRequired'),
     }),
@@ -82,7 +76,7 @@ export function MiniLessonsUpload() {
     defaultValues: {
       title: '',
       description: '',
-      subjectId: '',
+      subjectIds: [],
       media: null,
       mediaType: isPostMode ? 'photo' : 'video',
     },
@@ -108,8 +102,9 @@ export function MiniLessonsUpload() {
       apiFormData.append('media_type', data.mediaType);
       apiFormData.append('is_active', 'true');
 
-      if (data.subjectId) {
-        apiFormData.append('subject_id', data.subjectId);
+      // Add multiple subject IDs as JSON string
+      if (data.subjectIds && data.subjectIds.length > 0) {
+        apiFormData.append('subject_ids', JSON.stringify(data.subjectIds));
       }
 
       if (data.media) {
@@ -273,28 +268,30 @@ export function MiniLessonsUpload() {
               {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
             </div>
 
-            {/* Subject (Required) */}
+            {/* Subjects (Required, Multiple) */}
             <div className="space-y-2">
-              <Label htmlFor="subjectId">{t('miniLessons.create.subject')}</Label>
+              <Label htmlFor="subjectIds">{t('miniLessons.create.subjects')}</Label>
               <Controller
-                name="subjectId"
+                name="subjectIds"
                 control={control}
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={loadingSubjects ? t('common.loading') : t('miniLessons.create.selectSubject')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {subjects.map((subject) => (
-                        <SelectItem key={subject.id} value={subject.id.toString()}>
-                          {subject.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <MultiSelect
+                    options={subjects.map(subject => ({
+                      label: subject.name,
+                      value: subject.id.toString(),
+                    }))}
+                    selected={field.value.map(id => id.toString())}
+                    onChange={(selected) => {
+                      const selectedIds = selected.map(id => parseInt(id));
+                      field.onChange(selectedIds);
+                    }}
+                    placeholder={loadingSubjects ? t('common.loading') : t('miniLessons.create.selectSubjects')}
+                    searchPlaceholder={t('common.search')}
+                    emptyText={t('common.noResults')}
+                  />
                 )}
               />
-              {errors.subjectId && <p className="text-sm text-red-500">{errors.subjectId.message}</p>}
+              {errors.subjectIds && <p className="text-sm text-red-500">{errors.subjectIds.message}</p>}
             </div>
 
             {/* Media Upload */}

@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PlayCircle, Loader2, Play, ChevronUp, ChevronDown, Eye, Clock, X } from 'lucide-react';
 import { getMiniLessons, getMiniLessonById } from '@/services/api';
-import type { MiniLesson } from '@/types/api';
+import type { MiniLesson, ApiSubject } from '@/types/api';
 import {
   Dialog,
   DialogContent,
@@ -39,6 +39,21 @@ export default function MiniLessons() {
 
   const miniLessons = miniLessonsData?.data || [];
   const selectedLesson = selectedLessonData?.data || null;
+
+  // Helper function to get subjects array (supports legacy single subject and new subjects array)
+  const getSubjects = (lessonData: MiniLesson | null): ApiSubject[] => {
+    if (!lessonData) return [];
+    // Prefer subjects array, fallback to single subject for backward compatibility
+    if (lessonData.subjects && lessonData.subjects.length > 0) {
+      return lessonData.subjects;
+    }
+    if (lessonData.subject) {
+      return [lessonData.subject];
+    }
+    return [];
+  };
+
+  const selectedLessonSubjects = getSubjects(selectedLesson);
 
   const handleTutorClick = (tutorId: number) => {
     navigate({
@@ -157,12 +172,12 @@ export default function MiniLessons() {
                     </div>
 
                     {/* Subject & Views */}
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs">
-                      {lesson.subject && (
-                        <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 sm:py-0.5 font-normal border-indigo-500">
-                          {lesson.subject.name}
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs flex-wrap">
+                      {getSubjects(lesson).map((subject) => (
+                        <Badge key={subject.id} variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 sm:py-0.5 font-normal border-indigo-500">
+                          {subject.name}
                         </Badge>
-                      )}
+                      ))}
                       {lesson.views_count !== undefined && lesson.views_count > 0 && (
                         <span className="flex items-center gap-0.5 sm:gap-1 text-muted-foreground text-[10px] sm:text-xs">
                           <Eye className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
@@ -284,12 +299,12 @@ export default function MiniLessons() {
                     </Avatar>
                     <div>
                       <p className="font-semibold">{selectedLesson?.tutor.fullname}</p>
-                      <div className="flex items-center gap-3 text-sm text-white/80">
-                        {selectedLesson?.subject && (
-                          <Badge variant="secondary" className="text-xs">
-                            {selectedLesson.subject.name}
+                      <div className="flex items-center gap-2 text-sm text-white/80 flex-wrap">
+                        {selectedLessonSubjects.map((subject) => (
+                          <Badge key={subject.id} variant="secondary" className="text-xs">
+                            {subject.name}
                           </Badge>
-                        )}
+                        ))}
                         {selectedLesson?.views_count !== undefined && selectedLesson.views_count > 0 && (
                           <span className="flex items-center gap-1">
                             <Eye className="h-3 w-3" />

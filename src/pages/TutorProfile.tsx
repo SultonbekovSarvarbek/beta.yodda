@@ -14,7 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMiniLessonsByAnnouncement, getMiniLessonById, deleteMiniLesson, getProfileFeedbacks, createFeedback, updateFeedback, deleteFeedback } from '@/services/api';
-import type { MiniLesson } from '@/types/api';
+import type { MiniLesson, ApiSubject } from '@/types/api';
 import {
   Dialog,
   DialogContent,
@@ -84,6 +84,19 @@ export function TutorProfile() {
   const miniLessons = miniLessonsData?.data || [];
   const selectedMiniLesson = selectedMiniLessonData?.data || null;
   const feedbacks = feedbacksData?.data || [];
+
+  // Helper function to get subjects array (supports legacy single subject and new subjects array)
+  const getSubjects = (lessonData: MiniLesson | null): ApiSubject[] => {
+    if (!lessonData) return [];
+    // Prefer subjects array, fallback to single subject for backward compatibility
+    if (lessonData.subjects && lessonData.subjects.length > 0) {
+      return lessonData.subjects;
+    }
+    if (lessonData.subject) {
+      return [lessonData.subject];
+    }
+    return [];
+  };
 
   // Delete mini lesson mutation
   const queryClient = useQueryClient();
@@ -820,18 +833,18 @@ export function TutorProfile() {
                           <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1 line-clamp-2">
                             {lesson.description}
                           </p>
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
                             {isProcessing ? (
                               <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 bg-yellow-100 text-yellow-800">
                                 {t('miniLessons.processing')}
                               </Badge>
                             ) : (
                               <>
-                                {lesson.subject && (
-                                  <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 border-indigo-500">
-                                    {lesson.subject.name}
+                                {getSubjects(lesson).map((subject) => (
+                                  <Badge key={subject.id} variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 border-indigo-500">
+                                    {subject.name}
                                   </Badge>
-                                )}
+                                ))}
                                 {lesson.views_count > 0 && (
                                   <span className="text-[10px] sm:text-xs text-gray-400">
                                     {lesson.views_count} {t('tutorProfile.miniLessons.views')}
