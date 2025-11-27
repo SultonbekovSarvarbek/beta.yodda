@@ -52,7 +52,7 @@ export function TelegramCommunityBlock({ variant = 'default', className = '' }: 
         <Button
           onClick={handleJoinChannel}
           size="sm"
-          className="cursor-pointer"
+          className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
         >
           {t('telegram.joinButton')}
         </Button>
