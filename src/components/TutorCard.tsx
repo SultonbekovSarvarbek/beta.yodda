@@ -69,6 +69,22 @@ export function TutorCard({ tutor }: TutorCardProps) {
     }
   };
 
+  const handleShareTutor = async () => {
+    try {
+      // Construct the full URL to the tutor's profile
+      const tutorUrl = `${window.location.origin}/tutor/${tutor.id}`;
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(tutorUrl);
+
+      // Show success notification
+      toast.success(t('tutorProfile.share.linkCopied', 'Ссылка на профиль скопирована!'));
+    } catch (error) {
+      console.error('Failed to copy link:', error);
+      toast.error(t('favorites.error', 'Failed to copy link. Please try again.'));
+    }
+  };
+
   return (
     <Card className="overflow-hidden sm:rounded-none md:rounded-md lg:rounded-lg xl:rounded-xl bg-white shadow-none sm:border-0 md:border lg:border xl:border">
       {/* Header - Instagram Post Header Style */}
@@ -154,7 +170,10 @@ export function TutorCard({ tutor }: TutorCardProps) {
           <button className="transition-transform hover:scale-110 active:scale-95 cursor-pointer">
             <MessageCircle className="w-6 h-6 text-gray-900" />
           </button>
-          <button className="transition-transform hover:scale-110 active:scale-95 cursor-pointer">
+          <button
+            onClick={handleShareTutor}
+            className="transition-transform hover:scale-110 active:scale-95 cursor-pointer"
+          >
             <Send className="w-6 h-6 text-gray-900" />
           </button>
         </div>
