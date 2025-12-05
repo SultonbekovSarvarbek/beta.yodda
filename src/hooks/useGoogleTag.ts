@@ -12,9 +12,10 @@ interface UseGoogleTagReturn {
 }
 
 const useGoogleTag = (): UseGoogleTagReturn => {
-  useEffect(() => {
-    const GOOGLE_ADS_ID = import.meta.env.VITE_GOOGLE_ADS_ID;
+  const GOOGLE_ADS_ID = import.meta.env.VITE_GOOGLE_ADS_ID;
+  const GOOGLE_CONVERSION_ID = import.meta.env.VITE_GOOGLE_CONVERSION_ID;
 
+  useEffect(() => {
     if (!GOOGLE_ADS_ID) {
       console.warn('Google Ads ID not found');
       return;
@@ -40,20 +41,19 @@ const useGoogleTag = (): UseGoogleTagReturn => {
     window.gtag = gtag;
     gtag('js', new Date());
     gtag('config', GOOGLE_ADS_ID);
-  }, []);
+  }, [GOOGLE_ADS_ID]);
 
-  // Отслеживание конверсий Google Ads
   const trackConversion = useCallback(
     (value: number = 1.0, currency: string = 'USD'): void => {
-      if (window.gtag) {
+      if (window.gtag && GOOGLE_CONVERSION_ID) {
         window.gtag('event', 'conversion', {
-          send_to: 'AW-17611463437/uXehCOvryLUbEI225s1B',
+          send_to: GOOGLE_CONVERSION_ID,
           value: value,
           currency: currency,
         });
       }
     },
-    []
+    [GOOGLE_CONVERSION_ID]
   );
 
   return { trackConversion };

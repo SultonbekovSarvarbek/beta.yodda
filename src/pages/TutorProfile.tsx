@@ -61,6 +61,8 @@ export function TutorProfile() {
   const [reviewFiles, setReviewFiles] = useState<File[]>([]);
   const [deleteFeedbackDialogOpen, setDeleteFeedbackDialogOpen] = useState(false);
   const [feedbackToDelete, setFeedbackToDelete] = useState<{ feedbackId: number; imageUniqueId: string; isLastImage: boolean } | null>(null);
+  const { trackConversion } = useGoogleTag();
+
 
   // Fetch mini lessons for this tutor
   const { data: miniLessonsData, isLoading: loadingMiniLessons } = useQuery({
@@ -310,10 +312,8 @@ export function TutorProfile() {
   };
 
   const handleBookLesson = () => {
-    // Check if user is authenticated
-    const { trackConversion } = useGoogleTag();
+    // Check if user is authenticated    
     trackConversion(1.0, 'USD');
-
     if (!isAuthenticated) {
       toast.warning(t('favorites.loginRequired'));
       navigate({ to: '/login' });
