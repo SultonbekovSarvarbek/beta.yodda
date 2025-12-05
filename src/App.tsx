@@ -12,8 +12,11 @@ import { useAnnouncements } from '@/hooks/api';
 import { getMiniLessons } from '@/services/api';
 import type { Tutor } from '@/types/tutor';
 import type { MiniLesson } from '@/types/api';
+import useGoogleTag from '@/hooks/useGoogleTag';
+
 
 function App() {
+  useGoogleTag();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const { data: tutors, loading, error, refetch } = useAnnouncements();
 

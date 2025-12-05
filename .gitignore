@@ -10,3 +10,5 @@ count.txt
 .wrangler
 .env.example
 .env
+.yarn/install-state.gz
+.yarn/cache
