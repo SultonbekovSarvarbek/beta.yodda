@@ -24,6 +24,8 @@ import {
 } from '@/components/ui/dialog';
 import { InstagramVideoPlayer } from '@/components/InstagramVideoPlayer';
 import { BookingDialog } from '@/components/BookingDialog';
+import useGoogleTag from '@/hooks/useGoogleTag';
+
 
 // Utility function to detect file type
 const getFileType = (filePath: string): 'pdf' | 'image' | 'video' => {
@@ -309,6 +311,9 @@ export function TutorProfile() {
 
   const handleBookLesson = () => {
     // Check if user is authenticated
+    const { trackConversion } = useGoogleTag();
+    trackConversion(1.0, 'USD');
+
     if (!isAuthenticated) {
       toast.warning(t('favorites.loginRequired'));
       navigate({ to: '/login' });

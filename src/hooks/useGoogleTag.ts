@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 
-// Расширяем глобальный Window интерфейс
 declare global {
   interface Window {
     dataLayer: Record<string, unknown>[];
@@ -8,51 +7,56 @@ declare global {
   }
 }
 
-const useGoogleTag = (): void => {
+interface UseGoogleTagReturn {
+  trackConversion: (value?: number, currency?: string) => void;
+}
+
+const useGoogleTag = (): UseGoogleTagReturn => {
   useEffect(() => {
-    const GOOGLE_ADS_ID = process.env.REACT_APP_GOOGLE_ADS_ID;
+    const GOOGLE_ADS_ID = import.meta.env.VITE_GOOGLE_ADS_ID;
 
     if (!GOOGLE_ADS_ID) {
-      console.warn('Google Ads ID not found in environment variables');
+      console.warn('Google Ads ID not found');
       return;
     }
 
-    // Проверяем, не загружен ли уже скрипт
     const existingScript = document.querySelector(
       `script[src*="googletagmanager.com/gtag/js"]`
     );
 
-    if (existingScript) {
-      return;
+    if (!existingScript) {
+      const script = document.createElement('script');
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`;
+      script.async = true;
+      document.head.appendChild(script);
     }
 
-    // Добавляем gtag.js скрипт
-    const script = document.createElement('script');
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`;
-    script.async = true;
-    document.head.appendChild(script);
-
-    // Инициализируем gtag
     window.dataLayer = window.dataLayer || [];
-    
+
     const gtag = (...args: unknown[]): void => {
       window.dataLayer.push(args);
     };
-    
+
     window.gtag = gtag;
     gtag('js', new Date());
     gtag('config', GOOGLE_ADS_ID);
-
-    // Cleanup при размонтировании
-    return () => {
-      const scriptToRemove = document.querySelector(
-        `script[src*="googletagmanager.com/gtag/js"]`
-      );
-      if (scriptToRemove) {
-        document.head.removeChild(scriptToRemove);
-      }
-    };
   }, []);
+
+  // Отслеживание конверсий Google Ads
+  const trackConversion = useCallback(
+    (value: number = 1.0, currency: string = 'USD'): void => {
+      if (window.gtag) {
+        window.gtag('event', 'conversion', {
+          send_to: 'AW-17611463437/uXehCOvryLUbEI225s1B',
+          value: value,
+          currency: currency,
+        });
+      }
+    },
+    []
+  );
+
+  return { trackConversion };
 };
 
 export default useGoogleTag;
