@@ -14,7 +14,8 @@
     "more": "Yana",
     "cabinet": "Kabinet",
     "support": "Qo'llab-quvvatlash",
-    "miniLessons": "Mini darslar"
+    "miniLessons": "Mini darslar",
+    "createProfileRequired": "Iltimos, repetitor anketasini yarating"
   },
   "header": {
     "becomeTutor": "Repetitor bo'lish",
