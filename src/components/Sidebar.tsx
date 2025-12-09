@@ -80,7 +80,7 @@ export function Sidebar() {
 
   const handleCreateClick = () => {
     if (!isAuthenticated) {
-      navigate({ to: '/login' });
+      toast.warning(t('sidebar.createProfileRequired'));
     } else if (announcements.length === 0) {
       toast.warning(t('sidebar.createProfileRequired'));
     } else {
