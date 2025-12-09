@@ -178,6 +178,8 @@
       "passwordMismatch": "Parollar mos kelmaydi",
       "minLength": "Minimal uzunlik {{min}} belgi",
       "invalidPhone": "Noto'g'ri telefon raqami",
+      "avatarRequired": "Profil rasmini yuklang",
+      "fullNameRequired": "Ism va familiya kiritish majburiy",
       "firstNameRequired": "Ism kiritish majburiy",
       "lastNameRequired": "Familiya kiritish majburiy",
       "phoneRequired": "Telefon raqam kiritish majburiy",
