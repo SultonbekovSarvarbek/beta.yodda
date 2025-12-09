@@ -200,6 +200,7 @@ export function AvatarUpload({ value, onChange, existingImage, onDeleteExisting 
               <Button
                 type="button"
                 variant="outline"
+                className="cursor-pointer"
                 onClick={() => fileInputRef.current?.click()}
               >
                 {t('beTutorForm.uploadAvatar')}
