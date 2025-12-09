@@ -22,13 +22,13 @@ export function SuggestionItem({ id, name, photo, description }: SuggestionItemP
   return (
     <div className="flex items-center justify-between py-1">
       <div className="flex items-center gap-3">
-        <Avatar className="w-9 h-9 border">
+        <Avatar className="w-9 h-9 border cursor-pointer" onClick={handleFollowClick}>
           <AvatarImage src={photo} alt={name} />
           <AvatarFallback>{name.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
           <div className="flex items-center gap-1">
-            <span className="text-sm font-semibold">{name}</span>
+            <span className="text-sm font-semibold cursor-pointer hover:underline" onClick={handleFollowClick}>{name}</span>
             <div className="flex items-center justify-center w-3.5 h-3.5 bg-blue-500 rounded-full shrink-0">
               <Check className="w-2 h-2 text-white" strokeWidth={4} />
             </div>
