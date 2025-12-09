@@ -177,6 +177,7 @@
       "passwordMismatch": "Пароли не совпадают",
       "minLength": "Минимальная длина {{min}} символов",
       "invalidPhone": "Неверный номер телефона",
+      "avatarRequired": "Загрузите фото профиля",
       "fullNameRequired": "Имя и фамилия обязательны",
       "firstNameRequired": "Имя обязательно",
       "lastNameRequired": "Фамилия обязательна",

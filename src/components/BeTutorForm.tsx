@@ -126,7 +126,9 @@ export function BeTutorForm() {
 
   // Create Zod schema with translations
   const formSchema = useMemo(() => z.object({
-    avatar: z.instanceof(File).nullable(),
+    avatar: isEditMode
+      ? z.instanceof(File).nullable()
+      : z.instanceof(File, { message: t('beTutorForm.errors.avatarRequired') }),
     fullName: z.string().min(1, t('beTutorForm.errors.fullNameRequired')),
     phoneNumber: z.string().min(1, t('beTutorForm.errors.phoneRequired')),
     telegramUsername: z.string().optional(),
@@ -209,8 +211,20 @@ export function BeTutorForm() {
           path: ['certificates'],
         });
       }
+
+      // Validate avatar in edit mode - must have either new file or existing image
+      const hasNewAvatar = !!data.avatar;
+      const hasExistingAvatar = !!existingImage;
+
+      if (!hasNewAvatar && !hasExistingAvatar) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('beTutorForm.errors.avatarRequired'),
+          path: ['avatar'],
+        });
+      }
     }
-  }), [t, touchedDays, isSubmittingRef, isEditMode, existingFiles]);
+  }), [t, touchedDays, isSubmittingRef, isEditMode, existingFiles, existingImage]);
 
   const {
     register,
@@ -889,6 +903,7 @@ export function BeTutorForm() {
                     />
                   )}
                 />
+                {errors.avatar && <p className="text-sm text-red-500">{errors.avatar.message}</p>}
 
                 <div className="space-y-4 mb-4">
                   <div className="space-y-2">
