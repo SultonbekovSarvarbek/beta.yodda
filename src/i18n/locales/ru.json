@@ -14,7 +14,8 @@
     "more": "Ещё",
     "cabinet": "Кабинет",
     "support": "Поддержка",
-    "miniLessons": "Мини уроки"
+    "miniLessons": "Мини уроки",
+    "createProfileRequired": "Пожалуйста, создайте анкету репетитора"
   },
   "header": {
     "becomeTutor": "Стать репетитором",

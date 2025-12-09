@@ -5,9 +5,11 @@ import { cn } from '@/lib/utils';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfileAnnouncements } from '@/hooks/api/useProfileAnnouncements';
 import { CreateMenuDialog } from './CreateMenuDialog';
 import { useState, useEffect } from 'react';
 import { useMobileMenu } from '@/contexts/MobileMenuContext';
+import { toast } from 'sonner';
 import ygLogo from '@/ygLogo.svg';
 
 interface NavItem {
@@ -20,6 +22,7 @@ interface NavItem {
 export function Sidebar() {
   const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
+  const { announcements } = useProfileAnnouncements();
   const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { isOpen, closeMenu } = useMobileMenu();
@@ -78,6 +81,8 @@ export function Sidebar() {
   const handleCreateClick = () => {
     if (!isAuthenticated) {
       navigate({ to: '/login' });
+    } else if (announcements.length === 0) {
+      toast.warning(t('sidebar.createProfileRequired'));
     } else {
       setIsCreateDialogOpen(true);
     }
